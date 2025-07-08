@@ -1,0 +1,130 @@
+## Detector geometry
+/pterp/detector/nx 2
+/pterp/detector/ny 1
+/pterp/detector/nz 1
+
+/pterp/detector/wx 3 cm
+/pterp/detector/wy 12 cm
+/pterp/detector/wz 3 cm
+
+/pterp/detector/theta 45 deg
+/pterp/detector/phi 0 deg
+/pterp/detector/dist 9.4 cm  
+/pterp/detector/thresh 100 keV
+/pterp/detector/readout bar
+
+## module 2
+/pterp/detector/module
+/pterp/detector/nx 2
+/pterp/detector/ny 1
+/pterp/detector/nz 1
+
+/pterp/detector/wx 3 cm
+/pterp/detector/wy 12 cm
+/pterp/detector/wz 3 cm
+
+/pterp/detector/theta 90 deg
+/pterp/detector/phi 0 deg
+/pterp/detector/dist 9.4 cm  
+/pterp/detector/thresh 100 keV
+/pterp/detector/readout bar
+
+## module 3
+/pterp/detector/module
+/pterp/detector/nx 2
+/pterp/detector/ny 1
+/pterp/detector/nz 1
+
+/pterp/detector/wx 3 cm
+/pterp/detector/wy 12 cm
+/pterp/detector/wz 3 cm
+
+/pterp/detector/theta 135 deg
+/pterp/detector/phi 0 deg
+/pterp/detector/dist 9.4 cm  
+/pterp/detector/thresh 100 keV
+/pterp/detector/readout bar
+
+## module 4
+/pterp/detector/module
+/pterp/detector/nx 2
+/pterp/detector/ny 1
+/pterp/detector/nz 1
+
+/pterp/detector/wx 3 cm
+/pterp/detector/wy 12 cm
+/pterp/detector/wz 3 cm
+
+/pterp/detector/theta 45 deg
+/pterp/detector/phi 180 deg
+/pterp/detector/dist 9.4 cm  
+/pterp/detector/thresh 100 keV
+/pterp/detector/readout bar
+
+## module 5
+/pterp/detector/module
+/pterp/detector/nx 2
+/pterp/detector/ny 1
+/pterp/detector/nz 1
+
+/pterp/detector/wx 3 cm
+/pterp/detector/wy 12 cm
+/pterp/detector/wz 3 cm
+
+/pterp/detector/theta 90 deg
+/pterp/detector/phi 180 deg
+/pterp/detector/dist 9.4 cm  
+/pterp/detector/thresh 100 keV
+/pterp/detector/readout bar
+
+## module 6
+/pterp/detector/module
+/pterp/detector/nx 2
+/pterp/detector/ny 1
+/pterp/detector/nz 1
+
+/pterp/detector/wx 3 cm
+/pterp/detector/wy 12 cm
+/pterp/detector/wz 3 cm
+
+/pterp/detector/theta 135 deg
+/pterp/detector/phi 180 deg
+/pterp/detector/dist 9.4 cm  
+/pterp/detector/thresh 100 keV
+/pterp/detector/readout bar
+
+## module 7 (top)
+/pterp/detector/module
+/pterp/detector/nx 8
+/pterp/detector/ny 1
+/pterp/detector/nz 1
+
+/pterp/detector/wx 3 cm
+/pterp/detector/wy 12 cm
+/pterp/detector/wz 3 cm
+
+/pterp/detector/theta 90 deg
+/pterp/detector/phi 90 deg
+/pterp/detector/dist 9.4 cm  
+/pterp/detector/thresh 100 keV
+/pterp/detector/readout bar
+
+## module 8 (bottom)
+/pterp/detector/module
+/pterp/detector/nx 8
+/pterp/detector/ny 1
+/pterp/detector/nz 1
+
+/pterp/detector/wx 3 cm
+/pterp/detector/wy 12 cm
+/pterp/detector/wz 3 cm
+
+/pterp/detector/theta 90 deg
+/pterp/detector/phi 270 deg
+/pterp/detector/dist 9.4 cm  
+/pterp/detector/thresh 100 keV
+/pterp/detector/readout bar
+
+
+/pterp/detector/target/material SiHe
+/pterp/detector/target/thickness 2.6 micrometer

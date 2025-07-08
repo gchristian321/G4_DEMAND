@@ -1,0 +1,27 @@
+# Macro file for example B4
+# 
+# Can be run in batch, without graphic
+# or interactively: /c> /control/execute run1.mac
+#
+# Change the default number of workers (in multi-threading mode) 
+#/run/numberOfWorkers 4
+#
+# Initialize kernel
+/run/initialize
+
+# Neutron from 22Ne(a,n), Ex = 11.83 MeV resonance (Ecm = 1.215 MeV, Elab = 7.9 MeV)
+#
+/pterp/generator/beam/Z 10
+/pterp/generator/beam/A 22
+/pterp/generator/beam/energy 7.959 MeV
+#/pterp/generator/beam/energy 4.57011 MeV
+/pterp/generator/reaction (a,n)
+/pterp/generator/reaction/excitation 0. MeV
+/pterp/generator/beam/sigma_x 2 mm
+/pterp/generator/beam/sigma_y 2 mm
+/pterp/generator/beam/sigma_thx 0.1 mrad
+/pterp/generator/beam/sigma_thy 0.1 mrad
+
+/tracking/verbose 2
+/run/printProgress 1
+/run/beamOn 10

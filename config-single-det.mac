@@ -1,0 +1,12 @@
+## Detector geometry
+/pterp/detector/nx 1
+/pterp/detector/ny 1
+/pterp/detector/nz 1
+
+/pterp/detector/wx 3 cm
+/pterp/detector/wy 3 cm
+/pterp/detector/wz 3 cm
+
+/pterp/detector/angle 0 deg
+/pterp/detector/dist 20 cm  
+/pterp/detector/thresh 50 keV
