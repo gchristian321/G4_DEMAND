@@ -1,13 +1,13 @@
-#include "PterpHit.hh"
-#include "PterpSD.hh"
+#include "DemandHit.hh"
+#include "DemandSD.hh"
 #include "G4VPhysicalVolume.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4Electron.hh"
 #include "G4Positron.hh"
 
-G4ThreadLocal G4Allocator<PterpHit>* PterpHitAllocator;
+G4ThreadLocal G4Allocator<DemandHit>* DemandHitAllocator;
 
-PterpHit::PterpHit(
+DemandHit::DemandHit(
 	G4int ID, G4ThreeVector pos, G4ThreeVector actualPos, G4double energy, G4double time,
 	const G4ParticleDefinition* particle,
 	G4VPhysicalVolume* physicalvolume) :
@@ -19,12 +19,12 @@ PterpHit::PterpHit(
 	
 }
 
-PterpHit::~PterpHit() {
+DemandHit::~DemandHit() {
 
 }
 
 
-void PterpHit::AppendEnergy(G4double edep, const G4ParticleDefinition* particle)
+void DemandHit::AppendEnergy(G4double edep, const G4ParticleDefinition* particle)
 {
 	auto particleAZ =
 		std::make_pair(particle->GetAtomicMass(), particle->GetAtomicNumber());
@@ -50,7 +50,7 @@ void PterpHit::AppendEnergy(G4double edep, const G4ParticleDefinition* particle)
 	fEnergyQuenched = 0;
 	G4double maxDeposit = 0;
 	for(const auto& p : fEnergyByParticle) {
-		G4double eQuench = PterpSD::CalculateQuenching(
+		G4double eQuench = DemandSD::CalculateQuenching(
 			p.second, p.first.first, p.first.second);
 		if(eQuench > 0) { fEnergyQuenched += eQuench; }
 		if(eQuench > maxDeposit) {
@@ -62,7 +62,7 @@ void PterpHit::AppendEnergy(G4double edep, const G4ParticleDefinition* particle)
 }
 
 
-void PterpHit::AddAdditionalHitInVolume(
+void DemandHit::AddAdditionalHitInVolume(
 	G4ThreeVector pos, G4ThreeVector actualPos, G4double edep, G4double time,
 	const G4ParticleDefinition* particle)
 {

@@ -1,5 +1,5 @@
-#ifndef PterpHit_h
-#define PterpHit_h
+#ifndef DemandHit_h
+#define DemandHit_h
 
 #include <map>
 #include <array>
@@ -12,12 +12,12 @@
 class G4VPhysicalVolume;
 class G4ParticleDefinition;
 
-class PterpHit : public G4VHit {
+class DemandHit : public G4VHit {
 public:
-  PterpHit(G4int,G4ThreeVector,G4ThreeVector,G4double,G4double,
+  DemandHit(G4int,G4ThreeVector,G4ThreeVector,G4double,G4double,
 					 const G4ParticleDefinition*,
 					 G4VPhysicalVolume*);
-  virtual ~PterpHit();
+  virtual ~DemandHit();
 
   G4int GetID() const {return fID;};
   G4double GetTime() const {return fTime;};
@@ -57,20 +57,20 @@ private:
 	G4int fParticleZ;
 };
 
-typedef G4THitsCollection<PterpHit> PterpHitsCollection;
+typedef G4THitsCollection<DemandHit> DemandHitsCollection;
 
-extern G4ThreadLocal G4Allocator<PterpHit>* PterpHitAllocator;
+extern G4ThreadLocal G4Allocator<DemandHit>* DemandHitAllocator;
 
-inline void* PterpHit::operator new(size_t)
+inline void* DemandHit::operator new(size_t)
 {
-    if (!PterpHitAllocator) PterpHitAllocator =
-																new G4Allocator<PterpHit>;
-    return (void*)PterpHitAllocator->MallocSingle();
+    if (!DemandHitAllocator) DemandHitAllocator =
+																new G4Allocator<DemandHit>;
+    return (void*)DemandHitAllocator->MallocSingle();
 }
 
-inline void PterpHit::operator delete(void* aHit)
+inline void DemandHit::operator delete(void* aHit)
 {
-    PterpHitAllocator->FreeSingle((PterpHit*) aHit);
+    DemandHitAllocator->FreeSingle((DemandHit*) aHit);
 }
 
 #endif

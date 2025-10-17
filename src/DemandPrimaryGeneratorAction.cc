@@ -25,16 +25,16 @@
 //
 // $Id$
 // 
-/// \file PterpPrimaryGeneratorAction.cc
-/// \brief Implementation of the PterpPrimaryGeneratorAction class
+/// \file DemandPrimaryGeneratorAction.cc
+/// \brief Implementation of the DemandPrimaryGeneratorAction class
 
 #include <iostream>
 #include <fstream>
 
-#include "PterpPrimaryGeneratorAction.hh"
-#include "PterpPrimaryGeneratorMessenger.hh"
-#include "PterpDetectorConstruction.hh"
-#include "PterpAnalysis.hh"
+#include "DemandPrimaryGeneratorAction.hh"
+#include "DemandPrimaryGeneratorMessenger.hh"
+#include "DemandDetectorConstruction.hh"
+#include "DemandAnalysis.hh"
 
 #include "G4RunManager.hh"
 #include "G4LogicalVolumeStore.hh"
@@ -61,7 +61,7 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-PterpPrimaryGeneratorAction::PterpPrimaryGeneratorAction()
+DemandPrimaryGeneratorAction::DemandPrimaryGeneratorAction()
  : G4VUserPrimaryGeneratorAction(),
    fParticleGun(nullptr),
 	 fBeamA(1),
@@ -76,7 +76,7 @@ PterpPrimaryGeneratorAction::PterpPrimaryGeneratorAction()
 	 fEjectileDefinition(0),
 	 fRecoilDefinition(0),
 	 fReactionGenerator(0),
-	 fMessenger(new PterpPrimaryGeneratorMessenger(this))
+	 fMessenger(new DemandPrimaryGeneratorMessenger(this))
 {
   G4int nofParticles = 1;
   fParticleGun = new G4ParticleGun(nofParticles);
@@ -108,7 +108,7 @@ PterpPrimaryGeneratorAction::PterpPrimaryGeneratorAction()
     msg << "World volume of box shape not found." << G4endl;
     msg << "Perhaps you have changed geometry." << G4endl;
     msg << "The gun will be place in the center.";
-    G4Exception("PterpPrimaryGeneratorAction::GeneratePrimaries()",
+    G4Exception("DemandPrimaryGeneratorAction::GeneratePrimaries()",
       "MyCode0002", JustWarning, msg);
   } 
   fParticleGun
@@ -117,14 +117,14 @@ PterpPrimaryGeneratorAction::PterpPrimaryGeneratorAction()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-PterpPrimaryGeneratorAction::~PterpPrimaryGeneratorAction()
+DemandPrimaryGeneratorAction::~DemandPrimaryGeneratorAction()
 {
   delete fParticleGun;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void PterpPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
+void DemandPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
   // This function is called at the begining of event
 	bool beamChanged = SetupBeam();
@@ -136,7 +136,7 @@ void PterpPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 		ShootBeam(anEvent);
 	}	else {
 
-		if(dynamic_cast<const PterpDetectorConstruction&>(
+		if(dynamic_cast<const DemandDetectorConstruction&>(
 				 *(G4RunManager::GetRunManager()->GetUserDetectorConstruction())).
 			 GetHaveTarget())
 		{
@@ -160,7 +160,7 @@ void PterpPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void PterpPrimaryGeneratorAction::ShootBeam(G4Event* anEvent)
+void DemandPrimaryGeneratorAction::ShootBeam(G4Event* anEvent)
 {
 	G4LorentzVector momentum;
 
@@ -187,14 +187,14 @@ void PterpPrimaryGeneratorAction::ShootBeam(G4Event* anEvent)
 		const G4double mass = fParticleGun->GetParticleDefinition()->GetPDGMass();
 		const G4double pmag = sqrt(pow(fBeamEnergy+mass,2) - mass*mass);
 		momentum.set(0,0,pmag,fBeamEnergy+mass);
-		const PterpDetectorConstruction::Module_t *module = 0;
+		const DemandDetectorConstruction::Module_t *module = 0;
 		if(!module) {
-			module = dynamic_cast<const PterpDetectorConstruction&>(
+			module = dynamic_cast<const DemandDetectorConstruction&>(
 				*(G4RunManager::GetRunManager()->GetUserDetectorConstruction())
 				).GetModuleByOriginalSpecification(0);
 			if(!module) {
 				throw std::logic_error(
-					"PterpPrimaryGeneratorAction::CheckThetaLimits -- "
+					"DemandPrimaryGeneratorAction::CheckThetaLimits -- "
 					"Could not get module 0 from detector construction.");
 			}
 		}
@@ -232,12 +232,12 @@ void PterpPrimaryGeneratorAction::ShootBeam(G4Event* anEvent)
 
 	fParticleGun->GeneratePrimaryVertex(anEvent);
 
-	PterpAnalysis::Instance()->SetGeneratedNeutron(momentum);
+	DemandAnalysis::Instance()->SetGeneratedNeutron(momentum);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void PterpPrimaryGeneratorAction::ShootReaction(G4Event* anEvent)
+void DemandPrimaryGeneratorAction::ShootReaction(G4Event* anEvent)
 {
 	if(!fReactionGenerator) {
 		throw std::logic_error(
@@ -295,13 +295,13 @@ void PterpPrimaryGeneratorAction::ShootReaction(G4Event* anEvent)
 
 	fParticleGun->GeneratePrimaryVertex(anEvent);
 
-	PterpAnalysis::Instance()->SetGeneratedNeutron(momentum);
-	PterpAnalysis::Instance()->SetGeneratedRecoil(momentum_recoil);
+	DemandAnalysis::Instance()->SetGeneratedNeutron(momentum);
+	DemandAnalysis::Instance()->SetGeneratedRecoil(momentum_recoil);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-bool PterpPrimaryGeneratorAction::CheckThetaLimits(
+bool DemandPrimaryGeneratorAction::CheckThetaLimits(
 	const G4LorentzVector& lv, const G4ThreeVector& pos)
 {
 	// Check if the generated neutron momentum, at the generated
@@ -314,14 +314,14 @@ bool PterpPrimaryGeneratorAction::CheckThetaLimits(
 	//
 	bool retval = false;
 
-	const PterpDetectorConstruction::Module_t *module = 0;
+	const DemandDetectorConstruction::Module_t *module = 0;
 	if(!module) {
-		module = dynamic_cast<const PterpDetectorConstruction&>(
+		module = dynamic_cast<const DemandDetectorConstruction&>(
 			*(G4RunManager::GetRunManager()->GetUserDetectorConstruction())
 			).GetModuleByOriginalSpecification(0);
 		if(!module) {
 			throw std::logic_error(
-				"PterpPrimaryGeneratorAction::CheckThetaLimits -- "
+				"DemandPrimaryGeneratorAction::CheckThetaLimits -- "
 				"Could not get module 0 from detector construction.");
 		}
 	}
@@ -382,7 +382,7 @@ bool PterpPrimaryGeneratorAction::CheckThetaLimits(
 	return retval;
 }
 
-bool PterpPrimaryGeneratorAction::SetupBeam()
+bool DemandPrimaryGeneratorAction::SetupBeam()
 {
 	static int lastA = -1;
 	static int lastZ = -1;
@@ -409,7 +409,7 @@ bool PterpPrimaryGeneratorAction::SetupBeam()
 	return true;
 }
 
-bool PterpPrimaryGeneratorAction::SetupReaction(bool beamChanged)
+bool DemandPrimaryGeneratorAction::SetupReaction(bool beamChanged)
 {
 	static G4String lastReaction = "dummy123";
 	static double lastEx = -1;
@@ -545,7 +545,7 @@ bool PterpPrimaryGeneratorAction::SetupReaction(bool beamChanged)
 	G4double beam_energy_at_reaction_point = fBeamEnergy;
 	G4double dx= 0.;
 
-	if(dynamic_cast<const PterpDetectorConstruction&>(
+	if(dynamic_cast<const DemandDetectorConstruction&>(
 			 *(G4RunManager::GetRunManager()->GetUserDetectorConstruction())).
 		 GetHaveTarget())
 	{
@@ -643,16 +643,16 @@ bool PterpPrimaryGeneratorAction::SetupReaction(bool beamChanged)
 	return true;
 }
 
-void PterpPrimaryGeneratorAction::SetReactionAngdist(
+void DemandPrimaryGeneratorAction::SetReactionAngdist(
 	const G4String& angdist)
 {
 	fReactionAngdist = angdist;
 }
 
-void PterpPrimaryGeneratorAction::SetReactionPosition(const G4ThreeVector& pos) {
+void DemandPrimaryGeneratorAction::SetReactionPosition(const G4ThreeVector& pos) {
     fReactionPosition = pos;
 }
 
-G4ThreeVector PterpPrimaryGeneratorAction::GetReactionPosition() const {
+G4ThreeVector DemandPrimaryGeneratorAction::GetReactionPosition() const {
     return fReactionPosition;
 }

@@ -25,38 +25,51 @@
 //
 // $Id$
 //
-/// \file PterpAnalysis.hh
-/// \brief Selection of the analysis technology
+/// \file DemandSteppingAction.cc
+/// \brief Implementation of the DemandSteppingAction class
 
-#ifndef PterpAnalysis_h
-#define PterpAnalysis_h 1
-#include <string>
+#include "DemandSteppingAction.hh"
+#include "DemandEventAction.hh"
+#include "DemandDetectorConstruction.hh"
+#include "DemandAnalysis.hh"
 
-namespace CLHEP { class HepLorentzVector; }
-namespace g4gen { class ReactionKinematics; }
+#include "G4Step.hh"
+#include "G4Event.hh"
+#include "G4RunManager.hh"
+#include "G4LogicalVolume.hh"
+#include "G4VProcess.hh"
 
-class PterpAnalysis {
-private:
-	PterpAnalysis();
-public:
-	static PterpAnalysis* Instance();
-	virtual ~PterpAnalysis();
-	void OpenFile(const std::string& filename);
-	void CloseFile();
-	void Write();
-	void Clear();
-	void AddHit(double edep, double time, double xpos, double ypos, double zpos, int pA, int pZ);
-	void SetFirstInteraction(double,double,double,double);
-	void Analyze();
-	long GetEventsAboveThreshold() const;
-	long GetEventsCrossingDetector() const;
-	void AddEventCrossingDetector();
-	void SetGeneratedNeutron(const CLHEP::HepLorentzVector& p);
-	void SetGeneratedRecoil(const CLHEP::HepLorentzVector& p);
-	void FillGenTree();
-private:
-	void CalculateReaction(g4gen::ReactionKinematics*);
-};
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+DemandSteppingAction::DemandSteppingAction()
+	: G4UserSteppingAction()
+{}
 
-#endif
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+DemandSteppingAction::~DemandSteppingAction()
+{}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void DemandSteppingAction::UserSteppingAction(const G4Step* step)
+{
+	if(step->GetPreStepPoint() &&
+		 step->GetPreStepPoint()->GetProcessDefinedStep() &&
+		 step->GetPreStepPoint()->GetProcessDefinedStep()->GetProcessType() == fTransportation)
+	{
+		// get volume of the current step
+		G4LogicalVolume* volume 
+			= step->GetPreStepPoint()->GetTouchableHandle()
+			->GetVolume()->GetLogicalVolume();
+
+		if(volume->GetName() == "logic_Demand_LocalBox_" &&
+			 step->GetTrack()->GetTrackID() == 1)
+		{
+			DemandAnalysis::Instance()->AddEventCrossingDetector();
+		}
+	}
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+

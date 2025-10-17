@@ -23,43 +23,50 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: PterpActionInitialization.cc 68058 2013-03-13 14:47:43Z gcosmo $
-//
-/// \file PterpActionInitialization.cc
-/// \brief Implementation of the PterpActionInitialization class
+// $Id$
+// 
+/// \file DemandRunAction.hh
+/// \brief Definition of the DemandRunAction class
 
-#include "PterpActionInitialization.hh"
-#include "PterpPrimaryGeneratorAction.hh"
-#include "PterpRunAction.hh"
-#include "PterpEventAction.hh"
-#include "PterpSteppingAction.hh"
+#ifndef DemandRunAction_h
+#define DemandRunAction_h 1
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+#include "G4UserRunAction.hh"
+#include "globals.hh"
 
-PterpActionInitialization::PterpActionInitialization()
- : G4VUserActionInitialization()
-{}
+class G4Run;
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+/// Run action class
+///
+/// It accumulates statistic and computes dispersion of the energy deposit 
+/// and track lengths of charged particles with use of analysis tools:
+/// H1D histograms are created in BeginOfRunAction() for the following 
+/// physics quantities:
+/// - Edep in absorber
+/// - Edep in gap
+/// - Track length in absorber
+/// - Track length in gap
+/// The same values are also saved in the ntuple.
+/// The histograms and ntuple are saved in the output file in a format
+/// accoring to a selected technology in DemandAnalysis.hh.
+///
+/// In EndOfRunAction(), the accumulated statistic and computed 
+/// dispersion is printed.
+///
 
-PterpActionInitialization::~PterpActionInitialization()
-{}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-void PterpActionInitialization::BuildForMaster() const
+class DemandRunAction : public G4UserRunAction
 {
-  SetUserAction(new PterpRunAction);
-}
+  public:
+    DemandRunAction();
+    virtual ~DemandRunAction();
+
+    virtual void BeginOfRunAction(const G4Run*);
+    virtual void   EndOfRunAction(const G4Run*);
+  private:
+	  G4int fNumRuns;
+};
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void PterpActionInitialization::Build() const
-{
-  SetUserAction(new PterpPrimaryGeneratorAction);
-  SetUserAction(new PterpRunAction);
-  SetUserAction(new PterpEventAction);
-	SetUserAction(new PterpSteppingAction);
-}  
+#endif
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

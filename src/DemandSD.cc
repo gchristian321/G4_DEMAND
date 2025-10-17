@@ -1,22 +1,22 @@
-#include "PterpSD.hh"
+#include "DemandSD.hh"
 #include "G4SDManager.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4Electron.hh"
 #include "G4Positron.hh"
 
-PterpSD::PterpSD(G4String name) :
+DemandSD::DemandSD(G4String name) :
   G4VSensitiveDetector(name), fHitsCollection(0), fHCID(-1) {
   G4String HCname = "pterpCollection";
   collectionName.insert(HCname);
 }
 
-PterpSD::~PterpSD() {
+DemandSD::~DemandSD() {
 
 }
 
-void PterpSD::Initialize(G4HCofThisEvent* hce) {
+void DemandSD::Initialize(G4HCofThisEvent* hce) {
 	fHitsCollection =
-		new PterpHitsCollection(
+		new DemandHitsCollection(
 			SensitiveDetectorName,collectionName[0]);
 	
 	if (fHCID<0) { 
@@ -27,7 +27,7 @@ void PterpSD::Initialize(G4HCofThisEvent* hce) {
 	hce->AddHitsCollection(fHCID,fHitsCollection);
 }
 
-G4bool PterpSD::ProcessHits(G4Step* step, G4TouchableHistory*) {
+G4bool DemandSD::ProcessHits(G4Step* step, G4TouchableHistory*) {
 	G4double edep = step->GetTotalEnergyDeposit();
 	if (fabs(edep) < 1e-6) { return true; }
 	
@@ -44,7 +44,7 @@ G4bool PterpSD::ProcessHits(G4Step* step, G4TouchableHistory*) {
 	G4ThreeVector position = touchable->GetVolume()->GetTranslation();
 	
 	bool alreadyHaveHitInVolume = false;
-	for(PterpHit* existingHit : *(fHitsCollection->GetVector())) {
+	for(DemandHit* existingHit : *(fHitsCollection->GetVector())) {
 		if(existingHit->GetID() == copyNo) {
 			if(touchable->GetVolume() != existingHit->GetPhysicalVolume()) {
 				throw std::logic_error(
@@ -58,7 +58,7 @@ G4bool PterpSD::ProcessHits(G4Step* step, G4TouchableHistory*) {
 	}
 
 	if(!alreadyHaveHitInVolume) {
-		PterpHit* hit = new PterpHit(
+		DemandHit* hit = new DemandHit(
 			copyNo,position,position_actual,edep,hitTime,
 			step->GetTrack()->GetParticleDefinition(),
 			touchable->GetVolume());
@@ -76,7 +76,7 @@ G4bool PterpSD::ProcessHits(G4Step* step, G4TouchableHistory*) {
 	return true;
 }
 
-G4double PterpSD::CalculateQuenching(
+G4double DemandSD::CalculateQuenching(
 	G4double edep, const G4ParticleDefinition* particle)
 {
 	int A = particle->GetAtomicMass();
@@ -89,7 +89,7 @@ G4double PterpSD::CalculateQuenching(
 	return CalculateQuenching(edep,A,Z);
 }
 
-G4double PterpSD::CalculateQuenching(
+G4double DemandSD::CalculateQuenching(
 	G4double edep, G4int A, G4int Z)
 {
 	G4double light = edep;

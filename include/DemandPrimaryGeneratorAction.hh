@@ -25,11 +25,11 @@
 //
 // $Id$
 // 
-/// \file PterpPrimaryGeneratorAction.hh
-/// \brief Definition of the PterpPrimaryGeneratorAction class
+/// \file DemandPrimaryGeneratorAction.hh
+/// \brief Definition of the DemandPrimaryGeneratorAction class
 
-#ifndef PterpPrimaryGeneratorAction_h
-#define PterpPrimaryGeneratorAction_h 1
+#ifndef DemandPrimaryGeneratorAction_h
+#define DemandPrimaryGeneratorAction_h 1
 
 #include <array>
 #include <memory>
@@ -41,7 +41,7 @@
 #include "TFile.h"
 #include "TTree.h"
 
-class PterpPrimaryGeneratorMessenger;
+class DemandPrimaryGeneratorMessenger;
 class G4ParticleGun;
 class G4Event;
 namespace g4gen {
@@ -57,11 +57,11 @@ class ReactionKinematics;
 
 class G4ParticleDefinition;
 
-class PterpPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
+class DemandPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 {
 public:
-  PterpPrimaryGeneratorAction();    
-  virtual ~PterpPrimaryGeneratorAction();
+  DemandPrimaryGeneratorAction();    
+  virtual ~DemandPrimaryGeneratorAction();
 
   virtual void GeneratePrimaries(G4Event* event);
 
@@ -128,7 +128,7 @@ private:
 
 	g4gen::ReactionKinematics* fReactionGenerator;
 
-	PterpPrimaryGeneratorMessenger *fMessenger;
+	DemandPrimaryGeneratorMessenger *fMessenger;
 
     // position variables
     TFile* fpos = nullptr;

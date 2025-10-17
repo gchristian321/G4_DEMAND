@@ -25,11 +25,11 @@
 //
 // $Id$
 //
-/// \file PterpRunAction.cc
-/// \brief Implementation of the PterpRunAction class
+/// \file DemandRunAction.cc
+/// \brief Implementation of the DemandRunAction class
 
-#include "PterpRunAction.hh"
-#include "PterpAnalysis.hh"
+#include "DemandRunAction.hh"
+#include "DemandAnalysis.hh"
 
 #include <sstream>
 
@@ -40,7 +40,7 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-PterpRunAction::PterpRunAction()
+DemandRunAction::DemandRunAction()
 	: G4UserRunAction(),
 		fNumRuns(0)
 { 
@@ -49,8 +49,8 @@ PterpRunAction::PterpRunAction()
 
   // Create analysis manager
   // The choice of analysis technology is done via selectin of a namespace
-  // in PterpAnalysis.hh
-  auto analysisManager = PterpAnalysis::Instance();
+  // in DemandAnalysis.hh
+  auto analysisManager = DemandAnalysis::Instance();
 	if(!analysisManager) {
 		throw std::logic_error("Couldn't create analysis manager in RunAction!");
 	}
@@ -58,34 +58,34 @@ PterpRunAction::PterpRunAction()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-PterpRunAction::~PterpRunAction()
+DemandRunAction::~DemandRunAction()
 {
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void PterpRunAction::BeginOfRunAction(const G4Run* /*run*/)
+void DemandRunAction::BeginOfRunAction(const G4Run* /*run*/)
 { 
   //inform the runManager to save random number seed
   //G4RunManager::GetRunManager()->SetRandomNumberStore(true);
   
   // Get analysis manager
-  auto analysisManager = PterpAnalysis::Instance();
+  auto analysisManager = DemandAnalysis::Instance();
 
   // Open an output file
   //
 	std::stringstream fileName;
-	fileName << "Pterp_" << fNumRuns++ << ".root";
+	fileName << "Demand_" << fNumRuns++ << ".root";
   analysisManager->OpenFile(fileName.str());
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void PterpRunAction::EndOfRunAction(const G4Run* /*run*/)
+void DemandRunAction::EndOfRunAction(const G4Run* /*run*/)
 {
   // print histogram statistics
   //
-  auto analysisManager = PterpAnalysis::Instance();
+  auto analysisManager = DemandAnalysis::Instance();
 	
   // save histograms & ntuple
   //

@@ -25,15 +25,15 @@
 //
 // $Id$
 //
-/// \file pterpc.cc
+/// \file DEMAND.cc
 /// \brief Main program 
 
 #include <vector>
 #include <sstream>
 #include <fstream>
 
-#include "PterpDetectorConstruction.hh"
-#include "PterpActionInitialization.hh"
+#include "DemandDetectorConstruction.hh"
+#include "DemandActionInitialization.hh"
 
 // #ifdef G4MULTITHREADED
 // #include "G4MTRunManager.hh"
@@ -60,7 +60,7 @@
 namespace {
   void PrintUsage() {
     G4cerr << " Usage: " << G4endl;
-    G4cerr << " examplePterp [-m macro ] [-c config macro] [-u UIsession] [-t nThreads]" << G4endl;
+    G4cerr << " example ./DEMAND [-m macro ] [-c config macro] [-u UIsession] [-t nThreads]" << G4endl;
     G4cerr << "   note: -t option is available only for multi-threaded mode."
            << G4endl;
   }
@@ -123,24 +123,24 @@ int main(int argc,char** argv)
 
   // Set mandatory initialization classes
   //
-	std::vector<PterpDetectorConstruction::Module_t> Modules;
+	std::vector<DemandDetectorConstruction::Module_t> Modules;
 //	TexNeutModules = TexNeutUtility::ReadModulesFromConfig(argv[1]);	
-	Modules.push_back(PterpDetectorConstruction::Module_t());
+	Modules.push_back(DemandDetectorConstruction::Module_t());
 	Modules.front().m_Dist = 1*m;
 	Modules.front().m_Theta = 0.;
 	Modules.front().m_Phi = 0.;
 	Modules.front().m_Voxnum = {10,10,1};
 	Modules.front().m_Voxsize = {20,20,20};
 	Modules.front().m_Threshold = 50*keV;
-	Modules.front().m_ReadoutType = PterpDetectorConstruction::kCube;
-  auto detConstruction = new PterpDetectorConstruction();
+	Modules.front().m_ReadoutType = DemandDetectorConstruction::kCube;
+  auto detConstruction = new DemandDetectorConstruction();
 	detConstruction->SetModules(Modules);
   runManager->SetUserInitialization(detConstruction);
 
   auto physicsList = new QGSP_BERT_HP; //QGSP_BIC_HP; // new FTFP_BERT;
   runManager->SetUserInitialization(physicsList);
     
-  auto actionInitialization = new PterpActionInitialization();
+  auto actionInitialization = new DemandActionInitialization();
   runManager->SetUserInitialization(actionInitialization);
   
   // Initialize visualization

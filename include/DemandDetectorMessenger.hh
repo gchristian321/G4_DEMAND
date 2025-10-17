@@ -1,10 +1,10 @@
-#ifndef PterpDetectorMessenger_h
-#define PterpDetectorMessenger_h 1
+#ifndef DemandDetectorMessenger_h
+#define DemandDetectorMessenger_h 1
 
 #include "G4UImessenger.hh"
 #include "globals.hh"
 
-class PterpDetectorConstruction;
+class DemandDetectorConstruction;
 class G4UIdirectory;
 class G4UIcmdWithADoubleAndUnit;
 class G4UIcmdWith3VectorAndUnit;
@@ -15,18 +15,18 @@ class G4UIcmdWithADouble;
 class G4UIcmdWithAString;
 class G4UIcmdWithoutParameter;
 
-class PterpDetectorMessenger: public G4UImessenger
+class DemandDetectorMessenger: public G4UImessenger
 {
   public:
 
-    PterpDetectorMessenger(PterpDetectorConstruction*);
-    virtual ~PterpDetectorMessenger();
+    DemandDetectorMessenger(DemandDetectorConstruction*);
+    virtual ~DemandDetectorMessenger();
  
     virtual void SetNewValue(G4UIcommand*, G4String);
  
   private:
 
-    PterpDetectorConstruction*   fPterpDetector;
+    DemandDetectorConstruction*   fDemandDetector;
     G4UIdirectory*               fDetectorDir;
     G4UIcmdWithADoubleAndUnit*   fDimensionsCmdX;
     G4UIcmdWithADoubleAndUnit*   fDimensionsCmdY;

@@ -1,8 +1,8 @@
-/// \file PterpDetectorConstruction.hh
-/// \brief Definition of the PterpDetectorConstruction class
+/// \file DemandDetectorConstruction.hh
+/// \brief Definition of the DemandDetectorConstruction class
 
-#ifndef PterpDetectorConstruction_h
-#define PterpDetectorConstruction_h 1
+#ifndef DemandDetectorConstruction_h
+#define DemandDetectorConstruction_h 1
 
 #include <array>
 #include <vector>
@@ -12,13 +12,13 @@
 #include "G4VUserDetectorConstruction.hh"
 #include "G4Box.hh"
 #include "globals.hh"
-#include "PterpDetectorMessenger.hh"
+#include "DemandDetectorMessenger.hh"
 
 class G4Material;
 class G4VPhysicalVolume;
 class G4AssemblyVolume;
 
-class PterpDetectorConstruction: public G4VUserDetectorConstruction {
+class DemandDetectorConstruction: public G4VUserDetectorConstruction {
 public:
 	static const int kCube = 0;
 	static const int kBar  = 1;
@@ -48,8 +48,8 @@ public:
 	};
 	
 public:
-  PterpDetectorConstruction();
-  virtual ~PterpDetectorConstruction();
+  DemandDetectorConstruction();
+  virtual ~DemandDetectorConstruction();
 
 	virtual G4VPhysicalVolume* Construct();
 	virtual void ConstructSDandField();
@@ -79,7 +79,7 @@ private:
 	std::vector<G4AssemblyVolume*> fAssemblies;
 	std::vector<std::string> fSensitiveDetectorNames;
 	std::map<G4int, const Module_t*> fModuleIndexMap;
-	PterpDetectorMessenger* fDetectorMessenger;
+	DemandDetectorMessenger* fDetectorMessenger;
 	G4Material* fTargetMaterial;
 	G4double fTargetThickness;
 	bool fHaveTarget;

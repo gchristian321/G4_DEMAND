@@ -23,28 +23,52 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: PterpActionInitialization.hh 68058 2013-03-13 14:47:43Z gcosmo $
-//
-/// \file PterpActionInitialization.hh
-/// \brief Definition of the PterpActionInitialization class
+// $Id$
+// 
+/// \file DemandEventAction.hh
+/// \brief Definition of the DemandEventAction class
 
-#ifndef PterpActionInitialization_h
-#define PterpActionInitialization_h 1
+#ifndef DemandEventAction_h
+#define DemandEventAction_h 1
 
-#include "G4VUserActionInitialization.hh"
+#include <vector>
 
-/// Action initialization class.
+#include "G4UserEventAction.hh"
+#include "G4ThreeVector.hh"
+
+#include "DemandHit.hh"
+
+#include "globals.hh"
+
+/// Event action class
 ///
+/// In EndOfEventAction(), it prints the accumulated quantities of the energy 
+/// deposit and track lengths of charged particles in Absober and Gap layers 
+/// stored in the hits collections.
 
-class PterpActionInitialization : public G4VUserActionInitialization
+class DemandEventAction : public G4UserEventAction
 {
-  public:
-    PterpActionInitialization();
-    virtual ~PterpActionInitialization();
+public:
+  DemandEventAction();
+  virtual ~DemandEventAction();
 
-    virtual void BuildForMaster() const;
-    virtual void Build() const;
+  virtual void  BeginOfEventAction(const G4Event* event);
+  virtual void    EndOfEventAction(const G4Event* event);
+	
+private:
+  // methods
+  DemandHitsCollection* GetHitsCollection(
+		G4int hcID,	const G4Event* event) const;
+  void PrintEventStatistics(
+		G4double absoEdep, G4double caloTime, const G4ThreeVector& caloPos) const;
+	G4ThreeVector FigureOutMeasuredPosition(const DemandHit& hit) const;
+
+	
+  // data members                   
+	std::vector<G4int> fDemandHCID;
 };
+                     
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #endif
 

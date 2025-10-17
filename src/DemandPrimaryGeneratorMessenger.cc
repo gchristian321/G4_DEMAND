@@ -2,8 +2,8 @@
 #include <algorithm>
 #include <iterator>
 
-#include "PterpPrimaryGeneratorMessenger.hh"
-#include "PterpPrimaryGeneratorAction.hh"
+#include "DemandPrimaryGeneratorMessenger.hh"
+#include "DemandPrimaryGeneratorAction.hh"
 
 #include "G4UIcmdWithADoubleAndUnit.hh"
 #include "G4UIcmdWith3VectorAndUnit.hh"
@@ -20,7 +20,7 @@ using namespace std;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-PterpPrimaryGeneratorMessenger::PterpPrimaryGeneratorMessenger(PterpPrimaryGeneratorAction* primary):
+DemandPrimaryGeneratorMessenger::DemandPrimaryGeneratorMessenger(DemandPrimaryGeneratorAction* primary):
 	fPrimary(primary)
 {
   //Setup a command directory for detector controls with guidance
@@ -139,7 +139,7 @@ PterpPrimaryGeneratorMessenger::PterpPrimaryGeneratorMessenger(PterpPrimaryGener
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-PterpPrimaryGeneratorMessenger::~PterpPrimaryGeneratorMessenger()
+DemandPrimaryGeneratorMessenger::~DemandPrimaryGeneratorMessenger()
 {
   delete fPrimaryDir;
 	delete fBeamZ;
@@ -159,7 +159,7 @@ PterpPrimaryGeneratorMessenger::~PterpPrimaryGeneratorMessenger()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void PterpPrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
+void DemandPrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
 {
   if(0) {
 	}

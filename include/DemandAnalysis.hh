@@ -25,51 +25,38 @@
 //
 // $Id$
 //
-/// \file PterpSteppingAction.cc
-/// \brief Implementation of the PterpSteppingAction class
+/// \file DemandAnalysis.hh
+/// \brief Selection of the analysis technology
 
-#include "PterpSteppingAction.hh"
-#include "PterpEventAction.hh"
-#include "PterpDetectorConstruction.hh"
-#include "PterpAnalysis.hh"
+#ifndef DemandAnalysis_h
+#define DemandAnalysis_h 1
+#include <string>
 
-#include "G4Step.hh"
-#include "G4Event.hh"
-#include "G4RunManager.hh"
-#include "G4LogicalVolume.hh"
-#include "G4VProcess.hh"
+namespace CLHEP { class HepLorentzVector; }
+namespace g4gen { class ReactionKinematics; }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+class DemandAnalysis {
+private:
+	DemandAnalysis();
+public:
+	static DemandAnalysis* Instance();
+	virtual ~DemandAnalysis();
+	void OpenFile(const std::string& filename);
+	void CloseFile();
+	void Write();
+	void Clear();
+	void AddHit(double edep, double time, double xpos, double ypos, double zpos, int pA, int pZ);
+	void SetFirstInteraction(double,double,double,double);
+	void Analyze();
+	long GetEventsAboveThreshold() const;
+	long GetEventsCrossingDetector() const;
+	void AddEventCrossingDetector();
+	void SetGeneratedNeutron(const CLHEP::HepLorentzVector& p);
+	void SetGeneratedRecoil(const CLHEP::HepLorentzVector& p);
+	void FillGenTree();
+private:
+	void CalculateReaction(g4gen::ReactionKinematics*);
+};
 
-PterpSteppingAction::PterpSteppingAction()
-	: G4UserSteppingAction()
-{}
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-PterpSteppingAction::~PterpSteppingAction()
-{}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-void PterpSteppingAction::UserSteppingAction(const G4Step* step)
-{
-	if(step->GetPreStepPoint() &&
-		 step->GetPreStepPoint()->GetProcessDefinedStep() &&
-		 step->GetPreStepPoint()->GetProcessDefinedStep()->GetProcessType() == fTransportation)
-	{
-		// get volume of the current step
-		G4LogicalVolume* volume 
-			= step->GetPreStepPoint()->GetTouchableHandle()
-			->GetVolume()->GetLogicalVolume();
-
-		if(volume->GetName() == "logic_Pterp_LocalBox_" &&
-			 step->GetTrack()->GetTrackID() == 1)
-		{
-			PterpAnalysis::Instance()->AddEventCrossingDetector();
-		}
-	}
-}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
+#endif

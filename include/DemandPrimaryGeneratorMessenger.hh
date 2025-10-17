@@ -1,5 +1,5 @@
-#ifndef PterpPrimaryGeneratorMessenger_h
-#define PterpPrimaryGeneratorMessenger_h 1
+#ifndef DemandPrimaryGeneratorMessenger_h
+#define DemandPrimaryGeneratorMessenger_h 1
 
 #include "G4UImessenger.hh"
 #include "globals.hh"
@@ -10,13 +10,13 @@ class G4UIcmdWith3VectorAndUnit;
 class G4UIcmdWithAnInteger;
 class G4UIcmdWithAString;
 class G4UIcommand;
-class PterpPrimaryGeneratorAction;
+class DemandPrimaryGeneratorAction;
 
-class PterpPrimaryGeneratorMessenger: public G4UImessenger
+class DemandPrimaryGeneratorMessenger: public G4UImessenger
 {
 public:
-	PterpPrimaryGeneratorMessenger(PterpPrimaryGeneratorAction*);
-	virtual ~PterpPrimaryGeneratorMessenger();
+	DemandPrimaryGeneratorMessenger(DemandPrimaryGeneratorAction*);
+	virtual ~DemandPrimaryGeneratorMessenger();
 	virtual void SetNewValue(G4UIcommand*, G4String);
 
 private:
@@ -35,7 +35,7 @@ private:
 	G4UIcmdWithADoubleAndUnit *fBeamSigmaThetaY;
 	G4UIcmdWith3VectorAndUnit *fSourceEnergies;
 
-	PterpPrimaryGeneratorAction* fPrimary;
+	DemandPrimaryGeneratorAction* fPrimary;
 };
 
 #endif

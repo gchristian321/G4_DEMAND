@@ -23,30 +23,43 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id$
+// $Id: DemandActionInitialization.cc 68058 2013-03-13 14:47:43Z gcosmo $
 //
-/// \file PterpSteppingAction.hh
-/// \brief Definition of the PterpSteppingAction class
+/// \file DemandActionInitialization.cc
+/// \brief Implementation of the DemandActionInitialization class
 
-#ifndef PterpSteppingAction_h
-#define PterpSteppingAction_h 1
-
-#include "G4UserSteppingAction.hh"
-#include "globals.hh"
-
-/// Stepping action class
-/// 
-
-class PterpSteppingAction : public G4UserSteppingAction
-{
-public:
-	PterpSteppingAction();
-	virtual ~PterpSteppingAction();
-
-	// method from the base class
-	virtual void UserSteppingAction(const G4Step*);
-};
+#include "DemandActionInitialization.hh"
+#include "DemandPrimaryGeneratorAction.hh"
+#include "DemandRunAction.hh"
+#include "DemandEventAction.hh"
+#include "DemandSteppingAction.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-#endif
+DemandActionInitialization::DemandActionInitialization()
+ : G4VUserActionInitialization()
+{}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+DemandActionInitialization::~DemandActionInitialization()
+{}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void DemandActionInitialization::BuildForMaster() const
+{
+  SetUserAction(new DemandRunAction);
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void DemandActionInitialization::Build() const
+{
+  SetUserAction(new DemandPrimaryGeneratorAction);
+  SetUserAction(new DemandRunAction);
+  SetUserAction(new DemandEventAction);
+	SetUserAction(new DemandSteppingAction);
+}  
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

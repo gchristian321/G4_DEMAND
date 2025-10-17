@@ -11,15 +11,15 @@
 #include "G4SystemOfUnits.hh"
 #include "G4RunManager.hh"
 
-#include "PterpDetectorMessenger.hh"
-#include "PterpDetectorConstruction.hh"
-#include "PterpPrimaryGeneratorAction.hh"
+#include "DemandDetectorMessenger.hh"
+#include "DemandDetectorConstruction.hh"
+#include "DemandPrimaryGeneratorAction.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-PterpDetectorMessenger::PterpDetectorMessenger(
-	PterpDetectorConstruction* detector)
-	: fPterpDetector(detector)
+DemandDetectorMessenger::DemandDetectorMessenger(
+	DemandDetectorConstruction* detector)
+	: fDemandDetector(detector)
 {
   //Setup a command directory for detector controls with guidance
   fDetectorDir = new G4UIdirectory("/pterp/detector/");
@@ -199,7 +199,7 @@ PterpDetectorMessenger::PterpDetectorMessenger(
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-PterpDetectorMessenger::~PterpDetectorMessenger()
+DemandDetectorMessenger::~DemandDetectorMessenger()
 {
   delete fDimensionsCmdX;
   delete fDimensionsCmdY;
@@ -224,14 +224,14 @@ PterpDetectorMessenger::~PterpDetectorMessenger()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void PterpDetectorMessenger::SetNewValue(
+void DemandDetectorMessenger::SetNewValue(
 	G4UIcommand* command, G4String newValue)
 {
-	auto module = fPterpDetector->
+	auto module = fDemandDetector->
 		GetModuleByOriginalSpecification(fCurrentModuleNumber);
 	if(!module) {
 		throw std::logic_error(
-			"PterpDetectorMessenger::SetNewValue -- "
+			"DemandDetectorMessenger::SetNewValue -- "
 			"module does not exist");
 	}
   if(0) {
@@ -302,28 +302,28 @@ void PterpDetectorMessenger::SetNewValue(
 	}
 	else if(command == fReadoutTypeCmd){
 		if(newValue == "cube") {
-			module->m_ReadoutType = PterpDetectorConstruction::kCube;
+			module->m_ReadoutType = DemandDetectorConstruction::kCube;
 		}
 		else if(newValue == "bar") {
-			module->m_ReadoutType = PterpDetectorConstruction::kBar;
+			module->m_ReadoutType = DemandDetectorConstruction::kBar;
 		}
 		else {
 			char buf[4096];
-			sprintf(buf,"PterpDetectorMessenger: invalid argument for readout type: \"%s\""
+			sprintf(buf,"DemandDetectorMessenger: invalid argument for readout type: \"%s\""
 							". Valid entries are \"bar\" or \"cube\".", newValue.c_str());
 			throw std::invalid_argument(buf);
 		}
 	}
 	else if(command == fTargetMaterialCmd){
 		G4String mat = newValue;
-		fPterpDetector->SetTargetMaterial(mat);
+		fDemandDetector->SetTargetMaterial(mat);
 	}
 	else if(command == fTargetThicknessCmd){
     G4double thick = fTargetThicknessCmd->GetNewDoubleValue(newValue);
-		fPterpDetector->SetTargetThickness(thick);
+		fDemandDetector->SetTargetThickness(thick);
   }
 	else if(command == fAddModuleCmd){
-		fPterpDetector->AddModule();
+		fDemandDetector->AddModule();
 		++fCurrentModuleNumber;
 	}
 }

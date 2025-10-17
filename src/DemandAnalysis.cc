@@ -15,9 +15,9 @@
 #include "TVector3.h"
 #include "TLorentzVector.h"
 
-#include "PterpAnalysis.hh"
-#include "PterpPrimaryGeneratorAction.hh"
-#include "PterpDetectorConstruction.hh"
+#include "DemandAnalysis.hh"
+#include "DemandPrimaryGeneratorAction.hh"
+#include "DemandDetectorConstruction.hh"
 #include "ReactionKinematics.hh"
 
 using std::string;
@@ -69,28 +69,28 @@ TLorentzVector *fRecoilMomentum = 0;
 Int_t fCrossedDetector = 0;
 }
 
-PterpAnalysis::PterpAnalysis() { }
+DemandAnalysis::DemandAnalysis() { }
 
-PterpAnalysis::~PterpAnalysis(){ }
+DemandAnalysis::~DemandAnalysis(){ }
 
-PterpAnalysis* PterpAnalysis::Instance()
+DemandAnalysis* DemandAnalysis::Instance()
 {
-	static PterpAnalysis* instance = 0;
+	static DemandAnalysis* instance = 0;
 	if(!instance) {
-		instance = new PterpAnalysis();
+		instance = new DemandAnalysis();
 	}
 	return instance;
 }
 
-void PterpAnalysis::OpenFile(const string& filename)
+void DemandAnalysis::OpenFile(const string& filename)
 {
 	// static int ntimes = 0;
 	// if(++ntimes > 1) {
 	// 	throw std::invalid_argument(
-	// 		"PterpAnalysis::OpenFile -- Called more than once");
+	// 		"DemandAnalysis::OpenFile -- Called more than once");
 	// }
 	fFile = new TFile(filename.c_str(), "recreate");
-	fTree = new TTree("PterpTree", "Para-Terphenyl detector tree");
+	fTree = new TTree("DemandTree", "Para-Terphenyl detector tree");
 
 	fTree->Branch("edep",&fEdep);
 	fTree->Branch("time",&fTime);
@@ -128,21 +128,21 @@ void PterpAnalysis::OpenFile(const string& filename)
 	fGenTree->Branch("detected",&fDetected);
 }
 
-void PterpAnalysis::CloseFile()
+void DemandAnalysis::CloseFile()
 {
 	fFile->Close();
 	fEventsAboveThreshold = 0;
 	fEventsCrossingDetector = 0;
 }
 
-void PterpAnalysis::Write()
+void DemandAnalysis::Write()
 {
 	fFile->cd();
 	fTree->Write();
 	fGenTree->Write();
 }
 
-void PterpAnalysis::Clear()
+void DemandAnalysis::Clear()
 {
 	fEdep->clear();
 	fTime->clear();
@@ -162,13 +162,13 @@ void PterpAnalysis::Clear()
 	fFirstInteraction->SetXYZT(0,0,0,0);
 }
 
-void PterpAnalysis::SetFirstInteraction(double time, double x, double y, double z)
+void DemandAnalysis::SetFirstInteraction(double time, double x, double y, double z)
 {
 	fFirstInteraction->SetXYZT(
 		x,y,z,time);
 }
 
-void PterpAnalysis::AddHit(	
+void DemandAnalysis::AddHit(	
 	double edep, double time, double xpos, double ypos, double zpos, int pA, int pZ)
 {
 	// add resolutions
@@ -188,7 +188,7 @@ void PterpAnalysis::AddHit(
 	fNumHits++;
 }
 
-void PterpAnalysis::Analyze()
+void DemandAnalysis::Analyze()
 {
 	if(fNumHits == 0) { return; }
 
@@ -207,15 +207,15 @@ void PterpAnalysis::Analyze()
 	fPhi = hitPos.Phi()/deg;
 
 	g4gen::ReactionKinematics* reaction =
-		dynamic_cast<const PterpPrimaryGeneratorAction&>(
+		dynamic_cast<const DemandPrimaryGeneratorAction&>(
 			*(G4RunManager::GetRunManager()->GetUserPrimaryGeneratorAction())
 			).GetReactionKinematics();
 	if(reaction) {
 		CalculateReaction(reaction);
 	}
 
-	const PterpPrimaryGeneratorAction* genAction =
-    static_cast<const PterpPrimaryGeneratorAction*>(
+	const DemandPrimaryGeneratorAction* genAction =
+    static_cast<const DemandPrimaryGeneratorAction*>(
         G4RunManager::GetRunManager()->GetUserPrimaryGeneratorAction());
 
 	G4ThreeVector pos = genAction->GetReactionPosition();
@@ -227,39 +227,39 @@ void PterpAnalysis::Analyze()
 	fTree->Fill();
 }
 
-long PterpAnalysis::GetEventsAboveThreshold() const
+long DemandAnalysis::GetEventsAboveThreshold() const
 {
 	return fEventsAboveThreshold;
 }
 
-long PterpAnalysis::GetEventsCrossingDetector() const
+long DemandAnalysis::GetEventsCrossingDetector() const
 {
 	return fEventsCrossingDetector;
 }
 
-void PterpAnalysis::AddEventCrossingDetector()
+void DemandAnalysis::AddEventCrossingDetector()
 {
 	if(fCrossedDetector == 0) ++fEventsCrossingDetector;
 	++fCrossedDetector;
 }
 
-void PterpAnalysis::CalculateReaction(g4gen::ReactionKinematics* reaction)
+void DemandAnalysis::CalculateReaction(g4gen::ReactionKinematics* reaction)
 {
 	G4LorentzVector beam;
 	G4LorentzVector target = reaction->GetTarget();
 
-	auto beamDefinition = dynamic_cast<const PterpPrimaryGeneratorAction&>(
+	auto beamDefinition = dynamic_cast<const DemandPrimaryGeneratorAction&>(
 		*(G4RunManager::GetRunManager()->GetUserPrimaryGeneratorAction())
 		).GetBeamDefinition();
 	const G4double incident_beam_energy =
-		dynamic_cast<const PterpPrimaryGeneratorAction&>(
+		dynamic_cast<const DemandPrimaryGeneratorAction&>(
 			*(G4RunManager::GetRunManager()->GetUserPrimaryGeneratorAction())
 			).GetBeamEnergy();
 
 	G4double ebeam = incident_beam_energy;
 	
 	// energy loss through half target
-	if(dynamic_cast<const PterpDetectorConstruction&>(
+	if(dynamic_cast<const DemandDetectorConstruction&>(
 			 *(G4RunManager::GetRunManager()->GetUserDetectorConstruction())).
 		 GetHaveTarget())
 	{
@@ -299,12 +299,12 @@ void PterpAnalysis::CalculateReaction(g4gen::ReactionKinematics* reaction)
 		p3*cos(fTheta*deg),
 		m3+fEkin);
 
-	auto recoilDefinition = dynamic_cast<const PterpPrimaryGeneratorAction&>(
+	auto recoilDefinition = dynamic_cast<const DemandPrimaryGeneratorAction&>(
 		*(G4RunManager::GetRunManager()->GetUserPrimaryGeneratorAction())
 		).GetRecoilDefinition();
 	if(!recoilDefinition) {
 		throw std::logic_error(
-			"PterpAnalysis::CalculateReaction :: NULL Recoil Definition");
+			"DemandAnalysis::CalculateReaction :: NULL Recoil Definition");
 	}
 	
 	double m4 = recoilDefinition->GetPDGMass();
@@ -312,19 +312,19 @@ void PterpAnalysis::CalculateReaction(g4gen::ReactionKinematics* reaction)
 	fEx = recoil.m() - m4;
 }
 
-void PterpAnalysis::SetGeneratedNeutron(const G4LorentzVector& p)
+void DemandAnalysis::SetGeneratedNeutron(const G4LorentzVector& p)
 {
 	fNeutronMomentum->SetPxPyPzE(
 		p.px(),p.py(),p.pz(),p.e());
 }
 
-void PterpAnalysis::SetGeneratedRecoil(const G4LorentzVector& p)
+void DemandAnalysis::SetGeneratedRecoil(const G4LorentzVector& p)
 {
 	fRecoilMomentum->SetPxPyPzE(
 		p.px(),p.py(),p.pz(),p.e());
 }
 
-void PterpAnalysis::FillGenTree()
+void DemandAnalysis::FillGenTree()
 {
 	fGenTree->Fill();
 	fCrossedDetector = 0;

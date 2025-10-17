@@ -1,16 +1,16 @@
-#ifndef PterpSD_h
-#define PterpSD_h
+#ifndef DemandSD_h
+#define DemandSD_h
 
 #include "G4VSensitiveDetector.hh"
-#include "PterpHit.hh"
+#include "DemandHit.hh"
 #include <map>
 
 class G4ParticleDefinition;
 
-class PterpSD : public G4VSensitiveDetector {
+class DemandSD : public G4VSensitiveDetector {
 public:
-  PterpSD(G4String name);
-  virtual ~PterpSD();
+  DemandSD(G4String name);
+  virtual ~DemandSD();
   
   virtual void Initialize(G4HCofThisEvent*HCE);
   virtual G4bool ProcessHits(G4Step*aStep,G4TouchableHistory*ROhist);
@@ -26,7 +26,7 @@ public:
 			auto emp = fThresholdMap.emplace(copyNo, thresh);
 			if(emp.second == false) {
 				throw std::logic_error(
-					"PterpSD::AddThreshold -- Duplicate Copy Number!");
+					"DemandSD::AddThreshold -- Duplicate Copy Number!");
 			}
 		}
 
@@ -35,14 +35,14 @@ public:
 			auto it = fThresholdMap.find(copyNo);
 			if(it == fThresholdMap.end()){
 				throw std::logic_error(
-					"PterpSD::AddThreshold -- Looked for bad Copy Number!");
+					"DemandSD::AddThreshold -- Looked for bad Copy Number!");
 			}
 			return it->second;
 		}
 			
 	
 private:
-  PterpHitsCollection* fHitsCollection;
+  DemandHitsCollection* fHitsCollection;
   G4int fHCID;
 	std::map<G4int, G4double> fThresholdMap;
 };

@@ -1,8 +1,8 @@
 #include <algorithm>
 #include <map>
 
-#include "PterpDetectorConstruction.hh"
-#include "PterpSD.hh"
+#include "DemandDetectorConstruction.hh"
+#include "DemandSD.hh"
 
 #include "G4NistManager.hh"
 #include "G4SystemOfUnits.hh"
@@ -27,11 +27,11 @@
 
 using namespace std;
 
-PterpDetectorConstruction::PterpDetectorConstruction()
+DemandDetectorConstruction::DemandDetectorConstruction()
 	:G4VUserDetectorConstruction(),
 	 fCheckOverlaps(true)
 {
-	fDetectorMessenger = new PterpDetectorMessenger(this);
+	fDetectorMessenger = new DemandDetectorMessenger(this);
 	fTargetMaterial = nullptr;
 	fTargetThickness = 0;
 	fHaveTarget = false;
@@ -39,12 +39,12 @@ PterpDetectorConstruction::PterpDetectorConstruction()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-PterpDetectorConstruction::~PterpDetectorConstruction()
+DemandDetectorConstruction::~DemandDetectorConstruction()
 {
 	delete fDetectorMessenger;
 }
 
-G4VPhysicalVolume* PterpDetectorConstruction::Construct() {
+G4VPhysicalVolume* DemandDetectorConstruction::Construct() {
 
   G4double worldSizeXY = 10*meter;
   G4double worldSizeZ  = 10*meter;
@@ -218,8 +218,8 @@ G4VPhysicalVolume* PterpDetectorConstruction::Construct() {
 	return world;
 }
 
-void PterpDetectorConstruction::ConstructSDandField() {
-	auto pterpDetector = new PterpSD("PterpSensitive");	
+void DemandDetectorConstruction::ConstructSDandField() {
+	auto pterpDetector = new DemandSD("DemandSensitive");	
 
 	int detno = 1, moduleno = 0;
 	for(G4AssemblyVolume* assembly : fAssemblies) {
@@ -286,7 +286,7 @@ namespace { G4Element* GetElementFromLibrary(const std::string& Name) {
   return man->FindOrBuildElement(Name.c_str());
 } }
 
-G4Material* PterpDetectorConstruction::GetScintillatorMaterial()
+G4Material* DemandDetectorConstruction::GetScintillatorMaterial()
 {
 	static G4Material* material = nullptr;
 	if(material == nullptr) {
@@ -307,7 +307,7 @@ double getLocalPosition (int i, int n, double width) {
 	return lp;
 } }
 
-G4AssemblyVolume* PterpDetectorConstruction::CreateAssembly
+G4AssemblyVolume* DemandDetectorConstruction::CreateAssembly
 (const Module_t& module)
 {
 	// Static stuff
@@ -321,14 +321,14 @@ G4AssemblyVolume* PterpDetectorConstruction::CreateAssembly
 				return it->second;
 			}
 			auto localBox_ = new ScintillatorBox(
-				"Pterp_LocalBox_",
+				"Demand_LocalBox_",
 				0.5*module.m_Voxsize[0],
 				0.5*module.m_Voxsize[1],
 				0.5*module.m_Voxsize[2]);
 			localBox_->SetReadoutType(module.m_ReadoutType);
 			auto squareDetector =	new G4LogicalVolume
 				(localBox_,GetScintillatorMaterial(),
-				 "logic_Pterp_LocalBox_",0,0,0);
+				 "logic_Demand_LocalBox_",0,0,0);
 			squareDetector->SetVisAttributes(VisSquare);
 			squareVolumes.emplace(module.m_Voxsize,squareDetector);
 			return squareDetector;
@@ -362,48 +362,48 @@ G4AssemblyVolume* PterpDetectorConstruction::CreateAssembly
 	return assemblyDetector;
 }
 
-const PterpDetectorConstruction::Module_t*
-PterpDetectorConstruction::GetModule(G4int copyNo) const
+const DemandDetectorConstruction::Module_t*
+DemandDetectorConstruction::GetModule(G4int copyNo) const
 {
 	auto it = fModuleIndexMap.find(copyNo);
 	if ( it == fModuleIndexMap.end() ) {
 		throw std::invalid_argument(
-			"Bad copyNo to PterpDetectorConstruction::GetModule()");
+			"Bad copyNo to DemandDetectorConstruction::GetModule()");
 	}
 	return it->second;
 }
 
-PterpDetectorConstruction::Module_t*
-PterpDetectorConstruction::GetModuleByOriginalSpecification(size_t i)
+DemandDetectorConstruction::Module_t*
+DemandDetectorConstruction::GetModuleByOriginalSpecification(size_t i)
 {
 	try {
 		return &(fModules.at(i));
 	}
 	catch(std::exception&) {
 		char buf[4096];
-		sprintf(buf, "Invalid index, %i, to PterpDetectorConstruction::"
+		sprintf(buf, "Invalid index, %i, to DemandDetectorConstruction::"
 						"GetModuleByOriginalSpecification() -- maximum is: %i",
 						int(i), int(fModules.size())-1);
 		throw std::invalid_argument(buf);
 	}
 }
 
-const PterpDetectorConstruction::Module_t*
-PterpDetectorConstruction::GetModuleByOriginalSpecification(size_t i) const
+const DemandDetectorConstruction::Module_t*
+DemandDetectorConstruction::GetModuleByOriginalSpecification(size_t i) const
 {
 	try {
 		return &(fModules.at(i));
 	}
 	catch(std::exception&) {
 		char buf[4096];
-		sprintf(buf, "Invalid index, %i, to PterpDetectorConstruction::"
+		sprintf(buf, "Invalid index, %i, to DemandDetectorConstruction::"
 						"GetModuleByOriginalSpecification() -- maximum is: %i",
 						int(i), int(fModules.size())-1);
 		throw std::invalid_argument(buf);
 	}
 }
 
-void PterpDetectorConstruction::SetTargetMaterial(const G4String& mat)
+void DemandDetectorConstruction::SetTargetMaterial(const G4String& mat)
 {
 	static G4Element *D_ = nullptr;
 	if(!D_) {
@@ -474,9 +474,9 @@ void PterpDetectorConstruction::SetTargetMaterial(const G4String& mat)
 }
 
 
-void PterpDetectorConstruction::AddModule()
+void DemandDetectorConstruction::AddModule()
 {
-	PterpDetectorConstruction::Module_t module;
+	DemandDetectorConstruction::Module_t module;
 	module.m_Dist = 1*m;
 	module.m_Theta = 0.;
 	module.m_Phi   = 0.;

@@ -25,14 +25,14 @@
 //
 // $Id$
 // 
-/// \file PterpEventAction.cc
-/// \brief Implementation of the PterpEventAction class
+/// \file DemandEventAction.cc
+/// \brief Implementation of the DemandEventAction class
 
-#include "PterpEventAction.hh"
-#include "PterpSD.hh"
-#include "PterpHit.hh"
-#include "PterpAnalysis.hh"
-#include "PterpDetectorConstruction.hh"
+#include "DemandEventAction.hh"
+#include "DemandSD.hh"
+#include "DemandHit.hh"
+#include "DemandAnalysis.hh"
+#include "DemandDetectorConstruction.hh"
 
 #include "G4RunManager.hh"
 #include "G4Event.hh"
@@ -49,29 +49,29 @@ namespace {
 const double POSITION_FWHM = 3 * CLHEP::cm;
 }
 
-PterpEventAction::PterpEventAction()
+DemandEventAction::DemandEventAction()
  : G4UserEventAction()
 {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-PterpEventAction::~PterpEventAction()
+DemandEventAction::~DemandEventAction()
 {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-PterpHitsCollection* 
-PterpEventAction::GetHitsCollection(G4int hcID,
+DemandHitsCollection* 
+DemandEventAction::GetHitsCollection(G4int hcID,
                                   const G4Event* event) const
 {
   auto hitsCollection 
-    = static_cast<PterpHitsCollection*>(
+    = static_cast<DemandHitsCollection*>(
         event->GetHCofThisEvent()->GetHC(hcID));
   
   if ( ! hitsCollection ) {
     G4ExceptionDescription msg;
     msg << "Cannot access hitsCollection ID " << hcID; 
-    G4Exception("PterpEventAction::GetHitsCollection()",
+    G4Exception("DemandEventAction::GetHitsCollection()",
       "MyCode0003", FatalException, msg);
   }         
 
@@ -80,7 +80,7 @@ PterpEventAction::GetHitsCollection(G4int hcID,
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void PterpEventAction::PrintEventStatistics(
+void DemandEventAction::PrintEventStatistics(
 	G4double caloEdep, G4double caloTime, const G4ThreeVector& caloPos)
 	const
 {
@@ -99,40 +99,40 @@ void PterpEventAction::PrintEventStatistics(
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void PterpEventAction::BeginOfEventAction(const G4Event* /*event*/)
+void DemandEventAction::BeginOfEventAction(const G4Event* /*event*/)
 {
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void PterpEventAction::EndOfEventAction(const G4Event* event)
+void DemandEventAction::EndOfEventAction(const G4Event* event)
 {  
   // Get hits collections IDs (only once)
-	if(fPterpHCID.empty()) {
+	if(fDemandHCID.empty()) {
 		G4SDManager* sdManager = G4SDManager::GetSDMpointer();
-		G4int hcID = sdManager->GetCollectionID("PterpSensitive/pterpCollection");
-		fPterpHCID.push_back(hcID);
+		G4int hcID = sdManager->GetCollectionID("DemandSensitive/pterpCollection");
+		fDemandHCID.push_back(hcID);
 	}
 	
   // Get hits collections
 	G4HCofThisEvent* hce = event->GetHCofThisEvent();
 	
-	std::vector<PterpHitsCollection*> hPterpHC;
-	for(G4int hcid : fPterpHCID) {
-		hPterpHC.push_back(static_cast<PterpHitsCollection*>(hce->GetHC(hcid)));
+	std::vector<DemandHitsCollection*> hDemandHC;
+	for(G4int hcid : fDemandHCID) {
+		hDemandHC.push_back(static_cast<DemandHitsCollection*>(hce->GetHC(hcid)));
 	}
 
 	// Get analysis manager
-	auto analysisManager = PterpAnalysis::Instance();
+	auto analysisManager = DemandAnalysis::Instance();
 	analysisManager->Clear();
 
 	// Loop hits
 	G4double tmin = DBL_MAX;
-	PterpHit* firstRealHit = 0;
-	for(auto& hitCollection : hPterpHC) {
+	DemandHit* firstRealHit = 0;
+	for(auto& hitCollection : hDemandHC) {
 		for(int j=0; j< hitCollection->entries(); j++) {
 			auto hit = (*hitCollection)[j];
-			auto sensitiveDetector = dynamic_cast<PterpSD&>(
+			auto sensitiveDetector = dynamic_cast<DemandSD&>(
 				*(hit->GetPhysicalVolume()->GetLogicalVolume()->GetSensitiveDetector()));
 			G4double thresh = 
 				sensitiveDetector.GetThreshold(hit->GetID());
@@ -169,24 +169,24 @@ void PterpEventAction::EndOfEventAction(const G4Event* event)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4ThreeVector PterpEventAction::FigureOutMeasuredPosition(const PterpHit& hit) const
+G4ThreeVector DemandEventAction::FigureOutMeasuredPosition(const DemandHit& hit) const
 {
-	auto bar = dynamic_cast<PterpDetectorConstruction::ScintillatorBox*>(
+	auto bar = dynamic_cast<DemandDetectorConstruction::ScintillatorBox*>(
 		hit.GetPhysicalVolume()->GetLogicalVolume()->GetSolid());
 	if(!bar) {
 		throw std::runtime_error(
-			"PterpEventAction::FigureOutMeasuredPosition --> No conversion from hit to G4Box");
+			"DemandEventAction::FigureOutMeasuredPosition --> No conversion from hit to G4Box");
 	}		 
 
 	G4ThreeVector measuredPos = hit.GetPosition(); // centre of detector
 
 	switch(bar->GetReadoutType()) {
-	case PterpDetectorConstruction::kCube:
+	case DemandDetectorConstruction::kCube:
 		{
 			//keep at centre
 			break;
 		}
-	case PterpDetectorConstruction::kBar:
+	case DemandDetectorConstruction::kBar:
 		{
 			const std::array<double, 3> side_lengths = {
 				bar->GetXHalfLength() * 2,
