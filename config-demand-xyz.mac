@@ -1,138 +1,138 @@
-/pterp/detector/nx 1
-/pterp/detector/ny 1
-/pterp/detector/nz 1
+/demand/detector/nx 1
+/demand/detector/ny 1
+/demand/detector/nz 1
 
-/pterp/detector/wx 3 cm
-/pterp/detector/wy 3 cm
-/pterp/detector/wz 3 cm
+/demand/detector/wx 3 cm
+/demand/detector/wy 3 cm
+/demand/detector/wz 3 cm
 
-/pterp/detector/xpos -30 mm
-/pterp/detector/ypos  30 mm
-/pterp/detector/zpos  120 mm
-/pterp/detector/thresh 100 keV
-/pterp/detector/readout cube
-/pterp/detector/rotate false
+/demand/detector/xpos -30 mm
+/demand/detector/ypos  30 mm
+/demand/detector/zpos  120 mm
+/demand/detector/thresh 100 keV
+/demand/detector/readout cube
+/demand/detector/rotate false
 
 ## module 2
-/pterp/detector/module
-/pterp/detector/nx 1
-/pterp/detector/ny 1
-/pterp/detector/nz 1
+/demand/detector/module
+/demand/detector/nx 1
+/demand/detector/ny 1
+/demand/detector/nz 1
 
-/pterp/detector/wx 3 cm
-/pterp/detector/wy 3 cm
-/pterp/detector/wz 3 cm
+/demand/detector/wx 3 cm
+/demand/detector/wy 3 cm
+/demand/detector/wz 3 cm
 
-/pterp/detector/xpos   0 mm
-/pterp/detector/ypos  30 mm
-/pterp/detector/zpos  120 mm
-/pterp/detector/thresh 100 keV
-/pterp/detector/readout cube
-/pterp/detector/rotate false
+/demand/detector/xpos   0 mm
+/demand/detector/ypos  30 mm
+/demand/detector/zpos  120 mm
+/demand/detector/thresh 100 keV
+/demand/detector/readout cube
+/demand/detector/rotate false
 
 ## module 3
-/pterp/detector/module
-/pterp/detector/nx 1
-/pterp/detector/ny 1
-/pterp/detector/nz 1
+/demand/detector/module
+/demand/detector/nx 1
+/demand/detector/ny 1
+/demand/detector/nz 1
 
-/pterp/detector/wx 3 cm
-/pterp/detector/wy 3 cm
-/pterp/detector/wz 3 cm
+/demand/detector/wx 3 cm
+/demand/detector/wy 3 cm
+/demand/detector/wz 3 cm
 
-/pterp/detector/xpos  30 mm
-/pterp/detector/ypos  30 mm
-/pterp/detector/zpos  120 mm
-/pterp/detector/thresh 100 keV
-/pterp/detector/readout cube
-/pterp/detector/rotate false
+/demand/detector/xpos  30 mm
+/demand/detector/ypos  30 mm
+/demand/detector/zpos  120 mm
+/demand/detector/thresh 100 keV
+/demand/detector/readout cube
+/demand/detector/rotate false
 
 ## module 4
-/pterp/detector/module
-/pterp/detector/nx 1
-/pterp/detector/ny 1
-/pterp/detector/nz 1
+/demand/detector/module
+/demand/detector/nx 1
+/demand/detector/ny 1
+/demand/detector/nz 1
 
-/pterp/detector/wx 3 cm
-/pterp/detector/wy 3 cm
-/pterp/detector/wz 3 cm
+/demand/detector/wx 3 cm
+/demand/detector/wy 3 cm
+/demand/detector/wz 3 cm
 
-/pterp/detector/xpos -30 mm
-/pterp/detector/ypos   0 mm
-/pterp/detector/zpos  120 mm
-/pterp/detector/thresh 100 keV
-/pterp/detector/readout cube
-/pterp/detector/rotate false
+/demand/detector/xpos -30 mm
+/demand/detector/ypos   0 mm
+/demand/detector/zpos  120 mm
+/demand/detector/thresh 100 keV
+/demand/detector/readout cube
+/demand/detector/rotate false
 
 ## module 5
-/pterp/detector/module
-/pterp/detector/nx 1
-/pterp/detector/ny 1
-/pterp/detector/nz 1
+/demand/detector/module
+/demand/detector/nx 1
+/demand/detector/ny 1
+/demand/detector/nz 1
 
-/pterp/detector/wx 3 cm
-/pterp/detector/wy 3 cm
-/pterp/detector/wz 3 cm
+/demand/detector/wx 3 cm
+/demand/detector/wy 3 cm
+/demand/detector/wz 3 cm
 
-/pterp/detector/xpos  30 mm
-/pterp/detector/ypos   0 mm
-/pterp/detector/zpos  120 mm
-/pterp/detector/thresh 100 keV
-/pterp/detector/readout cube
-/pterp/detector/rotate false
+/demand/detector/xpos  30 mm
+/demand/detector/ypos   0 mm
+/demand/detector/zpos  120 mm
+/demand/detector/thresh 100 keV
+/demand/detector/readout cube
+/demand/detector/rotate false
 
 ## module 6
-/pterp/detector/module
-/pterp/detector/nx 1
-/pterp/detector/ny 1
-/pterp/detector/nz 1
+/demand/detector/module
+/demand/detector/nx 1
+/demand/detector/ny 1
+/demand/detector/nz 1
 
-/pterp/detector/wx 3 cm
-/pterp/detector/wy 3 cm
-/pterp/detector/wz 3 cm
+/demand/detector/wx 3 cm
+/demand/detector/wy 3 cm
+/demand/detector/wz 3 cm
 
-/pterp/detector/xpos -30 mm
-/pterp/detector/ypos -30 mm
-/pterp/detector/zpos  120 mm
-/pterp/detector/thresh 100 keV
-/pterp/detector/readout cube
-/pterp/detector/rotate false
+/demand/detector/xpos -30 mm
+/demand/detector/ypos -30 mm
+/demand/detector/zpos  120 mm
+/demand/detector/thresh 100 keV
+/demand/detector/readout cube
+/demand/detector/rotate false
 
 ## module 7
-/pterp/detector/module
-/pterp/detector/nx 1
-/pterp/detector/ny 1
-/pterp/detector/nz 1
+/demand/detector/module
+/demand/detector/nx 1
+/demand/detector/ny 1
+/demand/detector/nz 1
 
-/pterp/detector/wx 3 cm
-/pterp/detector/wy 3 cm
-/pterp/detector/wz 3 cm
+/demand/detector/wx 3 cm
+/demand/detector/wy 3 cm
+/demand/detector/wz 3 cm
 
-/pterp/detector/xpos   0 mm
-/pterp/detector/ypos -30 mm
-/pterp/detector/zpos  120 mm
-/pterp/detector/thresh 100 keV
-/pterp/detector/readout cube
-/pterp/detector/rotate false
+/demand/detector/xpos   0 mm
+/demand/detector/ypos -30 mm
+/demand/detector/zpos  120 mm
+/demand/detector/thresh 100 keV
+/demand/detector/readout cube
+/demand/detector/rotate false
 
 ## module 8
-/pterp/detector/module
-/pterp/detector/nx 1
-/pterp/detector/ny 1
-/pterp/detector/nz 1
+/demand/detector/module
+/demand/detector/nx 1
+/demand/detector/ny 1
+/demand/detector/nz 1
 
-/pterp/detector/wx 3 cm
-/pterp/detector/wy 3 cm
-/pterp/detector/wz 3 cm
+/demand/detector/wx 3 cm
+/demand/detector/wy 3 cm
+/demand/detector/wz 3 cm
 
-/pterp/detector/xpos  30 mm
-/pterp/detector/ypos -30 mm
-/pterp/detector/zpos  120 mm
-/pterp/detector/thresh 100 keV
-/pterp/detector/readout cube
-/pterp/detector/rotate false
+/demand/detector/xpos  30 mm
+/demand/detector/ypos -30 mm
+/demand/detector/zpos  120 mm
+/demand/detector/thresh 100 keV
+/demand/detector/readout cube
+/demand/detector/rotate false
 
 
-/pterp/detector/target/material He
-/pterp/detector/target/thickness 12.3 centimeter
+/demand/detector/target/material He
+/demand/detector/target/thickness 12.3 centimeter
 

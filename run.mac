@@ -11,9 +11,9 @@
 
 # Neutron
 #
-/pterp/generator/beam/Z 0
-/pterp/generator/beam/A 1
-/pterp/generator/beam/energy 5 MeV
+/demand/generator/beam/Z 0
+/demand/generator/beam/A 1
+/demand/generator/beam/energy 5 MeV
 
 /run/printProgress 100
 /run/beamOn 1000

@@ -11,16 +11,16 @@
 
 # Neutron from 22Ne(a,n), Ex = 11.83 MeV resonance (Ecm = 1.215 MeV, Elab = 7.9 MeV)
 #
-/pterp/generator/beam/Z 10
-/pterp/generator/beam/A 22
-/pterp/generator/beam/energy 7.959 MeV
-#/pterp/generator/beam/energy 4.57011 MeV
-/pterp/generator/reaction (a,n)
-/pterp/generator/reaction/excitation 0. MeV
-/pterp/generator/beam/sigma_x 2 mm
-/pterp/generator/beam/sigma_y 2 mm
-/pterp/generator/beam/sigma_thx 0.1 mrad
-/pterp/generator/beam/sigma_thy 0.1 mrad
+/demand/generator/beam/Z 10
+/demand/generator/beam/A 22
+/demand/generator/beam/energy 7.959 MeV
+#/demand/generator/beam/energy 4.57011 MeV
+/demand/generator/reaction (a,n)
+/demand/generator/reaction/excitation 0. MeV
+/demand/generator/beam/sigma_x 2 mm
+/demand/generator/beam/sigma_y 2 mm
+/demand/generator/beam/sigma_thx 0.1 mrad
+/demand/generator/beam/sigma_thy 0.1 mrad
 
 /tracking/verbose 2
 /run/printProgress 1

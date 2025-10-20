@@ -1,15 +1,15 @@
 ## Detector geometry
-/pterp/detector/nx 16
-/pterp/detector/ny 16
-/pterp/detector/nz 1
+/demand/detector/nx 16
+/demand/detector/ny 16
+/demand/detector/nz 1
 
-/pterp/detector/wx 3 cm
-/pterp/detector/wy 3 cm
-/pterp/detector/wz 3 cm
+/demand/detector/wx 3 cm
+/demand/detector/wy 3 cm
+/demand/detector/wz 3 cm
 
-/pterp/detector/angle 180 deg
-/pterp/detector/dist 100 cm  
-/pterp/detector/thresh 50 keV
+/demand/detector/angle 180 deg
+/demand/detector/dist 100 cm  
+/demand/detector/thresh 50 keV
 
-/pterp/detector/target/material CD2
-/pterp/detector/target/thickness 10 micrometer
+/demand/detector/target/material CD2
+/demand/detector/target/thickness 10 micrometer

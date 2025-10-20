@@ -11,15 +11,15 @@
 
 # Neutron from 59Cu(d,n) @6 MeV/u
 #
-/pterp/generator/beam/Z 29
-/pterp/generator/beam/A 59
-/pterp/generator/beam/energy 590 MeV
-/pterp/generator/reaction (d,n)
-/pterp/generator/reaction/excitation 5.5 MeV
-/pterp/generator/beam/sigma_x 2 mm
-/pterp/generator/beam/sigma_y 2 mm
-/pterp/generator/beam/sigma_thx 0.1 mrad
-/pterp/generator/beam/sigma_thy 0.1 mrad
+/demand/generator/beam/Z 29
+/demand/generator/beam/A 59
+/demand/generator/beam/energy 590 MeV
+/demand/generator/reaction (d,n)
+/demand/generator/reaction/excitation 5.5 MeV
+/demand/generator/beam/sigma_x 2 mm
+/demand/generator/beam/sigma_y 2 mm
+/demand/generator/beam/sigma_thx 0.1 mrad
+/demand/generator/beam/sigma_thy 0.1 mrad
 
 
 /run/printProgress 1000
