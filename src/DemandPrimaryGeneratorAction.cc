@@ -28,7 +28,6 @@
 /// \file DemandPrimaryGeneratorAction.cc
 /// \brief Implementation of the DemandPrimaryGeneratorAction class
 
-#include <iostream>
 #include <fstream>
 
 #include "DemandPrimaryGeneratorAction.hh"
@@ -129,8 +128,6 @@ void DemandPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   // This function is called at the begining of event
 	bool beamChanged = SetupBeam();
 	fReaction.toLower();
-
-	fEventID = anEvent->GetEventID(); //Get event number
 	
 	if(fReaction.empty() || fReaction == "none") {
 		ShootBeam(anEvent);
@@ -233,6 +230,7 @@ void DemandPrimaryGeneratorAction::ShootBeam(G4Event* anEvent)
 	fParticleGun->GeneratePrimaryVertex(anEvent);
 
 	DemandAnalysis::Instance()->SetGeneratedNeutron(momentum);
+	DemandAnalysis::Instance()->SetGeneratedRecoil(G4LorentzVector(0,0,0,0));
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -244,8 +242,7 @@ void DemandPrimaryGeneratorAction::ShootReaction(G4Event* anEvent)
 			"fReactionGenerator not set in ShootBeamAndReaction");
 	}
 
-	G4LorentzVector momentum;
-	G4LorentzVector momentum_recoil;
+	G4LorentzVector momentum, recoil_momentum;
 	auto gen_isotropic =
 		[&]() {
 			const G4double cos_theta = 2*G4RandFlat::shoot() - 1;
@@ -259,10 +256,7 @@ void DemandPrimaryGeneratorAction::ShootReaction(G4Event* anEvent)
 			}
 
 			momentum = fReactionGenerator->GetProduct(0);
-			momentum_recoil = fReactionGenerator->GetProduct(1);
-			static std::ofstream* ofs = 0;
-			if(!ofs) {ofs = new std::ofstream("neutrongen.txt");}
-			*ofs << momentum.theta()/deg << " " << momentum.e() - momentum.m() << " " << G4endl;
+			recoil_momentum = fReactionGenerator->GetProduct(1);
 		};									 
 	if(fReactionAngdist == "isotropic_surface") {
 		// isotropic reaction generation over detector surface
@@ -296,7 +290,7 @@ void DemandPrimaryGeneratorAction::ShootReaction(G4Event* anEvent)
 	fParticleGun->GeneratePrimaryVertex(anEvent);
 
 	DemandAnalysis::Instance()->SetGeneratedNeutron(momentum);
-	DemandAnalysis::Instance()->SetGeneratedRecoil(momentum_recoil);
+	DemandAnalysis::Instance()->SetGeneratedRecoil(recoil_momentum);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -543,7 +537,6 @@ bool DemandPrimaryGeneratorAction::SetupReaction(bool beamChanged)
 
 	// energy loss of beam
 	G4double beam_energy_at_reaction_point = fBeamEnergy;
-	G4double dx= 0.;
 
 	if(dynamic_cast<const DemandDetectorConstruction&>(
 			 *(G4RunManager::GetRunManager()->GetUserDetectorConstruction())).
@@ -559,14 +552,13 @@ bool DemandPrimaryGeneratorAction::SetupReaction(bool beamChanged)
 			if(!emCalc) { emCalc = new G4EmCalculator(); }
 			G4double dedx = emCalc->ComputeTotalDEDX(
 				fBeamEnergy, fBeamDefinition, trgtLV->GetMaterial());
-			dx = G4RandFlat::shoot(0., thickness);
+			G4double dx = G4RandFlat::shoot(0., thickness);
 			beam_energy_at_reaction_point -= (dedx * dx);
 		}
 	}
 
-	//Beam nergy and angle spread - old
-	double mBeam = fBeamDefinition->GetPDGMass();
-	G4cout << "mBeam = " << mBeam << G4endl;
+	
+	double mBeam = fBeamDefinition->GetPDGMass();	
 	double pBeam = sqrt(pow(beam_energy_at_reaction_point + mBeam,2) - mBeam*mBeam);
 	G4LorentzVector vBeam(0,0,pBeam,mBeam+beam_energy_at_reaction_point);
 	// theta spread
@@ -582,45 +574,16 @@ bool DemandPrimaryGeneratorAction::SetupReaction(bool beamChanged)
 														mBeam+beam_energy_at_reaction_point);
 	}
 
-	// position spread - old
-	/*if(fabs(GetBeamSigmaX()) >= 1e-5*mm &&
+	// position spread
+	if(fabs(GetBeamSigmaX()) >= 1e-5*mm &&
 		 fabs(GetBeamSigmaY()) >= 1e-5*mm)
 	{
 		const G4double x = G4RandGauss::shoot(0, GetBeamSigmaX());
 		const G4double y = G4RandGauss::shoot(0, GetBeamSigmaY());
-		G4LogicalVolume* trgtLV =
-			G4LogicalVolumeStore::GetInstance()->GetVolume("Target");
-		const G4double z = -dynamic_cast<G4Box&>(*(trgtLV->GetSolid())).GetZHalfLength() + dx;//fParticleGun->GetParticlePosition().z();
+		const G4double z = fParticleGun->GetParticlePosition().z();
 		fParticleGun->SetParticlePosition(
-			G4ThreeVector(x,y,z));		
-	}*/
-
-	// position spread - new
-	fpos = new TFile("/home/br00074/geant4_workdir/demand-demand/src/rootfiles/22neag_4_9T_filtered.root","READONLY");
-	fpos->cd();
-	if (fpos && !fpos->IsZombie()){
-		tpos = (TTree*)fpos->Get("h1000");
-		if (tpos){
-			tpos->SetBranchAddress("xint", &rx);
-		    tpos->SetBranchAddress("yint", &ry);
-		    tpos->SetBranchAddress("zint", &rz);
-			//fEventID = anEvent->GetEventID();
-			//G4int nEvent = fEventID;
-		    tpos->GetEntry(fEventID);  // For now, always use entry 0
-			
-			G4cout << "********** Reaction Position *************" << G4endl;
-			rx *= 10.; //convert position from cm to mm
-			ry *= 10.;
-			rz *= 10.;
-			G4cout << fEventID << ", " << rx << ", " << ry << ", " << rz << G4endl;
-
-			SetReactionPosition(G4ThreeVector(rx, ry, rz));
-			fParticleGun->SetParticlePosition(G4ThreeVector(rx, ry, rz));
-			//fParticleGun->SetParticlePosition(G4ThreeVector(200, 200, 200));
-		}
+			G4ThreeVector(x,y,z));
 	}
-
-	fpos->Close();
 
 	double mTarget = fTargetDefinition->GetPDGMass();
 	G4LorentzVector vTarget(0,0,0,mTarget);

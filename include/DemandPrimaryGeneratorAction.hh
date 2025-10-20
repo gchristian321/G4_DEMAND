@@ -38,8 +38,6 @@
 #include "globals.hh"
 #include "G4ThreeVector.hh"
 #include "G4LorentzVector.hh"
-#include "TFile.h"
-#include "TTree.h"
 
 class DemandPrimaryGeneratorMessenger;
 class G4ParticleGun;
@@ -65,8 +63,9 @@ public:
 
   virtual void GeneratePrimaries(G4Event* event);
 
-  void SetReactionPosition(const G4ThreeVector& pos);
+	void SetReactionPosition(const G4ThreeVector& pos);
   G4ThreeVector GetReactionPosition() const;
+  
   
   // set methods
   void SetRandomFlag(G4bool value);
@@ -110,7 +109,6 @@ private:
 	
 private:
   G4ParticleGun*  fParticleGun; // G4 particle gun
-  	G4int fEventID = -1;
 	G4ThreeVector fReactionPosition;
 	int fBeamA;
 	int fBeamZ;
@@ -129,11 +127,6 @@ private:
 	g4gen::ReactionKinematics* fReactionGenerator;
 
 	DemandPrimaryGeneratorMessenger *fMessenger;
-
-    // position variables
-    TFile* fpos = nullptr;
-    TTree* tpos = nullptr;
-    Float_t rx = 0, ry = 0, rz = 0;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
