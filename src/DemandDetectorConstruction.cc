@@ -219,7 +219,7 @@ G4VPhysicalVolume* DemandDetectorConstruction::Construct() {
 }
 
 void DemandDetectorConstruction::ConstructSDandField() {
-	auto pterpDetector = new DemandSD("DemandSensitive");	
+	auto demandDetector = new DemandSD("DemandSensitive");	
 
 	int detno = 1, moduleno = 0;
 	for(G4AssemblyVolume* assembly : fAssemblies) {
@@ -231,15 +231,15 @@ void DemandDetectorConstruction::ConstructSDandField() {
 		for(auto it = itBegin; it< itBegin + ncubes; ++it) {
 			G4LogicalVolume * cubeLogic = (*it)->GetLogicalVolume();
 			
-			G4SDManager::GetSDMpointer()->AddNewDetector(pterpDetector);
-			cubeLogic->SetSensitiveDetector(pterpDetector);
+			G4SDManager::GetSDMpointer()->AddNewDetector(demandDetector);
+			cubeLogic->SetSensitiveDetector(demandDetector);
 
 			G4int copyNo = (*it)->GetCopyNo();
-			pterpDetector->AddThreshold(copyNo,thresh);
+			demandDetector->AddThreshold(copyNo,thresh);
 			fModuleIndexMap.emplace(copyNo, &thisModule);
 			
 			char name[256];
-			sprintf(name,"pterpCrystal_%d",detno);	
+			sprintf(name,"demandCrystal_%d",detno);	
 			fSensitiveDetectorNames.push_back(name);
 
 			++detno;

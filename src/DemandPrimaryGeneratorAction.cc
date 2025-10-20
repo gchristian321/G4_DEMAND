@@ -596,7 +596,7 @@ bool DemandPrimaryGeneratorAction::SetupReaction(bool beamChanged)
 	}*/
 
 	// position spread - new
-	fpos = new TFile("/home/br00074/geant4_workdir/pterp-demand/src/rootfiles/22neag_4_9T_filtered.root","READONLY");
+	fpos = new TFile("/home/br00074/geant4_workdir/demand-demand/src/rootfiles/22neag_4_9T_filtered.root","READONLY");
 	fpos->cd();
 	if (fpos && !fpos->IsZombie()){
 		tpos = (TTree*)fpos->Get("h1000");

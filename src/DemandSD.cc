@@ -6,7 +6,7 @@
 
 DemandSD::DemandSD(G4String name) :
   G4VSensitiveDetector(name), fHitsCollection(0), fHCID(-1) {
-  G4String HCname = "pterpCollection";
+  G4String HCname = "demandCollection";
   collectionName.insert(HCname);
 }
 

@@ -110,7 +110,7 @@ void DemandEventAction::EndOfEventAction(const G4Event* event)
   // Get hits collections IDs (only once)
 	if(fDemandHCID.empty()) {
 		G4SDManager* sdManager = G4SDManager::GetSDMpointer();
-		G4int hcID = sdManager->GetCollectionID("DemandSensitive/pterpCollection");
+		G4int hcID = sdManager->GetCollectionID("DemandSensitive/demandCollection");
 		fDemandHCID.push_back(hcID);
 	}
 	

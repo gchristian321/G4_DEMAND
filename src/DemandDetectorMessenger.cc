@@ -22,12 +22,12 @@ DemandDetectorMessenger::DemandDetectorMessenger(
 	: fDemandDetector(detector)
 {
   //Setup a command directory for detector controls with guidance
-  fDetectorDir = new G4UIdirectory("/pterp/detector/");
+  fDetectorDir = new G4UIdirectory("/demand/detector/");
   fDetectorDir->SetGuidance("Detector geometry control");
  
   //Various commands for modifying detector geometry
   fDimensionsCmdX =
-    new G4UIcmdWithADoubleAndUnit("/pterp/detector/wx",this);
+    new G4UIcmdWithADoubleAndUnit("/demand/detector/wx",this);
   fDimensionsCmdX->SetGuidance("Set the x-dimensions of the detector volume.");
   fDimensionsCmdX->SetParameterName("wx",false);
   fDimensionsCmdX->SetDefaultUnit("cm");
@@ -36,7 +36,7 @@ DemandDetectorMessenger::DemandDetectorMessenger(
 	fDimensionsCmdX->SetDefaultValue(2.54*cm);
 
 	fDimensionsCmdY =
-		new G4UIcmdWithADoubleAndUnit("/pterp/detector/wy",this);
+		new G4UIcmdWithADoubleAndUnit("/demand/detector/wy",this);
   fDimensionsCmdY->SetGuidance("Set the y-dimensions of the detector volume.");
   fDimensionsCmdY->SetParameterName("wy",false);
   fDimensionsCmdY->SetDefaultUnit("cm");
@@ -45,7 +45,7 @@ DemandDetectorMessenger::DemandDetectorMessenger(
 	fDimensionsCmdY->SetDefaultValue(2.54*cm);
 	
   fDimensionsCmdZ =
-		new G4UIcmdWithADoubleAndUnit("/pterp/detector/wz",this);
+		new G4UIcmdWithADoubleAndUnit("/demand/detector/wz",this);
   fDimensionsCmdZ->SetGuidance("Set the z-dimensions of the detector volume.");
   fDimensionsCmdZ->SetParameterName("wz",false);
   fDimensionsCmdZ->SetDefaultUnit("cm");
@@ -54,7 +54,7 @@ DemandDetectorMessenger::DemandDetectorMessenger(
 	fDimensionsCmdZ->SetDefaultValue(2.54*cm);
 
   fPosCmdX =
-    new G4UIcmdWithADoubleAndUnit("/pterp/detector/xpos",this);
+    new G4UIcmdWithADoubleAndUnit("/demand/detector/xpos",this);
   fPosCmdX->SetGuidance("Set the x-position of the detector volume.");
   fPosCmdX->SetParameterName("px",false);
   fPosCmdX->SetDefaultUnit("cm");
@@ -63,7 +63,7 @@ DemandDetectorMessenger::DemandDetectorMessenger(
 	fPosCmdX->SetDefaultValue(0*cm);
 
 	fPosCmdY =
-		new G4UIcmdWithADoubleAndUnit("/pterp/detector/ypos",this);
+		new G4UIcmdWithADoubleAndUnit("/demand/detector/ypos",this);
   fPosCmdY->SetGuidance("Set the y-position of the detector volume.");
   fPosCmdY->SetParameterName("py",false);
   fPosCmdY->SetDefaultUnit("cm");
@@ -72,7 +72,7 @@ DemandDetectorMessenger::DemandDetectorMessenger(
 	fPosCmdY->SetDefaultValue(0*cm);
 	
   fPosCmdZ =
-		new G4UIcmdWithADoubleAndUnit("/pterp/detector/zpos",this);
+		new G4UIcmdWithADoubleAndUnit("/demand/detector/zpos",this);
   fPosCmdZ->SetGuidance("Set the z-position of the detector volume.");
   fPosCmdZ->SetParameterName("pz",false);
   fPosCmdZ->SetDefaultUnit("cm");
@@ -81,7 +81,7 @@ DemandDetectorMessenger::DemandDetectorMessenger(
 	fPosCmdZ->SetDefaultValue(0*cm);
 	
   fDistanceCmd =
-		new G4UIcmdWithADoubleAndUnit("/pterp/detector/dist",this);
+		new G4UIcmdWithADoubleAndUnit("/demand/detector/dist",this);
   fDistanceCmd->SetGuidance(
 		"Set the detector distance to front face");
   fDistanceCmd->SetParameterName("dist",false);
@@ -92,7 +92,7 @@ DemandDetectorMessenger::DemandDetectorMessenger(
 
 	
 	fThetaXCmd =
-		new G4UIcmdWithADoubleAndUnit("/pterp/detector/angle",this);
+		new G4UIcmdWithADoubleAndUnit("/demand/detector/angle",this);
   fThetaXCmd->SetGuidance(
 		"Set the angle of the detector relative to beam.");
   fThetaXCmd->SetParameterName("angle",false);
@@ -102,7 +102,7 @@ DemandDetectorMessenger::DemandDetectorMessenger(
 	fThetaXCmd->SetDefaultValue(0*deg);
 	
 	fThetaCmd =
-		new G4UIcmdWithADoubleAndUnit("/pterp/detector/theta",this);
+		new G4UIcmdWithADoubleAndUnit("/demand/detector/theta",this);
   fThetaCmd->SetGuidance(
 		"Set the theta angle of the detector relative to beam.");
   fThetaCmd->SetParameterName("theta",false);
@@ -112,7 +112,7 @@ DemandDetectorMessenger::DemandDetectorMessenger(
 	fThetaCmd->SetDefaultValue(0*deg);
 
 	fPhiCmd =
-		new G4UIcmdWithADoubleAndUnit("/pterp/detector/phi",this);
+		new G4UIcmdWithADoubleAndUnit("/demand/detector/phi",this);
   fPhiCmd->SetGuidance(
 		"Set the phi angle of the detector relative to beam.");
   fPhiCmd->SetParameterName("phi",false);
@@ -123,7 +123,7 @@ DemandDetectorMessenger::DemandDetectorMessenger(
 
 
 	fThresholdCmd =
-		new G4UIcmdWithADoubleAndUnit("/pterp/detector/thresh",this);
+		new G4UIcmdWithADoubleAndUnit("/demand/detector/thresh",this);
   fThresholdCmd->SetGuidance(
 		"Set the detector threshold");
   fThresholdCmd->SetParameterName("thresh",false);
@@ -133,21 +133,21 @@ DemandDetectorMessenger::DemandDetectorMessenger(
 	fThresholdCmd->SetDefaultValue(50*keV);
 
 	
-  fNxCmd = new G4UIcmdWithAnInteger("/pterp/detector/nx",this);
+  fNxCmd = new G4UIcmdWithAnInteger("/demand/detector/nx",this);
   fNxCmd->SetGuidance("Set the number of detectors along the x-dimension.");
   fNxCmd->SetParameterName("nx",false);
   fNxCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
   fNxCmd->SetToBeBroadcasted(false);
 	fNxCmd->SetDefaultValue(3);
 
-  fNyCmd = new G4UIcmdWithAnInteger("/pterp/detector/ny",this);
+  fNyCmd = new G4UIcmdWithAnInteger("/demand/detector/ny",this);
   fNyCmd->SetGuidance("Set the number of detectors along the y-dimension.");
   fNyCmd->SetParameterName("ny",false);
   fNyCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
   fNyCmd->SetToBeBroadcasted(false);
 	fNyCmd->SetDefaultValue(1);
 
-  fNzCmd = new G4UIcmdWithAnInteger("/pterp/detector/nz",this);
+  fNzCmd = new G4UIcmdWithAnInteger("/demand/detector/nz",this);
   fNzCmd->SetGuidance("Set the number of detectors along the z-dimension.");
   fNzCmd->SetParameterName("nz",false);
   fNzCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
@@ -155,7 +155,7 @@ DemandDetectorMessenger::DemandDetectorMessenger(
 	fNzCmd->SetDefaultValue(9);
 
 	fReadoutTypeCmd =
-		new G4UIcmdWithAString("/pterp/detector/readout", this);
+		new G4UIcmdWithAString("/demand/detector/readout", this);
 	fReadoutTypeCmd->SetGuidance("Set the readout method (cube or bar)");
 	fReadoutTypeCmd->SetParameterName("readout_type",false);
 	fReadoutTypeCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
@@ -163,7 +163,7 @@ DemandDetectorMessenger::DemandDetectorMessenger(
 	fReadoutTypeCmd->SetDefaultValue("cube");
 
 	fRotateCmd =
-		new G4UIcmdWithABool("/pterp/detector/rotate", this);
+		new G4UIcmdWithABool("/demand/detector/rotate", this);
 	fRotateCmd->SetGuidance("Tell whether to rotate detector so that it faces the target (true) or in beam direction (false)");
 	fRotateCmd->SetParameterName("do_rotate",false);
 	fRotateCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
@@ -172,7 +172,7 @@ DemandDetectorMessenger::DemandDetectorMessenger(
 
   fTargetThicknessCmd =
     new G4UIcmdWithADoubleAndUnit(
-			"/pterp/detector/target/thickness",this);
+			"/demand/detector/target/thickness",this);
   fTargetThicknessCmd->SetGuidance("Set the target thickness");
   fTargetThicknessCmd->SetParameterName("trgt_thick",false);
   fTargetThicknessCmd->SetDefaultUnit("micrometer");
@@ -181,14 +181,14 @@ DemandDetectorMessenger::DemandDetectorMessenger(
 	fTargetThicknessCmd->SetDefaultValue(0);
 	
 	fTargetMaterialCmd =
-		new G4UIcmdWithAString("/pterp/detector/target/material", this);
+		new G4UIcmdWithAString("/demand/detector/target/material", this);
 	fTargetMaterialCmd->SetGuidance("Set the target material");
 	fTargetMaterialCmd->SetParameterName("target_material",false);
 	fTargetMaterialCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
 	fTargetMaterialCmd->SetToBeBroadcasted(false);
 	fTargetMaterialCmd->SetDefaultValue("CD2");
 
-  fAddModuleCmd = new G4UIcmdWithoutParameter("/pterp/detector/module",this);
+  fAddModuleCmd = new G4UIcmdWithoutParameter("/demand/detector/module",this);
   fAddModuleCmd->SetGuidance("Add additional detector module.");
 //  fAddModuleCmd->SetParameterName("add_module",false);
   fAddModuleCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
