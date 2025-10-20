@@ -24,32 +24,32 @@ DemandPrimaryGeneratorMessenger::DemandPrimaryGeneratorMessenger(DemandPrimaryGe
 	fPrimary(primary)
 {
   //Setup a command directory for detector controls with guidance
-  fPrimaryDir = new G4UIdirectory("/pterp/generator/");
+  fPrimaryDir = new G4UIdirectory("/demand/generator/");
   fPrimaryDir->SetGuidance("Capture reaction parameters control");
  
   //Various commands for modifying primary generator
-	fBeamZ = new G4UIcmdWithAnInteger("/pterp/generator/beam/Z",this);
+	fBeamZ = new G4UIcmdWithAnInteger("/demand/generator/beam/Z",this);
   fBeamZ->SetGuidance("Beam atomic number (Z).");
   fBeamZ->SetParameterName("Z_beam",false);
   fBeamZ->AvailableForStates(G4State_PreInit,G4State_Idle);
   fBeamZ->SetToBeBroadcasted(false);
 	fBeamZ->SetDefaultValue(0);
 	
-	fBeamA = new G4UIcmdWithAnInteger("/pterp/generator/beam/A",this);
+	fBeamA = new G4UIcmdWithAnInteger("/demand/generator/beam/A",this);
   fBeamA->SetGuidance("Beam atomic mass (A).");
   fBeamA->SetParameterName("A_beam",false);
   fBeamA->AvailableForStates(G4State_PreInit,G4State_Idle);
   fBeamA->SetToBeBroadcasted(false);
 	fBeamA->SetDefaultValue(1);
 
-	fSourceZ = new G4UIcmdWithAnInteger("/pterp/generator/source/Z",this);
+	fSourceZ = new G4UIcmdWithAnInteger("/demand/generator/source/Z",this);
   fSourceZ->SetGuidance("Source atomic number (Z).");
   fSourceZ->SetParameterName("Z_source",false);
   fSourceZ->AvailableForStates(G4State_PreInit,G4State_Idle);
   fSourceZ->SetToBeBroadcasted(false);
 	fSourceZ->SetDefaultValue(0);
 	
-	fSourceA = new G4UIcmdWithAnInteger("/pterp/generator/source/A",this);
+	fSourceA = new G4UIcmdWithAnInteger("/demand/generator/source/A",this);
   fSourceA->SetGuidance("Source atomic mass (A).");
   fSourceA->SetParameterName("A_source",false);
   fSourceA->AvailableForStates(G4State_PreInit,G4State_Idle);
@@ -57,7 +57,7 @@ DemandPrimaryGeneratorMessenger::DemandPrimaryGeneratorMessenger(DemandPrimaryGe
 	fSourceA->SetDefaultValue(1);
 
   fBeamEnergy =
-    new G4UIcmdWithADoubleAndUnit("/pterp/generator/beam/energy",this);
+    new G4UIcmdWithADoubleAndUnit("/demand/generator/beam/energy",this);
   fBeamEnergy->SetGuidance("Set the beam energy");
   fBeamEnergy->SetParameterName("e_beam",false);
   fBeamEnergy->SetDefaultUnit("MeV");
@@ -66,7 +66,7 @@ DemandPrimaryGeneratorMessenger::DemandPrimaryGeneratorMessenger(DemandPrimaryGe
 	fBeamEnergy->SetDefaultValue(1.*MeV);
 
 	fReactionCmd =
-		new G4UIcmdWithAString("/pterp/generator/reaction", this);
+		new G4UIcmdWithAString("/demand/generator/reaction", this);
 	fReactionCmd->SetGuidance("Set the reaction");
 	fReactionCmd->SetParameterName("reaction",false);
 	fReactionCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
@@ -74,7 +74,7 @@ DemandPrimaryGeneratorMessenger::DemandPrimaryGeneratorMessenger(DemandPrimaryGe
 	fReactionCmd->SetDefaultValue("none");
 
 	fAngularDistributionCmd =
-		new G4UIcmdWithAString("/pterp/generator/reaction/angdist", this);
+		new G4UIcmdWithAString("/demand/generator/reaction/angdist", this);
 	fAngularDistributionCmd->SetGuidance(
 		"Set the reaction angular distribution");
 	fAngularDistributionCmd->SetParameterName("ang_dist",false);
@@ -83,7 +83,7 @@ DemandPrimaryGeneratorMessenger::DemandPrimaryGeneratorMessenger(DemandPrimaryGe
 	fAngularDistributionCmd->SetDefaultValue("flat");
 
   fExRecoil =
-    new G4UIcmdWithADoubleAndUnit("/pterp/generator/reaction/excitation",this);
+    new G4UIcmdWithADoubleAndUnit("/demand/generator/reaction/excitation",this);
   fExRecoil->SetGuidance("Set the recoil excitation energy");
   fExRecoil->SetParameterName("ex_recoil",false);
   fExRecoil->SetDefaultUnit("MeV");
@@ -92,7 +92,7 @@ DemandPrimaryGeneratorMessenger::DemandPrimaryGeneratorMessenger(DemandPrimaryGe
 	fExRecoil->SetDefaultValue(0);
 
   fBeamSigmaX =
-    new G4UIcmdWithADoubleAndUnit("/pterp/generator/beam/sigma_x",this);
+    new G4UIcmdWithADoubleAndUnit("/demand/generator/beam/sigma_x",this);
   fBeamSigmaX->SetGuidance("Set the beam x-position spread");
   fBeamSigmaX->SetParameterName("sig_x",false);
   fBeamSigmaX->SetDefaultUnit("mm");
@@ -101,7 +101,7 @@ DemandPrimaryGeneratorMessenger::DemandPrimaryGeneratorMessenger(DemandPrimaryGe
 	fBeamSigmaX->SetDefaultValue(0);
 
   fBeamSigmaY =
-    new G4UIcmdWithADoubleAndUnit("/pterp/generator/beam/sigma_y",this);
+    new G4UIcmdWithADoubleAndUnit("/demand/generator/beam/sigma_y",this);
   fBeamSigmaY->SetGuidance("Set the beam y-position spread");
   fBeamSigmaY->SetParameterName("sig_y",false);
   fBeamSigmaY->SetDefaultUnit("mm");
@@ -110,7 +110,7 @@ DemandPrimaryGeneratorMessenger::DemandPrimaryGeneratorMessenger(DemandPrimaryGe
 	fBeamSigmaY->SetDefaultValue(0);
 
   fBeamSigmaThetaX =
-    new G4UIcmdWithADoubleAndUnit("/pterp/generator/beam/sigma_thx",this);
+    new G4UIcmdWithADoubleAndUnit("/demand/generator/beam/sigma_thx",this);
   fBeamSigmaThetaX->SetGuidance("Set the beam x-angle spread");
   fBeamSigmaThetaX->SetParameterName("sig_thx",false);
   fBeamSigmaThetaX->SetDefaultUnit("mrad");
@@ -119,7 +119,7 @@ DemandPrimaryGeneratorMessenger::DemandPrimaryGeneratorMessenger(DemandPrimaryGe
 	fBeamSigmaThetaX->SetDefaultValue(0);
 	
   fBeamSigmaThetaY =
-    new G4UIcmdWithADoubleAndUnit("/pterp/generator/beam/sigma_thy",this);
+    new G4UIcmdWithADoubleAndUnit("/demand/generator/beam/sigma_thy",this);
   fBeamSigmaThetaY->SetGuidance("Set the beam y-angle spread");
   fBeamSigmaThetaY->SetParameterName("sig_thy",false);
   fBeamSigmaThetaY->SetDefaultUnit("mrad");
@@ -128,7 +128,7 @@ DemandPrimaryGeneratorMessenger::DemandPrimaryGeneratorMessenger(DemandPrimaryGe
 	fBeamSigmaThetaY->SetDefaultValue(0);
 
 	fSourceEnergies =
-		new G4UIcmdWith3VectorAndUnit("/pterp/generator/source/energies",this);
+		new G4UIcmdWith3VectorAndUnit("/demand/generator/source/energies",this);
   fSourceEnergies->SetGuidance("Set the range of source energies");
   fSourceEnergies->SetParameterName("source_elow","source_ehigh","dummy",false);
   fSourceEnergies->SetDefaultUnit("MeV");
