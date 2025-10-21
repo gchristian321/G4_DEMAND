@@ -65,6 +65,7 @@ set(EXAMPLE_SCRIPTS
   init_vis.mac
   run.mac
   run-reaction.mac
+  run-geant3.mac
   vis.mac
   config.mac
   )
