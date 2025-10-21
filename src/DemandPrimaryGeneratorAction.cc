@@ -34,6 +34,7 @@
 #include "DemandPrimaryGeneratorMessenger.hh"
 #include "DemandDetectorConstruction.hh"
 #include "DemandAnalysis.hh"
+#include "DemandRunAction.hh"
 
 #include "G4RunManager.hh"
 #include "G4LogicalVolumeStore.hh"
@@ -131,7 +132,9 @@ void DemandPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	
 	if(fReaction.empty() || fReaction == "none") {
 		ShootBeam(anEvent);
-	}	else {
+	}	else if(fReaction == "geant3") {
+		ShootGeant3(anEvent);
+	} else {
 
 		if(dynamic_cast<const DemandDetectorConstruction&>(
 				 *(G4RunManager::GetRunManager()->GetUserDetectorConstruction())).
@@ -153,6 +156,32 @@ void DemandPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 		SetupReaction(beamChanged);
 		ShootReaction(anEvent);
 	}
+}
+
+void DemandPrimaryGeneratorAction::ShootGeant3(G4Event* anEvent)
+{
+	G3Event g3evt;
+	auto runAction = static_cast<const DemandRunAction*>(
+		G4RunManager::GetRunManager()->GetUserRunAction() );
+	runAction->GetGeant3Event( anEvent->GetEventID() , &g3evt );
+
+	fParticleGun->SetParticlePosition( g3evt.fPosition );
+	fParticleGun->SetParticleEnergy( g3evt.fKineticEnergy );
+	fParticleGun->SetParticleMomentumDirection( g3evt.fMomentumDirection );
+
+	fParticleGun->GeneratePrimaryVertex(anEvent);
+
+	G4LorentzVector momentum;
+	const G4double mass   = fParticleGun->GetParticleDefinition()->GetPDGMass();
+	const G4double theta  = g3evt.fMomentumDirection.theta();
+	const G4double phi    = g3evt.fMomentumDirection.phi();
+	const G4double pmag   = sqrt(pow(g3evt.fKineticEnergy+mass,2) - mass*mass);
+	momentum.set(pmag*sin(theta)*cos(phi),
+							 pmag*sin(theta)*sin(phi),
+							 pmag*cos(theta),
+							 g3evt.fKineticEnergy+mass);
+	DemandAnalysis::Instance()->SetGeneratedNeutron(momentum);
+	DemandAnalysis::Instance()->SetGeneratedRecoil(G4LorentzVector(0,0,0,0));
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -98,12 +98,15 @@ public:
 		{return fRecoilDefinition;  }
 	g4gen::ReactionKinematics* GetReactionKinematics() const
 		{ return fReactionGenerator; }
+
+	const G4String& GetReaction() const { return fReaction; }
 	
 private:
 	bool SetupBeam();
 	bool SetupReaction(bool);
 	void ShootBeam(G4Event*);
 	void ShootReaction(G4Event*);
+	void ShootGeant3(G4Event*);
 	bool CheckThetaLimits(
 		const G4LorentzVector& lv, const G4ThreeVector& pos);
 	
@@ -123,7 +126,7 @@ private:
 	G4ParticleDefinition* fTargetDefinition;
 	G4ParticleDefinition* fEjectileDefinition;
 	G4ParticleDefinition* fRecoilDefinition;
-
+	
 	g4gen::ReactionKinematics* fReactionGenerator;
 
 	DemandPrimaryGeneratorMessenger *fMessenger;

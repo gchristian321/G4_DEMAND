@@ -31,10 +31,12 @@
 #ifndef DemandRunAction_h
 #define DemandRunAction_h 1
 
+#include <vector>
 #include "G4UserRunAction.hh"
 #include "globals.hh"
 
 class G4Run;
+class DemandRunMessenger;
 
 /// Run action class
 ///
@@ -54,6 +56,18 @@ class G4Run;
 /// dispersion is printed.
 ///
 
+#include <G4ThreeVector.hh>
+
+class TFile;
+class TTree;
+
+struct G3Event
+{
+	G4ThreeVector fPosition;
+	G4ThreeVector fMomentumDirection;
+	G4double      fKineticEnergy;
+};
+
 class DemandRunAction : public G4UserRunAction
 {
   public:
@@ -62,8 +76,22 @@ class DemandRunAction : public G4UserRunAction
 
     virtual void BeginOfRunAction(const G4Run*);
     virtual void   EndOfRunAction(const G4Run*);
+	
+	  G4long SetupGeant3Input(const G4String&);
+	  void GetGeant3Event(G4long indx, G3Event*) const;
+
+  private:
+	  void CleanupGeant3Input();
+	
   private:
 	  G4int fNumRuns;
+	  TFile* fG3File;
+  	TTree* fG3Tree;
+	  G4float E_n, cost_n, cosp_n, sinp_n, xint, yint, zint;
+	  G4int react, recdet;
+	  std::vector<G4long> fEventIndices;
+
+	  DemandRunMessenger* fRunMessenger;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

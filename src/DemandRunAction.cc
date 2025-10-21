@@ -30,8 +30,13 @@
 
 #include "DemandRunAction.hh"
 #include "DemandAnalysis.hh"
+#include "DemandPrimaryGeneratorAction.hh"
+#include "DemandRunMessenger.hh"
 
 #include <sstream>
+
+#include <TFile.h>
+#include <TTree.h>
 
 #include "G4Run.hh"
 #include "G4RunManager.hh"
@@ -42,7 +47,9 @@
 
 DemandRunAction::DemandRunAction()
 	: G4UserRunAction(),
-		fNumRuns(0)
+		fNumRuns(0),
+		fG3File(nullptr),
+		fG3Tree(nullptr)
 { 
   // set printing event number per each event
   G4RunManager::GetRunManager()->SetPrintProgress(1);     
@@ -54,12 +61,15 @@ DemandRunAction::DemandRunAction()
 	if(!analysisManager) {
 		throw std::logic_error("Couldn't create analysis manager in RunAction!");
 	}
+
+	fRunMessenger = new DemandRunMessenger(this);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 DemandRunAction::~DemandRunAction()
 {
+	CleanupGeant3Input();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -81,7 +91,7 @@ void DemandRunAction::BeginOfRunAction(const G4Run* /*run*/)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void DemandRunAction::EndOfRunAction(const G4Run* /*run*/)
+void DemandRunAction::EndOfRunAction(const G4Run* run)
 {
   // print histogram statistics
   //
@@ -90,6 +100,9 @@ void DemandRunAction::EndOfRunAction(const G4Run* /*run*/)
   // save histograms & ntuple
   //
   analysisManager->Write();
+ 
+	G4cout << "Number of events simulated: " <<
+		run->GetNumberOfEvent() << " ( " << fEventIndices.size() << " )\n";
 
 	G4cout << "Number of hits above threshold: " <<
 		analysisManager->GetEventsAboveThreshold() << G4endl;
@@ -98,6 +111,88 @@ void DemandRunAction::EndOfRunAction(const G4Run* /*run*/)
 		analysisManager->GetEventsCrossingDetector() << G4endl;
 	
   analysisManager->CloseFile();
+	CleanupGeant3Input();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void DemandRunAction::CleanupGeant3Input()
+{
+	if(fG3File){
+		if(fG3Tree){
+			fG3Tree->ResetBranchAddresses();
+		}
+		fG3File->Close();
+		delete fG3File;
+		fG3File = nullptr;
+		fG3Tree = nullptr;
+	}
+	fEventIndices.clear();
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+G4long DemandRunAction::SetupGeant3Input(const G4String& g3fname)
+{
+	fG3File = TFile::Open(g3fname.c_str());
+	if(!fG3File){
+		throw std::runtime_error(
+			Form("Bad input ROOT file: \"%s\" !",
+					 g3fname.c_str()));
+	}
+
+	fG3Tree = dynamic_cast<TTree*>(fG3File->Get("h1000"));
+	if(!fG3Tree){
+		throw std::runtime_error(
+			Form("Bad input ROOT file (no h1000 tree): \"%s\" !",
+					 g3fname.c_str()));
+	}
+
+	fG3Tree->SetBranchAddress("E_n",&E_n);
+	fG3Tree->SetBranchAddress("cost_n",&cost_n);
+	fG3Tree->SetBranchAddress("cosp_n",&cosp_n);
+	fG3Tree->SetBranchAddress("sinp_n",&sinp_n);
+	fG3Tree->SetBranchAddress("xint",&xint);
+	fG3Tree->SetBranchAddress("yint",&yint);
+	fG3Tree->SetBranchAddress("zint",&zint);
+	fG3Tree->SetBranchAddress("react",&react);
+	fG3Tree->SetBranchAddress("recdet",&recdet);
+
+	fEventIndices.clear();
+	for(G4long entry = 0; entry < fG3Tree->GetEntries(); ++entry){
+		fG3Tree->GetEntry ( entry );
+		if ( react != 0 && recdet != 0 ) {
+			fEventIndices.push_back(entry);
+		}
+	}
+
+	G4cout << "Number of events in GEANT3 file: " << fEventIndices.size() << G4endl;
+	return fEventIndices.size();
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void DemandRunAction::GetGeant3Event(G4long indx, G3Event* g3evt) const
+{
+	G4long eventNo;
+	try {
+		eventNo = fEventIndices.at ( indx );
+	}
+	catch (std::exception& e){
+		G4cerr << "ERROR: bad event index " << indx << ", number of valid events: "
+					 << fEventIndices.size() << G4endl;
+		throw e;
+	}
+	
+	fG3Tree->GetEntry ( eventNo );
+	g3evt->fPosition.set(xint,yint,zint);
+
+	G4double sint_n  = sqrt(1.0 - cost_n*cost_n);
+	g3evt->fMomentumDirection.set(
+		sint_n * cosp_n,
+		sint_n * sinp_n,
+		cost_n
+		);
+	g3evt->fKineticEnergy = E_n;
+}
+
