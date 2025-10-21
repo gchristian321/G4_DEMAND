@@ -85,8 +85,19 @@ void DemandRunAction::BeginOfRunAction(const G4Run* /*run*/)
   // Open an output file
   //
 	std::stringstream fileName;
-	fileName << "Demand_" << fNumRuns++ << ".root";
-  analysisManager->OpenFile(fileName.str());
+	if(!fG3File){
+		fileName << "Demand_" << fNumRuns++ << ".root";
+	}
+	else{
+		// add _demand to Geant3 file name
+		G4String path = fG3File->GetName();
+		G4String g3filename = path.substr(path.find_last_of("/\\") + 1);
+		std::size_t dot = g3filename.find_last_of('.');
+		std::string base = (dot == std::string::npos) ? g3filename : g3filename.substr(0, dot);
+		std::string ext  = (dot == std::string::npos) ? "" : g3filename.substr(dot);
+		fileName << base << "_demand" << ext;
+	}
+	analysisManager->OpenFile(fileName.str());
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
