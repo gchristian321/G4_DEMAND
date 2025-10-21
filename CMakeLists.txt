@@ -68,6 +68,7 @@ set(EXAMPLE_SCRIPTS
   run-geant3.mac
   vis.mac
   config.mac
+  config-demand-xyz.mac
   )
 
 foreach(_script ${EXAMPLE_SCRIPTS})
