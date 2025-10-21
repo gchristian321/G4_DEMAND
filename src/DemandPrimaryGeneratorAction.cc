@@ -171,17 +171,14 @@ void DemandPrimaryGeneratorAction::ShootGeant3(G4Event* anEvent)
 
 	fParticleGun->GeneratePrimaryVertex(anEvent);
 
-	G4LorentzVector momentum;
 	const G4double mass   = fParticleGun->GetParticleDefinition()->GetPDGMass();
-	const G4double theta  = g3evt.fMomentumDirection.theta();
-	const G4double phi    = g3evt.fMomentumDirection.phi();
 	const G4double pmag   = sqrt(pow(g3evt.fKineticEnergy+mass,2) - mass*mass);
-	momentum.set(pmag*sin(theta)*cos(phi),
-							 pmag*sin(theta)*sin(phi),
-							 pmag*cos(theta),
-							 g3evt.fKineticEnergy+mass);
-	DemandAnalysis::Instance()->SetGeneratedNeutron(momentum);
-	DemandAnalysis::Instance()->SetGeneratedRecoil(G4LorentzVector(0,0,0,0));
+	DemandAnalysis::Instance()->SetGeneratedNeutron(
+		G4LorentzVector(pmag*g3evt.fMomentumDirection, g3evt.fKineticEnergy+mass)
+		);
+	DemandAnalysis::Instance()->SetGeneratedRecoil(
+		g3evt.fRecoilLorentzVector
+		);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

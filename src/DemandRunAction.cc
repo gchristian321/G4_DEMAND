@@ -211,5 +211,12 @@ void DemandRunAction::GetGeant3Event(G4long indx, G3Event* g3evt) const
 		cost_n
 		);
 	g3evt->fKineticEnergy = E_n;
+
+	const double m_rec = 23.2741642 * GeV; // hard coded - same as GEANT3
+	const double p_rec = sqrt(pow(E_rec+m_rec, 2) - m_rec*m_rec);
+	const double sint_r = sqrt(1.0 - cost_r*cost_r);
+	g3evt->fRecoilLorentzVector.set(
+		sint_r * cosp_r, sint_r * sinp_r,	cost_r,	E_rec + m_rec
+		);
 }
 

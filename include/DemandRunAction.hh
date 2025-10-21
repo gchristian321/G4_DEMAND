@@ -57,15 +57,17 @@ class DemandRunMessenger;
 ///
 
 #include <G4ThreeVector.hh>
+#include <G4LorentzVector.hh>
 
 class TFile;
 class TTree;
 
 struct G3Event
 {
-	G4ThreeVector fPosition;
-	G4ThreeVector fMomentumDirection;
-	G4double      fKineticEnergy;
+	G4ThreeVector   fPosition;
+	G4ThreeVector   fMomentumDirection;
+	G4double        fKineticEnergy;
+	G4LorentzVector fRecoilLorentzVector;
 };
 
 class DemandRunAction : public G4UserRunAction
