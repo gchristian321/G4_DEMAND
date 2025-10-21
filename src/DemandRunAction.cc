@@ -132,6 +132,16 @@ void DemandRunAction::CleanupGeant3Input()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+namespace {
+template<typename T> void set_branch_address(TTree* tree,const char* name,T& t)
+{
+	if( tree->SetBranchAddress(name, &t) != 0 ) {
+		throw std::runtime_error(
+			Form("ERROR in DemandRunAction::SetupGeant3Input -- "
+					 "Bad h1000 tree, no %s branch!", name) );
+	}
+}}
+
 G4long DemandRunAction::SetupGeant3Input(const G4String& g3fname)
 {
 	fG3File = TFile::Open(g3fname.c_str());
@@ -148,15 +158,22 @@ G4long DemandRunAction::SetupGeant3Input(const G4String& g3fname)
 					 g3fname.c_str()));
 	}
 
-	fG3Tree->SetBranchAddress("E_n",&E_n);
-	fG3Tree->SetBranchAddress("cost_n",&cost_n);
-	fG3Tree->SetBranchAddress("cosp_n",&cosp_n);
-	fG3Tree->SetBranchAddress("sinp_n",&sinp_n);
-	fG3Tree->SetBranchAddress("xint",&xint);
-	fG3Tree->SetBranchAddress("yint",&yint);
-	fG3Tree->SetBranchAddress("zint",&zint);
-	fG3Tree->SetBranchAddress("react",&react);
-	fG3Tree->SetBranchAddress("recdet",&recdet);
+	set_branch_address(fG3Tree,"E_n",E_n);
+	set_branch_address(fG3Tree,"cost_n",cost_n);
+	set_branch_address(fG3Tree,"cosp_n",cosp_n);
+	set_branch_address(fG3Tree,"sinp_n",sinp_n);
+
+	set_branch_address(fG3Tree,"E_rec",E_rec);
+	set_branch_address(fG3Tree,"cost_r",cost_r);
+	set_branch_address(fG3Tree,"cosp_r",cosp_r);
+	set_branch_address(fG3Tree,"sinp_r",sinp_r);
+
+	set_branch_address(fG3Tree,"xint",xint);
+	set_branch_address(fG3Tree,"yint",yint);
+	set_branch_address(fG3Tree,"zint",zint);
+
+	set_branch_address(fG3Tree,"react",react);
+	set_branch_address(fG3Tree,"recdet",recdet);
 
 	fEventIndices.clear();
 	for(G4long entry = 0; entry < fG3Tree->GetEntries(); ++entry){

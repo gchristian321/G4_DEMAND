@@ -88,6 +88,7 @@ class DemandRunAction : public G4UserRunAction
 	  TFile* fG3File;
   	TTree* fG3Tree;
 	  G4float E_n, cost_n, cosp_n, sinp_n, xint, yint, zint;
+	  G4float E_rec, cost_r, cosp_r, sinp_r;
 	  G4int react, recdet;
 	  std::vector<G4long> fEventIndices;
 
