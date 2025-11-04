@@ -28,6 +28,7 @@ include(${Geant4_USE_FILE})
 include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${PROJECT_SOURCE_DIR}/include/g4gen)
 include_directories(${PROJECT_SOURCE_DIR}/include/json)
+include_directories(${PROJECT_SOURCE_DIR}/include/DRAGON-Geant4)
 
 #Find ROOT
 find_package(ROOT REQUIRED)
@@ -43,8 +44,8 @@ link_directories(${ROOT_LIBRARY_DIR})
 # Locate sources and headers for this project
 # NB: headers are included so they will show up in IDEs
 #
-file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc ${PROJECT_SOURCE_DIR}/src/g4gen/*.cc ${PROJECT_SOURCE_DIR}/src/g4gen/*.cpp)
-file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh ${PROJECT_SOURCE_DIR}/include/g4gen/*.hh ${PROJECT_SOURCE_DIR}/include/json/*.h)
+file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc ${PROJECT_SOURCE_DIR}/src/g4gen/*.cc ${PROJECT_SOURCE_DIR}/src/g4gen/*.cpp ${PROJECT_SOURCE_DIR}/src/DRAGON-Geant4/*.cc)
+file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh ${PROJECT_SOURCE_DIR}/include/g4gen/*.hh ${PROJECT_SOURCE_DIR}/include/json/*.h ${PROJECT_SOURCE_DIR}/include/DRAGON-Geant4/*.hh)
 
 
 
