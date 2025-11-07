@@ -3,6 +3,7 @@
 #include "G4LogicalVolume.hh"
 #include "G4PVPlacement.hh"
 #include "G4SystemOfUnits.hh"
+#include "G4LogicalVolumeStore.hh"
 
 #include "DRAGONDetectorConstruction.hh"    //local 
 #include "Materials.hh"    
@@ -44,17 +45,17 @@ void DRAGONDetectorConstruction::ugeom()
 //C.    Space 
 //C.
 //C.======================================================================
-  
+
 ugeo_space();
-  
+
 //C.======================================================================
 //C.
 //C.    Detector
 //C.
 //C.======================================================================
- 
+
 ugeo_detector();
-  
+
 //C.======================================================================
 //C.
 //C.    Target
@@ -79,7 +80,7 @@ else if(tubetype == 5)                   //OJO problema
        ugeo_trgt_small_right();
 else if(tubetype == 6)  
        ugeo_trgt_small_hole();
- 
+
 //C.======================================================================
 //C.
 //C.    BSO Fingers
@@ -87,7 +88,7 @@ else if(tubetype == 6)
 //C.======================================================================
 
 ugeo_finger();
-        
+
 //************************************************************************
 //*                                                                      *
 //*                     Define the PMT plate and PMTs                    *
@@ -108,8 +109,8 @@ void DRAGONDetectorConstruction::ugeo_space()
 //************************************************************************
 //C.     
 //C.                              VACUUM SPACE 
-//                              **************** 
-		 
+//                              ****************
+#if 0
       G4double shape[3];
       shape[0]=1500.;     //! square box space
       shape[1]=shape[0];
@@ -121,8 +122,13 @@ void DRAGONDetectorConstruction::ugeo_space()
       //TMED->1
       WRLD_log = new G4LogicalVolume(WRLD_solid,material,"WRLD"); 
       auto WRLD_phys = new G4PVPlacement(nullptr,G4ThreeVector(),WRLD_log,"WRLD",nullptr,false,0,checkOverlaps); 
-      }
 
+#else
+			
+			WRLD_log = G4LogicalVolumeStore::GetInstance()->GetVolume("WRLD");
+			
+#endif
 
+		 }
 
 }

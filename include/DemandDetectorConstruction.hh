@@ -17,6 +17,7 @@
 class G4Material;
 class G4VPhysicalVolume;
 class G4AssemblyVolume;
+class G4LogicalVolume;
 
 class DemandDetectorConstruction: public G4VUserDetectorConstruction {
 public:
@@ -72,7 +73,7 @@ public:
 	const G4Material* GetTargetMaterial() const { return fTargetMaterial; }
 	G4double GetTargetThickness() const { return fTargetThickness; }
 	bool GetHaveTarget() const { return fHaveTarget; }
-	
+
 private:
 	bool fCheckOverlaps;
 	std::vector<Module_t> fModules;
@@ -83,6 +84,51 @@ private:
 	G4Material* fTargetMaterial;
 	G4double fTargetThickness;
 	bool fHaveTarget;
+
+
+
+	// DRAGON-Geant4 Stuff
+private:
+	void ugeo_defin();
+	void ugeo_detector();
+private:
+	bool checkOverlaps;
+	G4LogicalVolume* WRLD_log;
+	G4int max_step; 
+	G4double len_max;
+	G4int mtarg, mcent, ment[6], mex[6], mbox;
+	G4Material* G4mtarg;
+	G4double Rrms, TLrms, 
+	targetl, rent, lent, len1, riren1, rilen1,
+	len2, riren2, rilen2,
+	len3, riren3, rilen3,
+	lex1, rilex1, rirex1, lex2, rilex2, rirex2,
+	lex3, rilex3, rirex3, lex4, rilex4, rirex4;
+	G4double s_finger, z_finger, air_gap, d_air[2], d_mtl, gap;
+	G4double zent[6], zex[7];
+	G4int  targtype, tubetype;
+	G4double shield_end[2], xtnd_block;
+	G4int mask[30];     
+	G4String MASK;
+	G4double hexagon_small_width, hexagon_large_width, depth,
+	wall[3], box_width, box_length, aprt, col_length, 
+	col_collar_length;
+	G4int mtype_pmt;
+	G4double pmt_size, pmt_length;
+	G4double bulk_absorption, paint_absorption;
+	G4int n_detmate;
+	G4double entdens,exitdens;
+	
+	static const G4int max = 30;
+	
+	
+public:
+	static const G4int max_hexagon = 30;
+	static const G4int Nn = 10;
+	G4int n_fngr[Nn][max] = {0};	    
+	G4double x_fngr[max_hexagon], y_fngr[max_hexagon], z_fngr[max_hexagon];
+	G4int adjacency_matrix[30][30];
+
 };
 
 

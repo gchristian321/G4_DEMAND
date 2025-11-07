@@ -63,7 +63,7 @@ class DRAGONDetectorConstruction : public G4VUserDetectorConstruction
     void ugeom();
     void udet();
     void udetmitray();
-    void ugeo_space();
+	  void ugeo_space();
     void ugeo_defin(); 
     void ugeo_detector();
     void ugeo_finger();

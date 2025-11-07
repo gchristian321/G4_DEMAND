@@ -57,6 +57,12 @@ DRAGONDetectorConstruction::DRAGONDetectorConstruction(DRAGONPhysicsList* phys)
  uvinit();
 
  fDetMessenger = new DRAGONDetectorMessenger(this);
+
+ SetTUBE(4);
+ SetPMTR("2.54 2.5");
+ SetHOLE(4.496);
+ SetTARG(2);
+ SetCheckOverlaps(false); 
  }
 
 DRAGONDetectorConstruction::~DRAGONDetectorConstruction()
@@ -69,31 +75,32 @@ G4VPhysicalVolume* DRAGONDetectorConstruction::Construct()
 {
 std::cout << "-GEOMETRIA-" << std::endl;
 
-Materials* materials = Materials::Instance();  
-materials->atarg = DRAGON_phys->Getatarg();
+Materials* materials = Materials::Instance();
+
+
+materials->atarg = 4;//DRAGON_phys->Getatarg();
 materials->bulk_absorption = this->bulk_absorption;
 materials->paint_absorption = this->paint_absorption;
 materials->ugmate();
 materials->ugstmed();  
-DRAGON_phys->Setmtarg(materials->mtarg);
-DRAGON_phys->SetMtarg(materials->Target);
+// DRAGON_phys->Setmtarg(materials->mtarg);
+// DRAGON_phys->SetMtarg(materials->Target);
 
 std::cout << "Material: " << materials->Target->GetName() << std::endl;
 
-DRAGON_phys->Setentdens(materials->entdens);
-DRAGON_phys->Setexitdens(materials->exitdens);
+// DRAGON_phys->Setentdens(materials->entdens);
+// DRAGON_phys->Setexitdens(materials->exitdens);
 
 G4cout << *(G4Material::GetMaterialTable()); 
 
 ugeom();
-
 //C     .
 //C     .-->   Geometry description
 //C     .
 //C     .-->   Initialize MITRAY B-field routines by reading RAYTRACE file
 
-mitray_setup();
-         
+//mitray_setup();
+
 G4PhysicalVolumeStore* volumeStore = G4PhysicalVolumeStore::GetInstance();
 G4VPhysicalVolume* WRLD_phys = volumeStore->GetVolume("WRLD");
 userLimits = new G4UserLimits();
@@ -102,8 +109,9 @@ userLimits->SetUserMaxTrackLength(len_max*cm);
 WRLD_phys->GetLogicalVolume()->SetUserLimits(userLimits);
 
 //G4int a = Getntot("HSNG");
-  
+
 return WRLD_phys;
+
 }
 
 void DRAGONDetectorConstruction::uvinit()
@@ -190,8 +198,9 @@ void DRAGONDetectorConstruction::SetPMTR(const G4String& input)
     G4RunManager::GetRunManager()->GeometryHasBeenModified();
 }
 
- void DRAGONDetectorConstruction::SetTUBE(G4int newVal) 
+void DRAGONDetectorConstruction::SetTUBE(G4int newVal) 
 	 {
+		 G4cout << "SetTUBE: " << newVal << G4endl;
 	  tubetype = newVal;  
 	  
 	  G4RunManager::GetRunManager()->GeometryHasBeenModified();

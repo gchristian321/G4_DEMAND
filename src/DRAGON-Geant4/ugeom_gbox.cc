@@ -32,7 +32,7 @@
 namespace DRAGON {
 
 void DRAGONDetectorConstruction::ugeo_detector() 
-     {  
+     {
 //C *** Local variables
       
       G4double the1, phi1, the2, phi2, the3, phi3;
@@ -46,11 +46,12 @@ void DRAGONDetectorConstruction::ugeo_detector()
       Materials* materials = Materials::Instance();
       G4Material* material;
 
+
 //C     std::cout << "ugeom_detector" << std::endl;      
 //C.    Define Geometry
       ugeo_defin();
-       
-      if(targtype == 1 || DRAGON_phys->Getalpha())
+
+      if(1)//targtype == 1) || DRAGON_phys->Getalpha())
         {
          mcent = 1;
          mbox = 1;
@@ -62,12 +63,12 @@ void DRAGONDetectorConstruction::ugeo_detector()
          mex[2] = 1;
          }
    
-      if(DRAGON_phys->Getalpha()) 
-        {
-         mtarg = 1;	
-         materials->Target = materials->Vacuum;   
-		  }
-   
+      // if(DRAGON_phys->Getalpha()) 
+      //   {
+      //    mtarg = 1;	
+      //    materials->Target = materials->Vacuum;   
+		  // }
+
       hexagon_small_width = s_finger + 2.*d_air[0] + 2.*d_mtl + air_gap;
       hexagon_large_width = 2. * hexagon_small_width / std::sqrt(3.);
       depth = z_finger + d_air[1] + d_mtl;
@@ -79,6 +80,10 @@ void DRAGONDetectorConstruction::ugeo_detector()
       shape[1] = 5.  * hexagon_large_width;                 //! half y width
       shape[2] = 3. * hexagon_small_width + col_length/2.;  //! half z width;
       shape[2] = TLrms;
+//G4cout << "-------------- HERE1 ---------------" << G4endl;
+			G4cout << "DETE shape[0,1,2],(2),TLrms: "
+						 << shape[0] << ", " << shape[1] << ", " << shape[2]<< ", "
+						 << 3. * hexagon_small_width + col_length/2. << ", " << TLrms << G4endl;
       
       //--------------------DETE----------------------// 
       G4VSolid* DETE_solid = new G4Box("DETE",shape[0]*cm,shape[1]*cm,shape[2]*cm);
@@ -93,6 +98,7 @@ void DRAGONDetectorConstruction::ugeo_detector()
       box_length = 17.069;
       box_height = 20.0;
       beam_height = - box_height/2. + 3.171;
+//G4cout << "-------------- HERE2 ---------------" << G4endl;
      
       //--------------------CMBR----------------------// 
       shape[0] = box_width/2.;
@@ -107,6 +113,7 @@ void DRAGONDetectorConstruction::ugeo_detector()
       
       G4UserLimits* CMBRLimits = new G4UserLimits(10.0*cm);  //From ugstmed.f
       CMBR_log->SetUserLimits(CMBRLimits);
+//G4cout << "-------------- HERE3 ---------------" << G4endl;
       
       //--------------------CMBG----------------------// 
       shape[0] = shape[0] - wall[1];
@@ -131,6 +138,7 @@ void DRAGONDetectorConstruction::ugeo_detector()
 //c   CR changed to ONLY
       G4ThreeVector CMBR_pos(0.0*cm,y*cm,0.0*cm);
       G4VPhysicalVolume* CMBR_phys = new G4PVPlacement(0,CMBR_pos,CMBR_log,"CMBR",DETE_log,false,0,checkOverlaps);  
+//G4cout << "-------------- HERE4 ---------------" << G4endl;
     
 //C.---> Collimator hole through outer aluminum  gas cell box
 //C. changed material & z -> -z from DG's sim - CR. Need irot?
@@ -165,6 +173,7 @@ void DRAGONDetectorConstruction::ugeo_detector()
       z = box_length/2. - wall[1] - bpa_in_len;
       G4ThreeVector PUAI_pos(0.0*cm,y*cm,-z*cm);
       G4VPhysicalVolume* PUAI_phys = new G4PVPlacement(0,PUAI_pos,PUAI_log,"PUAI",CMBG_log,false,0,checkOverlaps);  
+//G4cout << "-------------- HERE5 ---------------" << G4endl;
     
       //--------------------PUBI----------------------//  
       shape[0] = 0.0;
@@ -190,6 +199,7 @@ void DRAGONDetectorConstruction::ugeo_detector()
       bpi_len = 0.585;
       bpj_len = 0.350;
 //    bpj_len2 = 0.467;
+//G4cout << "-------------- HERE6 ---------------" << G4endl;
 
 //--------------------PUA1----------------------// 
       shape[0] = 0.0;
@@ -254,7 +264,7 @@ void DRAGONDetectorConstruction::ugeo_detector()
       shape[0] = 0.0;
       shape[1] = 1.353;
       shape[2] = bpc_len;                //!end collar detail half thickness
-  
+//G4cout << "-------------- HERE7 ---------------" << G4endl;  
       G4VSolid* PUC1_solid = new G4Tubs("PUC1",shape[0]*cm,shape[1]*cm,shape[2]*cm,0.0*deg,360.0*deg);
       //TMED->7
       material = materials->Lead;
@@ -324,7 +334,7 @@ void DRAGONDetectorConstruction::ugeo_detector()
       shape[0] = 0.0;
       shape[1] = 3.20;
       shape[2] = bpe_len;                //!end collar detail half thickness
-  
+  //G4cout << "-------------- HERE8 ---------------" << G4endl;
       G4VSolid* PUE1_solid = new G4Tubs("PUE1",shape[0]*cm,shape[1]*cm,shape[2]*cm,0.0*deg,360.0*deg);
       //TMED->7
       material = materials->Lead;
@@ -428,7 +438,7 @@ void DRAGONDetectorConstruction::ugeo_detector()
       G4LogicalVolume* PUF6_log = new G4LogicalVolume(PUF6_solid, material,"PUF6");
       G4VPhysicalVolume* PUF6_phys = new G4PVPlacement(0,G4ThreeVector(0.0*cm,0.0*cm,0*cm),PUF6_log,"PUF6",PUF5_log,false,0,checkOverlaps); 
       PUF6_log->SetUserLimits(UHOLLimits);  //From ugstmed_trgt.f 
-      
+      //G4cout << "-------------- HERE9 ---------------" << G4endl;
 //C.----> section BPG next in line to left of box
       //--------------------PUG1----------------------// 
       shape[0] = 7.75;
@@ -609,7 +619,7 @@ void DRAGONDetectorConstruction::ugeo_detector()
 //C.    Make the collimator assembly for the gas cell for DOWNSTREAM
 //C.
 //C.***************************************************************    
-      
+      //G4cout << "-------------- HERE6 ---------------" << G4endl;
                               //! opposite side rotating matrix
       
       the1 =  270.*deg;
@@ -1258,6 +1268,7 @@ void DRAGONDetectorConstruction::ugeo_detector()
 //c      G4VPhysicalVolume* PDJ2_phys = new G4PVPlacement(0,G4ThreeVector(0.0*cm,0.0*cm,0.0*cm),PDJ2_log,"PDJ2",PDJ1_log,false,0,checkOverlaps);
 			  }
 	      }
+
       
 //C.***************************************************************
 //C.
@@ -1266,7 +1277,6 @@ void DRAGONDetectorConstruction::ugeo_detector()
 //C.***************************************************************      
 
 //C.    Inner gas cell assembly only needed for gas targets
-
       if (targtype == 0)
          {   
 //C.---> Aluminum outer shell of the cell      
@@ -1369,6 +1379,7 @@ void DRAGONDetectorConstruction::ugeo_detector()
           x = -5.315;
           G4ThreeVector XAPG_pos(x*cm,0.0*cm,z*cm);
           G4VPhysicalVolume* XAPG_phys = new G4PVPlacement(irot_col,XAPG_pos,XAPG_log,"XAPG",CELL_log,false,0,checkOverlaps);
+					
           }
 //C
 //C.***************************************************************
@@ -1395,7 +1406,6 @@ void DRAGONDetectorConstruction::ugeo_detector()
 //C.      create rotation matrix to aline z-axis of disk with x-axis of CELG
 //C.      If the inner gas cell assembly is ever used for solid targets
           
-          
           //--------------------CTAR----------------------//
           G4VSolid* CTAR_solid = new G4Tubs("CTAR",shape[0]*cm,shape[1]*cm,shape[2]*cm,0.0*deg,360.0*deg);
            //TMED->21
@@ -1409,6 +1419,9 @@ void DRAGONDetectorConstruction::ugeo_detector()
           G4UserLimits* CTARLimits = new G4UserLimits(0.00004*cm);  //From ugstmed.f
           CTAR_log->SetUserLimits(CTARLimits);
           }
+
+								//G4cout << "-------------- HERE8 ---------------" << "targtype:"<<targtype << G4endl;
+
 	 }
 
 void DRAGONDetectorConstruction::ugeo_finger()
@@ -1798,7 +1811,7 @@ void DRAGONDetectorConstruction::ugeo_finger()
 		        }
            }
 		   		   
-      if (DRAGONRunAction_det->GetIswit()[3] == 1) 
+      if (1)//DRAGONRunAction_det->GetIswit()[3] == 1) 
 	     {
           for (int i = 0; i < max_hexagon; ++i) 
 		      {std::cout << i << " " << x_fngr[i] << " " << y_fngr[i] << " " << z_fngr[i] << std::endl;} //OJO no estoy seguro a que archivo va esto (mitray.dat)
@@ -1814,16 +1827,16 @@ void DRAGONDetectorConstruction::ugeo_finger()
       
 	  neighborhood();
 
-   std::cout << "n_fngr[][]" << std::endl;
+		std::cout << "n_fngr[][]" << max_hexagon<<" " <<Nn<<std::endl;
       for (int i = 0; i < max_hexagon; ++i) 
 	      {
            for (int j = 0; j < Nn; ++j) 
 		       {
-				 std::cout << n_fngr[j][i] << std::endl;
+						 std::cout << n_fngr[j][i] << " fngr[i,j] "<<i<<","<<j<<std::endl;
 		        }
-           } 
+				}
 	  
-//C      std::cout << "end ugeo_finger" << std::endl;
+      std::cout << "end ugeo_finger" << std::endl;
 //C.
 //C. Filling nearest neighour adding back adjacency matrix
 //C.

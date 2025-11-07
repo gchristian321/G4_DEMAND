@@ -138,6 +138,7 @@ void DRAGONDetectorConstruction::ugeo_defin()
 			  G4RunManager::GetRunManager()->AbortRun();
 		      }
 		  }
-      }
+			 G4cout << "END ugeo_defin() [TLrms]: " << TLrms << G4endl;
+		 }
 
 }
