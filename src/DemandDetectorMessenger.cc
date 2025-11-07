@@ -188,6 +188,15 @@ DemandDetectorMessenger::DemandDetectorMessenger(
 	fTargetMaterialCmd->SetToBeBroadcasted(false);
 	fTargetMaterialCmd->SetDefaultValue("CD2");
 
+	fBGOMaskCmd =
+		new G4UIcmdWithAString("/demand/detector/bgomask", this);
+	fBGOMaskCmd->SetGuidance("Set BGO mask file");
+	fBGOMaskCmd->SetParameterName("bgo_mask",false);
+	fBGOMaskCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
+	fBGOMaskCmd->SetToBeBroadcasted(false);
+	fBGOMaskCmd->SetDefaultValue("");
+
+
   fAddModuleCmd = new G4UIcmdWithoutParameter("/demand/detector/module",this);
   fAddModuleCmd->SetGuidance("Add additional detector module.");
 //  fAddModuleCmd->SetParameterName("add_module",false);
@@ -220,6 +229,7 @@ DemandDetectorMessenger::~DemandDetectorMessenger()
 	delete fTargetThicknessCmd;
 	delete fTargetMaterialCmd;
 	delete fAddModuleCmd;
+	delete fBGOMaskCmd;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -325,5 +335,8 @@ void DemandDetectorMessenger::SetNewValue(
 	else if(command == fAddModuleCmd){
 		fDemandDetector->AddModule();
 		++fCurrentModuleNumber;
+	}
+	else if(command == fBGOMaskCmd){
+		fDemandDetector->SetBGOMask(newValue);
 	}
 }

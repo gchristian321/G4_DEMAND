@@ -73,7 +73,9 @@ public:
 	const G4Material* GetTargetMaterial() const { return fTargetMaterial; }
 	G4double GetTargetThickness() const { return fTargetThickness; }
 	bool GetHaveTarget() const { return fHaveTarget; }
-
+	void SetBGOMask(const G4String& mask){fBGOMask=mask;}
+	const G4String& GetBGOMask() const{return fBGOMask;}
+	
 private:
 	bool fCheckOverlaps;
 	std::vector<Module_t> fModules;
@@ -84,6 +86,7 @@ private:
 	G4Material* fTargetMaterial;
 	G4double fTargetThickness;
 	bool fHaveTarget;
+	G4String fBGOMask;
 
 
 

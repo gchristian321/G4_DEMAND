@@ -70,6 +70,7 @@ set(EXAMPLE_SCRIPTS
   vis.mac
   config.mac
   config-demand-xyz.mac
+  mask_S2230.txt
   )
 
 foreach(_script ${EXAMPLE_SCRIPTS})

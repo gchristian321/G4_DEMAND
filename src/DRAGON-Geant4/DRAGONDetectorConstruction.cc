@@ -57,13 +57,6 @@ DRAGONDetectorConstruction::DRAGONDetectorConstruction(DRAGONPhysicsList* phys)
  uvinit();
 
  fDetMessenger = new DRAGONDetectorMessenger(this);
-
- SetTUBE(4);
- SetPMTR("2.54 2.5");
- SetHOLE(4.496);
- SetTARG(2);
- SetCheckOverlaps(false);
- SetMASK("../mask_S2230.txt");
  }
 
 DRAGONDetectorConstruction::~DRAGONDetectorConstruction()

@@ -44,6 +44,7 @@ DemandDetectorConstruction::DemandDetectorConstruction()
 	fTargetThickness = 0;
 	fHaveTarget = false;
 	checkOverlaps = false;//fCheckOverlaps;
+	fBGOMask="";
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -227,6 +228,14 @@ G4VPhysicalVolume* DemandDetectorConstruction::Construct() {
 	new G4PVPlacement(0,G4ThreeVector(0.0,0.0,200*mm),logicEnclosure,"physEnclosure", worldLV, false, 0, true);*/
 #else	
 	auto dragondet = new DRAGON::DRAGONDetectorConstruction(nullptr);
+	dragondet->SetTUBE(4);
+	dragondet->SetPMTR("2.54 2.5");
+	dragondet->SetHOLE(4.496);
+	dragondet->SetTARG(2);
+	dragondet->SetCheckOverlaps(false);
+	if(fBGOMask != ""){
+		dragondet->SetMASK(fBGOMask);
+	}
 	dragondet->Construct();
 #endif
 
