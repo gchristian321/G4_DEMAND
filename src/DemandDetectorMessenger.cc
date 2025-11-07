@@ -169,6 +169,14 @@ DemandDetectorMessenger::DemandDetectorMessenger(
 	fRotateCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
 	fRotateCmd->SetToBeBroadcasted(false);
 	fRotateCmd->SetDefaultValue(true);
+	
+	fUseDRAGONCmd =
+		new G4UIcmdWithABool("/demand/detector/usedragon", this);
+	fUseDRAGONCmd->SetGuidance("Tell whether to use DRAGON target geometry");
+	fUseDRAGONCmd->SetParameterName("use_dragon",false);
+	fUseDRAGONCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
+	fUseDRAGONCmd->SetToBeBroadcasted(false);
+	fUseDRAGONCmd->SetDefaultValue(false);
 
   fTargetThicknessCmd =
     new G4UIcmdWithADoubleAndUnit(
@@ -226,6 +234,7 @@ DemandDetectorMessenger::~DemandDetectorMessenger()
   delete fNzCmd;
 	delete fReadoutTypeCmd;
 	delete fRotateCmd;
+	delete fUseDRAGONCmd;
 	delete fTargetThicknessCmd;
 	delete fTargetMaterialCmd;
 	delete fAddModuleCmd;
@@ -309,6 +318,11 @@ void DemandDetectorMessenger::SetNewValue(
 	else if(command == fRotateCmd){
 		module->m_Rotate =
 			fRotateCmd->GetNewBoolValue(newValue);
+	}
+	else if(command == fUseDRAGONCmd){
+		fDemandDetector->SetUseDRAGON(
+			fUseDRAGONCmd->GetNewBoolValue(newValue)
+			);
 	}
 	else if(command == fReadoutTypeCmd){
 		if(newValue == "cube") {

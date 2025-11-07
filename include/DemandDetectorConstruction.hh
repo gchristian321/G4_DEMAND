@@ -75,6 +75,8 @@ public:
 	bool GetHaveTarget() const { return fHaveTarget; }
 	void SetBGOMask(const G4String& mask){fBGOMask=mask;}
 	const G4String& GetBGOMask() const{return fBGOMask;}
+	void SetUseDRAGON(bool use){fUseDRAGON=use;}
+	bool GetUseDRAGON() const {return fUseDRAGON;}
 	
 private:
 	bool fCheckOverlaps;
@@ -87,6 +89,7 @@ private:
 	G4double fTargetThickness;
 	bool fHaveTarget;
 	G4String fBGOMask;
+	bool fUseDRAGON;
 
 
 

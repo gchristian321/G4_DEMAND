@@ -137,3 +137,4 @@
 /demand/detector/target/thickness 12.3 centimeter
 
 /demand/detector/bgomask ../mask_S2230.txt
+/demand/detector/usedragon true
