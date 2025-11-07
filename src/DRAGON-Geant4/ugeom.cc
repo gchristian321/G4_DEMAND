@@ -39,6 +39,13 @@ void DRAGONDetectorConstruction::ugeom()
         {mask[i] = value;}
     maskFile.close();
     }
+
+ G4cout << "MASK: ";
+ for(int i=0;i<max_hexagon;++i){
+	 G4cout<<i<<": "<<mask[i];
+	 if(i<max_hexagon-1)G4cout<<", ";
+	 else G4cout<<G4endl;
+ }
 	    
 //C.======================================================================
 //C.

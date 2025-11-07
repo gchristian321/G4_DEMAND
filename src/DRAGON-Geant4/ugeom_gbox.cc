@@ -1624,9 +1624,12 @@ void DRAGONDetectorConstruction::ugeo_finger()
       
       G4VPhysicalVolume* HSNG_phys;
       if(mask[icopy] == 1)
-	   {HSNG_phys = new G4PVPlacement(irot_front,G4ThreeVector(-x*cm,y*cm,-z*cm),HSNG_log,"HSNG",DETE_log,false,icopy,checkOverlaps); icopy++;}
+			{HSNG_phys = new G4PVPlacement(irot_front,G4ThreeVector(-x*cm,y*cm,-z*cm),HSNG_log,"HSNG",DETE_log,false,icopy,checkOverlaps);
       
-      G4cout << icopy << "\t" << -x << "\t" << y << "\t" << -z << G4endl;
+				G4cout << icopy << "\t" << -x << "\t" << y << "\t" << -z << G4endl;
+			}
+			icopy++;
+			
       k = 2;
       //C. Detector 2.
       x =   d_mtl/2. + d_air[1]/2. - pmt_length/2.;
@@ -1638,9 +1641,11 @@ void DRAGONDetectorConstruction::ugeo_finger()
       z_fngr[icopy]  =  z;
    
       if(mask[icopy] == 1)
-	  {HSNG_phys = new G4PVPlacement(irot_front,G4ThreeVector(-x*cm,y*cm,-z*cm),HSNG_log,"HSNG",DETE_log,false,icopy,checkOverlaps);icopy++;} 
+			{HSNG_phys = new G4PVPlacement(irot_front,G4ThreeVector(-x*cm,y*cm,-z*cm),HSNG_log,"HSNG",DETE_log,false,icopy,checkOverlaps);
+      G4cout << icopy << "\t" << -x << "\t" << y << "\t" << -z << G4endl;	
+			}
+			icopy++;
       
-      G4cout << icopy << "\t" << -x << "\t" << y << "\t" << -z << G4endl;
       //C. Detector 3.
       x =   d_mtl/2. + d_air[1]/2. - pmt_length/2. - 6.7;
       y =   aprt + wall[2] + (1./2.)* hexagon_large_width+0.6;
@@ -1651,10 +1656,12 @@ void DRAGONDetectorConstruction::ugeo_finger()
       z_fngr[icopy]  =  z;
 
       if(mask[icopy] == 1)
-	  {HSNG_phys = new G4PVPlacement(irot_front,G4ThreeVector(-x*cm,y*cm,-z*cm),HSNG_log,"HSNG",DETE_log,false,icopy,checkOverlaps); icopy++;}
+			{HSNG_phys = new G4PVPlacement(irot_front,G4ThreeVector(-x*cm,y*cm,-z*cm),HSNG_log,"HSNG",DETE_log,false,icopy,checkOverlaps);
         
       G4cout << icopy << "\t" << -x << "\t" << y << "\t" << -z << G4endl;
-      
+			}
+			icopy++;
+			
       k = 3;
       //C. Detector 4.
       x =   d_mtl/2. + d_air[1]/2. - pmt_length/2.;
@@ -1666,10 +1673,12 @@ void DRAGONDetectorConstruction::ugeo_finger()
       z_fngr[icopy]  =  z;
    
       if(mask[icopy] == 1)
-	  {HSNG_phys = new G4PVPlacement(irot_front,G4ThreeVector(-x*cm,y*cm,-z*cm),HSNG_log,"HSNG",DETE_log,false,icopy,checkOverlaps); icopy++;}
+			{HSNG_phys = new G4PVPlacement(irot_front,G4ThreeVector(-x*cm,y*cm,-z*cm),HSNG_log,"HSNG",DETE_log,false,icopy,checkOverlaps);
         
-      G4cout << icopy << "\t" << -x << "\t" << y << "\t" << -z << G4endl;
-    
+				G4cout << icopy << "\t" << -x << "\t" << y << "\t" << -z << G4endl;
+			}
+			icopy++;
+			
       k = 5;
       //C. Detector 5.
       y =  (9./8.) * hexagon_large_width;
@@ -1680,10 +1689,12 @@ void DRAGONDetectorConstruction::ugeo_finger()
       z_fngr[icopy]  =  z;
    
       if(mask[icopy] == 1)
-	  {HSNG_phys = new G4PVPlacement(irot_front,G4ThreeVector(-x*cm,y*cm,-z*cm),HSNG_log,"HSNG",DETE_log,false,icopy,checkOverlaps); icopy++;}
+			{HSNG_phys = new G4PVPlacement(irot_front,G4ThreeVector(-x*cm,y*cm,-z*cm),HSNG_log,"HSNG",DETE_log,false,icopy,checkOverlaps);
         
       G4cout << icopy << "\t" << -x << "\t" << y << "\t" << -z << G4endl;
-   
+			}
+						icopy++;
+						
       k = 7;
       //C. Detector 6.
       y =  (9./8.) * hexagon_large_width;
@@ -1694,10 +1705,12 @@ void DRAGONDetectorConstruction::ugeo_finger()
       z_fngr[icopy]  =  z;
    
       if(mask[icopy] == 1)
-	  {HSNG_phys = new G4PVPlacement(irot_front,G4ThreeVector(-x*cm,y*cm,-z*cm),HSNG_log,"HSNG",DETE_log,false,icopy,checkOverlaps); icopy++;}
+			{HSNG_phys = new G4PVPlacement(irot_front,G4ThreeVector(-x*cm,y*cm,-z*cm),HSNG_log,"HSNG",DETE_log,false,icopy,checkOverlaps);
         
       G4cout << icopy << "\t" << -x << "\t" << y << "\t" << -z << G4endl;
-      
+			}
+						icopy++;
+
       k = 9;
       //C. Detector 7.
       y =   aprt + wall[2] + (5./4.)* hexagon_large_width+0.6;
@@ -1708,9 +1721,11 @@ void DRAGONDetectorConstruction::ugeo_finger()
       z_fngr[icopy]  =  z;
    
       if(mask[icopy] == 1)
-	  {HSNG_phys = new G4PVPlacement(irot_front,G4ThreeVector(-x*cm,y*cm,-z*cm),HSNG_log,"HSNG",DETE_log,false,icopy,checkOverlaps); icopy++;}
+			{HSNG_phys = new G4PVPlacement(irot_front,G4ThreeVector(-x*cm,y*cm,-z*cm),HSNG_log,"HSNG",DETE_log,false,icopy,checkOverlaps);
         
       G4cout << icopy << "\t" << -x << "\t" << y << "\t" << -z << G4endl;
+			}
+			icopy++;
       
       k = 10;
       //C. Detector 8.
@@ -1722,9 +1737,12 @@ void DRAGONDetectorConstruction::ugeo_finger()
       z_fngr[icopy]  =  z;
    
       if(mask[icopy] == 1)
-	  {HSNG_phys = new G4PVPlacement(irot_front,G4ThreeVector(-x*cm,y*cm,-z*cm),HSNG_log,"HSNG",DETE_log,false,icopy,checkOverlaps); icopy++;}
+			{HSNG_phys = new G4PVPlacement(irot_front,G4ThreeVector(-x*cm,y*cm,-z*cm),HSNG_log,"HSNG",DETE_log,false,icopy,checkOverlaps);
         
       G4cout << icopy << "\t" << -x << "\t" << y << "\t" << -z << G4endl;
+			}
+						icopy++;
+
       //C. Detector 9.
       x =   d_mtl/2. + d_air[1]/2. - pmt_length/2.;
       y =   aprt + wall[2] + (1./2.)* hexagon_large_width+0.6;
@@ -1735,10 +1753,12 @@ void DRAGONDetectorConstruction::ugeo_finger()
       z_fngr[icopy]  =  z;
    
       if(mask[icopy] == 1)
-	  {HSNG_phys = new G4PVPlacement(irot_front,G4ThreeVector(-x*cm,y*cm,-z*cm),HSNG_log,"HSNG",DETE_log,false,icopy,checkOverlaps); icopy++;}
+			{HSNG_phys = new G4PVPlacement(irot_front,G4ThreeVector(-x*cm,y*cm,-z*cm),HSNG_log,"HSNG",DETE_log,false,icopy,checkOverlaps);
         
       G4cout << icopy << "\t" << -x << "\t" << y << "\t" << -z << G4endl;
-      
+			}
+						icopy++;
+						
       k = 11;
       //C. Detector 10.
       x =   d_mtl/2. + d_air[1]/2. - pmt_length/2.;
@@ -1751,9 +1771,11 @@ void DRAGONDetectorConstruction::ugeo_finger()
       z_fngr[icopy]  =  z;
    
       if(mask[icopy] == 1)
-	  {HSNG_phys = new G4PVPlacement(irot_front,G4ThreeVector(-x*cm,y*cm,-z*cm),HSNG_log,"HSNG",DETE_log,false,icopy,checkOverlaps); icopy++;}
+			{HSNG_phys = new G4PVPlacement(irot_front,G4ThreeVector(-x*cm,y*cm,-z*cm),HSNG_log,"HSNG",DETE_log,false,icopy,checkOverlaps);
         
       G4cout << icopy << "\t" << -x << "\t" << y << "\t" << -z << G4endl;
+			}
+			icopy++;
      
       //C. Detectors 11 through 30.
       for (k = 9; k >= 3; k -= 1) 
@@ -1781,9 +1803,11 @@ void DRAGONDetectorConstruction::ugeo_finger()
                 y_fngr[icopy]  = y;
                 
                 if(mask[icopy] == 1)
-				{HSNG_phys = new G4PVPlacement(irot_back,G4ThreeVector(-x*cm,y*cm,-z*cm),HSNG_log,"HSNG",DETE_log,false,icopy,checkOverlaps); icopy++;}
+								{HSNG_phys = new G4PVPlacement(irot_back,G4ThreeVector(-x*cm,y*cm,-z*cm),HSNG_log,"HSNG",DETE_log,false,icopy,checkOverlaps);
+
    	            G4cout << icopy << "\t" << -x << "\t" << y << "\t" << -z << G4endl;
-		        
+								}
+								icopy++;
 		        x = -x;
 		         
 	
@@ -1792,9 +1816,11 @@ void DRAGONDetectorConstruction::ugeo_finger()
                 y_fngr[icopy]  = y;
                 z_fngr[icopy]  = z;
 		         
-		        if(mask[icopy] == 1)
-				{HSNG_phys = new G4PVPlacement(irot_back_inv,G4ThreeVector(-x*cm,y*cm,-z*cm),HSNG_log,"HSNG",DETE_log,false,icopy,checkOverlaps); icopy++;}
+								if(mask[icopy] == 1)
+								{HSNG_phys = new G4PVPlacement(irot_back_inv,G4ThreeVector(-x*cm,y*cm,-z*cm),HSNG_log,"HSNG",DETE_log,false,icopy,checkOverlaps);
                 G4cout << icopy << "\t" << -x << "\t" << y << "\t" << -z << G4endl;
+								}
+								icopy++;
 	            }
 	       } 
   
