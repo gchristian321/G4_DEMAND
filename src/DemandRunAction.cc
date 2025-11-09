@@ -49,10 +49,11 @@ DemandRunAction::DemandRunAction()
 	: G4UserRunAction(),
 		fNumRuns(0),
 		fG3File(nullptr),
-		fG3Tree(nullptr)
+		fG3Tree(nullptr),
+		fMaxEvents(-1)
 { 
   // set printing event number per each event
-  G4RunManager::GetRunManager()->SetPrintProgress(1);     
+  G4RunManager::GetRunManager()->SetPrintProgress(1);
 
   // Create analysis manager
   // The choice of analysis technology is done via selectin of a namespace
@@ -155,7 +156,13 @@ template<typename T> void set_branch_address(TTree* tree,const char* name,T& t)
 
 G4long DemandRunAction::SetupGeant3Input(const G4String& g3fname)
 {
-	fG3File = TFile::Open(g3fname.c_str());
+	std::stringstream sstr(g3fname);
+	std::string s1,s2;
+	sstr>>s1>>s2;
+	fG3File = TFile::Open(s1.c_str());
+	if(s2!=""){
+		fMaxEvents = atol(s2.c_str());
+	}
 	if(!fG3File){
 		throw std::runtime_error(
 			Form("Bad input ROOT file: \"%s\" !",
@@ -190,7 +197,9 @@ G4long DemandRunAction::SetupGeant3Input(const G4String& g3fname)
 	for(G4long entry = 0; entry < fG3Tree->GetEntries(); ++entry){
 		fG3Tree->GetEntry ( entry );
 		if ( react != 0 && recdet != 0 ) {
-			fEventIndices.push_back(entry);
+			if(fMaxEvents < 0 || fEventIndices.size() < fMaxEvents){
+				fEventIndices.push_back(entry);
+			}
 		}
 	}
 

@@ -81,6 +81,7 @@ class DemandRunAction : public G4UserRunAction
 	
 	  G4long SetupGeant3Input(const G4String&);
 	  void GetGeant3Event(G4long indx, G3Event*) const;
+	  void SetMaxEvents(G4long max){fMaxEvents=max;}
 
   private:
 	  void CleanupGeant3Input();
@@ -93,6 +94,7 @@ class DemandRunAction : public G4UserRunAction
 	  G4float E_rec, cost_r, cosp_r, sinp_r;
 	  G4int react, recdet;
 	  std::vector<G4long> fEventIndices;
+	  G4long fMaxEvents;
 
 	  DemandRunMessenger* fRunMessenger;
 };
