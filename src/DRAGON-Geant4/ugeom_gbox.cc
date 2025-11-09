@@ -106,7 +106,7 @@ void DRAGONDetectorConstruction::ugeo_detector()
       shape[2] = box_length/2.;
    
       G4VSolid* CMBR_solid = new G4Box("CMBR",shape[0]*cm,shape[1]*cm,shape[2]*cm);
-	  std::cout << "CMBR shape[]" << shape[0]/cm << " " << shape[1]/cm  << " " << shape[2]/cm << std::endl;
+	  std::cout << "CMBR shape[]" << shape[0] << " " << shape[1]  << " " << shape[2] << std::endl;
       //TMED->20
       material = materials->StainlessSteel;    
       G4LogicalVolume* CMBR_log = new G4LogicalVolume(CMBR_solid, material,"CMBR");
