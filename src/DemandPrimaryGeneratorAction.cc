@@ -71,6 +71,8 @@ DemandPrimaryGeneratorAction::DemandPrimaryGeneratorAction()
 	 fReactionAngdist("flat"),
 	 fExRecoil(0),
 	 fSourceEnergies(nullptr),
+	 fSourceThetaLimits(nullptr),
+	 fSourcePhiLimits(nullptr),
 	 fBeamDefinition(0),
 	 fTargetDefinition(0),
 	 fEjectileDefinition(0),
@@ -194,9 +196,29 @@ void DemandPrimaryGeneratorAction::ShootBeam(G4Event* anEvent)
 			fSourceEnergies->first, fSourceEnergies->second);
 		const G4ThreeVector pos = fParticleGun->GetParticlePosition();
 		const G4double mass = fParticleGun->GetParticleDefinition()->GetPDGMass();
-		const G4double cos_theta = 2*G4RandFlat::shoot() - 1;
-		const G4double theta  = acos(cos_theta);
-		const G4double phi = G4RandFlat::shoot()*2*CLHEP::pi;
+		G4double cos_theta = 2*G4RandFlat::shoot() - 1;
+		if(fSourceThetaLimits.get()){
+			const std::pair<G4double,G4double> cth = std::make_pair(
+				cos(fSourceThetaLimits->first),
+				cos(fSourceThetaLimits->second)
+				);
+			cos_theta = G4RandFlat::shoot(
+				std::min(cth.first,cth.second),
+				std::max(cth.first,cth.second)
+				);
+		}
+		const G4double theta = acos(cos_theta);
+		
+		G4double phi;
+		if(fSourcePhiLimits.get()){
+			phi = G4RandFlat::shoot(
+				std::min(fSourcePhiLimits->first, fSourcePhiLimits->second),
+				std::max(fSourcePhiLimits->first, fSourcePhiLimits->second));
+		}
+		else {
+			phi = G4RandFlat::shoot()*2*CLHEP::pi;
+		}
+		
 		const G4double pmag = sqrt(pow(fBeamEnergy+mass,2) - mass*mass);
 		momentum.set(pmag*sin(theta)*cos(phi),
 								 pmag*sin(theta)*sin(phi),
@@ -644,4 +666,28 @@ void DemandPrimaryGeneratorAction::SetReactionPosition(const G4ThreeVector& pos)
 
 G4ThreeVector DemandPrimaryGeneratorAction::GetReactionPosition() const {
     return fReactionPosition;
+}
+
+void DemandPrimaryGeneratorAction::SetSourceThetaLimits(double low, double high)
+{
+	if (low >= 0 && high <= CLHEP::pi && low <= high) {
+		fSourceThetaLimits.reset(new std::pair<double, double>(low, high));
+	} else {
+		std::stringstream sstr;
+		sstr << "Bad theta limits: " << low << ", "  << high <<
+			": Must be >=0, <= 180 (deg) with low <= high.";
+		throw std::range_error(sstr.str());
+	}
+}
+
+void DemandPrimaryGeneratorAction::SetSourcePhiLimits(double low, double high)
+{
+	if (low >= 0 && high <= 2*CLHEP::pi && low <= high) {
+		fSourcePhiLimits.reset(new std::pair<double, double>(low,high));
+	} else {
+		std::stringstream sstr;
+		sstr << "Bad phi limits: " << low << ", "  << high <<
+			": Must be >=0, <= 360 (deg) with low <= high.";
+		throw std::range_error(sstr.str());
+	}
 }

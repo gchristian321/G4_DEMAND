@@ -81,7 +81,8 @@ public:
 	void SetBeamSigmaThetaY(double sig) { fSigma[3] = sig; }
 	void SetSourceEnergyLimits(double low, double high)
 		{ fSourceEnergies.reset(new std::pair<double, double>(low,high)); }
-	
+	void SetSourceThetaLimits(double low, double high);
+	void SetSourcePhiLimits(double low, double high);
 	G4double GetBeamEnergy() const { return fBeamEnergy; }
 	G4double GetBeamSigmaX() const { return fSigma[0]; }
 	G4double GetBeamSigmaY() const { return fSigma[1]; }
@@ -121,6 +122,8 @@ private:
 	double fExRecoil;
 	std::array<G4double,4> fSigma;
 	std::unique_ptr<std::pair<double,double> > fSourceEnergies;
+	std::unique_ptr<std::pair<double,double> > fSourceThetaLimits;
+	std::unique_ptr<std::pair<double,double> > fSourcePhiLimits;
 	
 	G4ParticleDefinition* fBeamDefinition;
 	G4ParticleDefinition* fTargetDefinition;

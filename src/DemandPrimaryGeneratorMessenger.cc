@@ -135,6 +135,24 @@ DemandPrimaryGeneratorMessenger::DemandPrimaryGeneratorMessenger(DemandPrimaryGe
   fSourceEnergies->AvailableForStates(G4State_PreInit,G4State_Idle);
   fSourceEnergies->SetToBeBroadcasted(false);
 	fSourceEnergies->SetDefaultValue(G4ThreeVector(0,10,0));
+
+	fSourceThetaLimits =
+		new G4UIcmdWith3VectorAndUnit("/demand/generator/source/theta",this);
+  fSourceThetaLimits->SetGuidance("Set the range of source theta angles");
+  fSourceThetaLimits->SetParameterName("source_thlow","source_thhigh","dummy",false);
+  fSourceThetaLimits->SetDefaultUnit("deg");
+  fSourceThetaLimits->AvailableForStates(G4State_PreInit,G4State_Idle);
+  fSourceThetaLimits->SetToBeBroadcasted(false);
+	fSourceThetaLimits->SetDefaultValue(G4ThreeVector(0,180,0));
+
+	fSourcePhiLimits =
+		new G4UIcmdWith3VectorAndUnit("/demand/generator/source/phi",this);
+  fSourcePhiLimits->SetGuidance("Set the range of source phi angles");
+  fSourcePhiLimits->SetParameterName("source_philow","source_phihigh","dummy",false);
+  fSourcePhiLimits->SetDefaultUnit("deg");
+  fSourcePhiLimits->AvailableForStates(G4State_PreInit,G4State_Idle);
+  fSourcePhiLimits->SetToBeBroadcasted(false);
+	fSourcePhiLimits->SetDefaultValue(G4ThreeVector(0,360,0));
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -155,6 +173,8 @@ DemandPrimaryGeneratorMessenger::~DemandPrimaryGeneratorMessenger()
 	delete fBeamSigmaThetaX;
 	delete fBeamSigmaThetaY;
 	delete fSourceEnergies;
+	delete fSourceThetaLimits;
+	delete fSourcePhiLimits;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -204,5 +224,13 @@ void DemandPrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command, G4String
 	else if(command == fSourceEnergies){
 		auto e = fSourceEnergies->GetNew3VectorValue(newValue);
 		fPrimary->SetSourceEnergyLimits(e[0],e[1]);
+	}
+	else if(command == fSourceThetaLimits){
+		auto e = fSourceThetaLimits->GetNew3VectorValue(newValue);
+		fPrimary->SetSourceThetaLimits(e[0],e[1]);
+	}
+	else if(command == fSourcePhiLimits){
+		auto e = fSourcePhiLimits->GetNew3VectorValue(newValue);
+		fPrimary->SetSourcePhiLimits(e[0],e[1]);
 	}
 }

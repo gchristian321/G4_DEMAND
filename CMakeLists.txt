@@ -67,6 +67,7 @@ set(EXAMPLE_SCRIPTS
   run.mac
   run-reaction.mac
   run-geant3.mac
+  run-source.mac
   vis.mac
   config.mac
   config-demand-xyz.mac

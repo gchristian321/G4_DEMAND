@@ -34,6 +34,8 @@ private:
 	G4UIcmdWithADoubleAndUnit *fBeamSigmaThetaX;
 	G4UIcmdWithADoubleAndUnit *fBeamSigmaThetaY;
 	G4UIcmdWith3VectorAndUnit *fSourceEnergies;
+	G4UIcmdWith3VectorAndUnit *fSourceThetaLimits;
+	G4UIcmdWith3VectorAndUnit *fSourcePhiLimits;
 
 	DemandPrimaryGeneratorAction* fPrimary;
 };
