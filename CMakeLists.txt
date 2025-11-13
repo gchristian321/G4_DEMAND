@@ -72,6 +72,7 @@ set(EXAMPLE_SCRIPTS
   config.mac
   config-demand-xyz.mac
   mask_S2230.txt
+  dragon_2014_IC.dat
   )
 
 foreach(_script ${EXAMPLE_SCRIPTS})

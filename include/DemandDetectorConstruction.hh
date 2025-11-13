@@ -77,6 +77,9 @@ public:
 	const G4String& GetBGOMask() const{return fBGOMask;}
 	void SetUseDRAGON(bool use){fUseDRAGON=use;}
 	bool GetUseDRAGON() const {return fUseDRAGON;}
+	G4VPhysicalVolume* ConstructWithDragon();
+	G4VPhysicalVolume* ConstructWithoutDragon();
+	void ConstructNeutronDetectorModules(G4VPhysicalVolume* world);
 	
 private:
 	bool fCheckOverlaps;

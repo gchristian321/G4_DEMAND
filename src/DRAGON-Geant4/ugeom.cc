@@ -117,7 +117,7 @@ void DRAGONDetectorConstruction::ugeo_space()
 //C.     
 //C.                              VACUUM SPACE 
 //                              ****************
-#if 0
+#if 1
       G4double shape[3];
       shape[0]=1500.;     //! square box space
       shape[1]=shape[0];

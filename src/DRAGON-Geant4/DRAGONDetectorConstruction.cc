@@ -93,7 +93,7 @@ ugeom();
 //C     .
 //C     .-->   Initialize MITRAY B-field routines by reading RAYTRACE file
 
-//mitray_setup();
+mitray_setup();
 
 G4PhysicalVolumeStore* volumeStore = G4PhysicalVolumeStore::GetInstance();
 G4VPhysicalVolume* WRLD_phys = volumeStore->GetVolume("WRLD");
