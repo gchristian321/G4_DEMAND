@@ -9,13 +9,13 @@
 # Initialize kernel
 /run/initialize
 
- Neutron
+# Neutron source
 #
 /demand/generator/source/Z 0
 /demand/generator/source/A 1
 /demand/generator/source/energies 1.8 1.8 0 MeV
 /demand/generator/source/theta 0 20 0 deg
-/demand/generator/source/phi 0 pi 0 rad
+/demand/generator/source/phi 0 180 0 deg
 
 /run/printProgress 100
 /run/beamOn 50
