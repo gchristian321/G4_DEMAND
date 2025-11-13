@@ -18,6 +18,7 @@ class G4Material;
 class G4VPhysicalVolume;
 class G4AssemblyVolume;
 class G4LogicalVolume;
+namespace DRAGON { class DRAGONDetectorConstruction; }
 
 class DemandDetectorConstruction: public G4VUserDetectorConstruction {
 public:
@@ -80,6 +81,8 @@ public:
 	G4VPhysicalVolume* ConstructWithDragon();
 	G4VPhysicalVolume* ConstructWithoutDragon();
 	void ConstructNeutronDetectorModules(G4VPhysicalVolume* world);
+	void SetDragonDetectorConstrution(DRAGON::DRAGONDetectorConstruction* det) {fDragonDet = det;}
+	DRAGON::DRAGONDetectorConstruction* GetDragonDetectorConstruction() const  {return fDragonDet;}
 	
 private:
 	bool fCheckOverlaps;
@@ -93,6 +96,7 @@ private:
 	bool fHaveTarget;
 	G4String fBGOMask;
 	bool fUseDRAGON;
+	DRAGON::DRAGONDetectorConstruction* fDragonDet;
 };
 
 

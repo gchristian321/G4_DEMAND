@@ -114,17 +114,20 @@ G4VPhysicalVolume* DemandDetectorConstruction::ConstructWithDragon()
   // worldAttr->SetVisibility(false);
   // worldLV->SetVisAttributes(worldAttr);
 	
-	
-	auto dragondet = new DRAGON::DRAGONDetectorConstruction(nullptr);
-	dragondet->SetTUBE(4);
-	dragondet->SetPMTR("2.54 2.5");
-	dragondet->SetHOLE(4.496);
-	dragondet->SetTARG(2);
-	dragondet->SetCheckOverlaps(false);
-	if(fBGOMask != ""){
-		dragondet->SetMASK(fBGOMask);
+	// \todo look at tube stuff
+	if(!fDragonDet){
+		throw std::runtime_error(
+			"DemandDetectorConstruction:: UseDRAGON on but fDragonDet not set!");
 	}
-	G4VPhysicalVolume* WRLD_phys = dragondet->Construct();
+	fDragonDet->SetTUBE(4);
+	fDragonDet->SetPMTR("2.54 2.5");
+	fDragonDet->SetHOLE(4.496);
+	fDragonDet->SetTARG(2);
+	fDragonDet->SetCheckOverlaps(false);
+	if(fBGOMask != ""){
+		fDragonDet->SetMASK(fBGOMask);
+	}
+	G4VPhysicalVolume* WRLD_phys = fDragonDet->Construct();
 	ConstructNeutronDetectorModules(WRLD_phys);
 
 	return WRLD_phys;
