@@ -83,6 +83,8 @@ public:
 		{ fSourceEnergies.reset(new std::pair<double, double>(low,high)); }
 	void SetSourceThetaLimits(double low, double high);
 	void SetSourcePhiLimits(double low, double high);
+	void SetSourcePosition(double x,double y,double z)
+		{fSourcePosition.set(x,y,z);}
 	G4double GetBeamEnergy() const { return fBeamEnergy; }
 	G4double GetBeamSigmaX() const { return fSigma[0]; }
 	G4double GetBeamSigmaY() const { return fSigma[1]; }
@@ -124,6 +126,7 @@ private:
 	std::unique_ptr<std::pair<double,double> > fSourceEnergies;
 	std::unique_ptr<std::pair<double,double> > fSourceThetaLimits;
 	std::unique_ptr<std::pair<double,double> > fSourcePhiLimits;
+	G4ThreeVector fSourcePosition;
 	
 	G4ParticleDefinition* fBeamDefinition;
 	G4ParticleDefinition* fTargetDefinition;

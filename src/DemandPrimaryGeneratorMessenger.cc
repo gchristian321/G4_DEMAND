@@ -153,6 +153,15 @@ DemandPrimaryGeneratorMessenger::DemandPrimaryGeneratorMessenger(DemandPrimaryGe
   fSourcePhiLimits->AvailableForStates(G4State_PreInit,G4State_Idle);
   fSourcePhiLimits->SetToBeBroadcasted(false);
 	fSourcePhiLimits->SetDefaultValue(G4ThreeVector(0,360,0));
+	
+	fSourcePosition =
+		new G4UIcmdWith3VectorAndUnit("/demand/generator/source/position",this);
+  fSourcePosition->SetGuidance("Set the source position (x,y,z)");
+  fSourcePosition->SetParameterName("source_x","source_y","source_z",false);
+  fSourcePosition->SetDefaultUnit("cm");
+  fSourcePosition->AvailableForStates(G4State_PreInit,G4State_Idle);
+  fSourcePosition->SetToBeBroadcasted(false);
+	fSourcePosition->SetDefaultValue(G4ThreeVector(0,0,0));
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -175,6 +184,7 @@ DemandPrimaryGeneratorMessenger::~DemandPrimaryGeneratorMessenger()
 	delete fSourceEnergies;
 	delete fSourceThetaLimits;
 	delete fSourcePhiLimits;
+	delete fSourcePosition;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -232,5 +242,9 @@ void DemandPrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command, G4String
 	else if(command == fSourcePhiLimits){
 		auto e = fSourcePhiLimits->GetNew3VectorValue(newValue);
 		fPrimary->SetSourcePhiLimits(e[0],e[1]);
+	}
+	else if(command == fSourcePosition){
+		auto e = fSourcePosition->GetNew3VectorValue(newValue);
+		fPrimary->SetSourcePosition(e[0],e[1],e[2]);
 	}
 }

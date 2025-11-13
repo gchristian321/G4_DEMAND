@@ -36,6 +36,7 @@ private:
 	G4UIcmdWith3VectorAndUnit *fSourceEnergies;
 	G4UIcmdWith3VectorAndUnit *fSourceThetaLimits;
 	G4UIcmdWith3VectorAndUnit *fSourcePhiLimits;
+	G4UIcmdWith3VectorAndUnit *fSourcePosition;
 
 	DemandPrimaryGeneratorAction* fPrimary;
 };

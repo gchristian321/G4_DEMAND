@@ -73,6 +73,7 @@ DemandPrimaryGeneratorAction::DemandPrimaryGeneratorAction()
 	 fSourceEnergies(nullptr),
 	 fSourceThetaLimits(nullptr),
 	 fSourcePhiLimits(nullptr),
+	 fSourcePosition(0,0,0),
 	 fBeamDefinition(0),
 	 fTargetDefinition(0),
 	 fEjectileDefinition(0),
@@ -224,6 +225,7 @@ void DemandPrimaryGeneratorAction::ShootBeam(G4Event* anEvent)
 								 pmag*sin(theta)*sin(phi),
 								 pmag*cos_theta,
 								 fBeamEnergy+mass);
+		fParticleGun->SetParticlePosition(fSourcePosition);
 	}
 	else {
 #if 1
