@@ -1379,7 +1379,6 @@ void DRAGONDetectorConstruction::ugeo_detector()
           x = -5.315;
           G4ThreeVector XAPG_pos(x*cm,0.0*cm,z*cm);
           G4VPhysicalVolume* XAPG_phys = new G4PVPlacement(irot_col,XAPG_pos,XAPG_log,"XAPG",CELL_log,false,0,checkOverlaps);
-					
           }
 //C
 //C.***************************************************************

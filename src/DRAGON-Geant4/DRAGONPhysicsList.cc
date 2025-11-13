@@ -53,6 +53,7 @@
 #include "G4DecayPhysics.hh"
 #include "G4IonElasticPhysics.hh"
 #include "G4HadronPhysicsFTFP_BERT.hh"
+#include "G4HadronPhysicsFTFP_BERT_HP.hh"
 #include "G4HadronElasticPhysics.hh"
 #include "G4RadioactiveDecayPhysics.hh"
 #include "G4ProcessManager.hh"
@@ -133,8 +134,9 @@ DRAGON_det(det),CARDNAME("c12ag.dat"),alpha(false),beamenerg(0)
  
   // Hadronic physics
   fHadElastPhysics =  new G4HadronElasticPhysics(verboseLevel);        // Elastic scattering
-  fHadPhysicsFTFP_BERT = new G4HadronPhysicsFTFP_BERT(verboseLevel);   // Inelastic interactions
-  
+  //fHadPhysicsFTFP_BERT = new G4HadronPhysicsFTFP_BERT(verboseLevel);   // Inelastic interactions
+  fHadPhysicsFTFP_BERT = new G4HadronPhysicsFTFP_BERT_HP(verboseLevel);   // Inelastic interactions
+	
   // Specialized ion gas models for accurate dE/dx of heavy ions in gas
   AddIonGasModels(); 
 
