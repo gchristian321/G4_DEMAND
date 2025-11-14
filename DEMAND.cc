@@ -139,12 +139,10 @@ int main(int argc,char** argv)
 	detConstruction->SetModules(Modules);
   runManager->SetUserInitialization(detConstruction);
 
-	if(detConstruction->GetUseDRAGON()){
+	if(1){//detConstruction->GetUseDRAGON()){
 		auto phys = new DRAGON::DRAGONPhysicsList(nullptr);
-		auto det = new DRAGON::DRAGONDetectorConstruction(nullptr); 
-		phys->SetGeom(det);
-		det->SetPhys(phys);		
 		runManager->SetUserInitialization(phys);
+		detConstruction->SetDragonPhysicsList(phys);
 	}
 	else {
 		auto physicsList = new QGSP_BERT_HP; //QGSP_BIC_HP; // new FTFP_BERT;

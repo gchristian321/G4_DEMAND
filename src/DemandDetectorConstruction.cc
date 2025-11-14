@@ -3,8 +3,9 @@
 
 #include "DemandDetectorConstruction.hh"
 #include "DemandSD.hh"
-#include "DRAGONDetectorConstruction.hh"
 // DRAGON
+#include "DRAGONDetectorConstruction.hh"
+#include "DRAGONPhysicsList.hh"
 #include "Materials.hh"
 
 #include "G4NistManager.hh"
@@ -41,6 +42,8 @@ DemandDetectorConstruction::DemandDetectorConstruction()
 	fHaveTarget = false;
 	fBGOMask="";
 	fUseDRAGON=false;
+	fDragonDet=nullptr;
+	fDragonPhys=nullptr;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -60,61 +63,11 @@ G4VPhysicalVolume* DemandDetectorConstruction::Construct()
 
 G4VPhysicalVolume* DemandDetectorConstruction::ConstructWithDragon()
 {
-  // G4double worldSizeXY = 10*meter;
-  // G4double worldSizeZ  = 10*meter;
-	
-	// G4double a;  // mass of a mole;
-  // G4double z;  // z=mean number of protons;  
-  // G4double density; 
-
-  // // Vacuum
-  // auto defaultMaterial = new G4Material(
-	// 	"Galactic", z=1., a=1.01*g/mole,density= universe_mean_density,
-	// 	kStateGas, 2.73*kelvin, 3.e-18*pascal);
-
-	// G4NistManager *nist = G4NistManager::Instance();
-	// G4Material *matAir = nist->FindOrBuildMaterial("G4_AIR");
-	// G4Material *matSteel = nist->FindOrBuildMaterial("G4_STAINLESS-STEEL");
-	// G4Material *matAl = nist->FindOrBuildMaterial("G4_Al");
-
-  // // //OGS
-  // // G4Material *matOGS = new G4Material("matOGS", 1.096*g/cm3, 3);
-  // // matOGS->AddElement(nist->FindOrBuildElement("H"),36);
-  // // matOGS->AddElement(nist->FindOrBuildElement("C"),42);	
-  // // matOGS->AddElement(nist->FindOrBuildElement("Si"),1);
-
-
-   
-  // //     
-  // // World
-  // //
-  // auto worldS 
-  //   = new G4Box("WRLD",           // its name
-	// 							worldSizeXY/2, worldSizeXY/2, worldSizeZ/2); // its size
-                         
-  // auto worldLV
-  //   = new G4LogicalVolume(
-	// 		worldS,           // its solid
-	// 		defaultMaterial,  // its material
-	// 		"WRLD");         // its name
-                                   
-  // auto world
-  //   = new G4PVPlacement(
-	// 		0,                // no rotation
-	// 		G4ThreeVector(),  // at (0,0,0)
-	// 		worldLV,          // its logical volume                         
-	// 		"WRLD",          // its name
-	// 		0,                // its mother  volume
-	// 		false,            // no boolean operation
-	// 		0,                // copy number
-	// 		fCheckOverlaps);  // checking overlaps 
-	
-	
-	// G4VisAttributes * worldAttr = new G4VisAttributes(G4Colour(0.5, 0.5, 0.5));
-  // worldAttr->SetVisibility(false);
-  // worldLV->SetVisAttributes(worldAttr);
-	
 	// \todo look at tube stuff
+	fDragonDet = new DRAGON::DRAGONDetectorConstruction(nullptr);
+	fDragonPhys->SetGeom(fDragonDet);
+	fDragonDet->SetPhys(fDragonPhys);
+
 	if(!fDragonDet){
 		throw std::runtime_error(
 			"DemandDetectorConstruction:: UseDRAGON on but fDragonDet not set!");
