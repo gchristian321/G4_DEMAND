@@ -440,6 +440,9 @@ bool DemandPrimaryGeneratorAction::SetupBeam()
 	else if (fBeamA == 1 && fBeamZ == 1) {
     fBeamDefinition = G4ParticleTable::GetParticleTable()->FindParticle("proton");
 	}
+	else if (fBeamA == 0 && fBeamZ == 0) {
+		fBeamDefinition = G4ParticleTable::GetParticleTable()->FindParticle("gamma");
+	}
 	else {
 		fBeamDefinition = G4ParticleTable::GetParticleTable()->
 			GetIonTable()->GetIon(fBeamZ,fBeamA,0.);
