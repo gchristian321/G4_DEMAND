@@ -72,18 +72,18 @@ std::cout << "-GEOMETRIA-" << std::endl;
 Materials* materials = Materials::Instance();
 
 
-materials->atarg = 4;//DRAGON_phys->Getatarg();
+materials->atarg = DRAGON_phys->Getatarg();
 materials->bulk_absorption = this->bulk_absorption;
 materials->paint_absorption = this->paint_absorption;
 materials->ugmate();
 materials->ugstmed();  
-// DRAGON_phys->Setmtarg(materials->mtarg);
-// DRAGON_phys->SetMtarg(materials->Target);
+DRAGON_phys->Setmtarg(materials->mtarg);
+DRAGON_phys->SetMtarg(materials->Target);
 
 std::cout << "Material: " << materials->Target->GetName() << std::endl;
 
-// DRAGON_phys->Setentdens(materials->entdens);
-// DRAGON_phys->Setexitdens(materials->exitdens);
+DRAGON_phys->Setentdens(materials->entdens);
+DRAGON_phys->Setexitdens(materials->exitdens);
 
 G4cout << *(G4Material::GetMaterialTable()); 
 

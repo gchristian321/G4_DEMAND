@@ -51,7 +51,7 @@ void DRAGONDetectorConstruction::ugeo_detector()
 //C.    Define Geometry
       ugeo_defin();
 
-      if(1)//targtype == 1) || DRAGON_phys->Getalpha())
+      if(targtype == 1 || DRAGON_phys->Getalpha())
         {
          mcent = 1;
          mbox = 1;
@@ -63,11 +63,11 @@ void DRAGONDetectorConstruction::ugeo_detector()
          mex[2] = 1;
          }
    
-      // if(DRAGON_phys->Getalpha()) 
-      //   {
-      //    mtarg = 1;	
-      //    materials->Target = materials->Vacuum;   
-		  // }
+      if(DRAGON_phys->Getalpha()) 
+        {
+         mtarg = 1;	
+         materials->Target = materials->Vacuum;   
+		  }
 
       hexagon_small_width = s_finger + 2.*d_air[0] + 2.*d_mtl + air_gap;
       hexagon_large_width = 2. * hexagon_small_width / std::sqrt(3.);
@@ -936,7 +936,7 @@ void DRAGONDetectorConstruction::ugeo_detector()
 //c      material = materials->Entrance1;
 //c      G4LogicalVolume* PDJ2_log = new G4LogicalVolume(PDJ2_solid, material,"PDJ2");
 //c      G4VPhysicalVolume* PDJ2_phys = new G4PVPlacement(0,G4ThreeVector(0.0*cm,0.0*cm,0.0*cm),PDJ2_log,"PDJ2",PDJ1_log,false,0,checkOverlaps);
-  	     }
+				 }
       else
          {
 		  if (tubetype == 1)
