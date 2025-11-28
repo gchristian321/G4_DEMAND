@@ -29,6 +29,7 @@
 #include "G4Tubs.hh"
 #include "G4UserLimits.hh"
 #include "G4Trd.hh"
+#include "G4PhysicalVolumeStore.hh"
 
 using namespace std;
 
@@ -82,7 +83,11 @@ G4VPhysicalVolume* DemandDetectorConstruction::ConstructWithDragon()
 		fDragonDet->SetMASK(fBGOMask);
 	}
 	G4VPhysicalVolume* WRLD_phys = fDragonDet->Construct();
-	ConstructNeutronDetectorModules(WRLD_phys);
+	// place neutron detectors in "DETE" volume, not world
+	ConstructNeutronDetectorModules(
+		G4PhysicalVolumeStore::GetInstance()->GetVolume("DETE")
+		);
+	//ConstructNeutronDetectorModules(WRLD_phys);
 
 	return WRLD_phys;
 }
