@@ -62,7 +62,7 @@
 namespace {
   void PrintUsage() {
     G4cerr << " Usage: " << G4endl;
-    G4cerr << " example ./DEMAND [-m macro ] [-c config macro] [-u UIsession] [-t nThreads]" << G4endl;
+    G4cerr << " example ./DEMAND [-m macro ] [-c config macro] [-v vis_macro] [-u UIsession] [-t nThreads]" << G4endl;
     G4cerr << "   note: -t option is available only for multi-threaded mode."
            << G4endl;
   }
@@ -81,12 +81,14 @@ int main(int argc,char** argv)
   
   G4String macro = "";
 	G4String config_macro = "";
+	G4String vis_macro = "";
   G4String session;
 #ifdef G4MULTITHREADED
   G4int nThreads = 0;
 #endif
   for ( G4int i=1; i<argc; i=i+2 ) {
     if      ( G4String(argv[i]) == "-m" || G4String(argv[i]) == "-b" ) macro = argv[i+1];
+		else if ( G4String(argv[i]) == "-v" ) vis_macro = argv[i+1];
 		else if ( G4String(argv[i]) == "-c" ) config_macro = argv[i+1];
     else if ( G4String(argv[i]) == "-u" ) session = argv[i+1];
 #ifdef G4MULTITHREADED
@@ -179,6 +181,11 @@ int main(int argc,char** argv)
   if ( macro.size() ) {
     // batch mode
 		{
+			if(vis_macro.size()){
+				throw std::invalid_argument(
+					"Cannot have macro (-m) and vis_macro (-v) both specified!"
+					);
+			}
 			std::ifstream ifs(macro.c_str());
 			if(!ifs.good()) {
 				std::stringstream sst;
@@ -189,16 +196,28 @@ int main(int argc,char** argv)
     G4String command = "/control/execute ";
     UImanager->ApplyCommand(command+macro);
   }
-  else  {  
-    // interactive mode : define UI session
-    UImanager->ApplyCommand("/control/execute init_vis.mac");
-    if (ui->IsGUI()) {
-      UImanager->ApplyCommand("/control/execute gui.mac");
-			G4cout << "Gui!" << G4endl;
-    }
-    ui->SessionStart();
-    delete ui;
-  }
+  else  {   
+		if(vis_macro.size()){
+			// replicate default init_vis.mac
+			//
+			UImanager->ApplyCommand("/control/verbose 2");
+			UImanager->ApplyCommand("/control/saveHistory");
+			UImanager->ApplyCommand("/run/verbose 2");
+			UImanager->ApplyCommand("/run/initialize");
+			// then run specified vis macro
+			UImanager->ApplyCommand(G4String("/control/execute ") + vis_macro);
+		}
+		else {
+			// interactive mode : define UI session
+			UImanager->ApplyCommand("/control/execute init_vis.mac");
+			if (ui->IsGUI()) {
+				UImanager->ApplyCommand("/control/execute gui.mac");
+				G4cout << "Gui!" << G4endl;
+			}
+		}
+		ui->SessionStart();
+		delete ui;
+	}
 
   // Job termination
   // Free the store: user actions, physics_list and detector_description are
