@@ -49,6 +49,7 @@ class DemandDetectorMessenger: public G4UImessenger
 	  G4UIcmdWithoutParameter* fAddModuleCmd;
 	  G4UIcmdWithAString *         fBGOMaskCmd;
 	  G4UIcmdWithABool *           fUseDRAGONCmd;
+	  G4UIcmdWithABool *           fUseChamberCmd;
 	
 	  size_t fCurrentModuleNumber;
 };

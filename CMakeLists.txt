@@ -71,6 +71,7 @@ set(EXAMPLE_SCRIPTS
   vis.mac
   config.mac
   config-demand-xyz.mac
+  config-demand-xyz_nodragon.mac
   mask_S2230.txt
   dragon_2014_IC.dat
   )

@@ -177,6 +177,14 @@ DemandDetectorMessenger::DemandDetectorMessenger(
 	fUseDRAGONCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
 	fUseDRAGONCmd->SetToBeBroadcasted(false);
 	fUseDRAGONCmd->SetDefaultValue(false);
+	
+	fUseChamberCmd =
+		new G4UIcmdWithABool("/demand/detector/usechamber", this);
+	fUseChamberCmd->SetGuidance("Tell whether to use minimal chamber geometry (ignored if /usedragon is true)");
+	fUseChamberCmd->SetParameterName("use_chamber",false);
+	fUseChamberCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
+	fUseChamberCmd->SetToBeBroadcasted(false);
+	fUseChamberCmd->SetDefaultValue(true);
 
   fTargetThicknessCmd =
     new G4UIcmdWithADoubleAndUnit(
@@ -235,6 +243,7 @@ DemandDetectorMessenger::~DemandDetectorMessenger()
 	delete fReadoutTypeCmd;
 	delete fRotateCmd;
 	delete fUseDRAGONCmd;
+	delete fUseChamberCmd;
 	delete fTargetThicknessCmd;
 	delete fTargetMaterialCmd;
 	delete fAddModuleCmd;
@@ -322,6 +331,11 @@ void DemandDetectorMessenger::SetNewValue(
 	else if(command == fUseDRAGONCmd){
 		fDemandDetector->SetUseDRAGON(
 			fUseDRAGONCmd->GetNewBoolValue(newValue)
+			);
+	}
+	else if(command == fUseChamberCmd){
+		fDemandDetector->SetUseChamber(
+			fUseChamberCmd->GetNewBoolValue(newValue)
 			);
 	}
 	else if(command == fReadoutTypeCmd){

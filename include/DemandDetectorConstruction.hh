@@ -81,6 +81,8 @@ public:
 	const G4String& GetBGOMask() const{return fBGOMask;}
 	void SetUseDRAGON(bool use){fUseDRAGON=use;}
 	bool GetUseDRAGON() const {return fUseDRAGON;}
+	void SetUseChamber(bool use){fUseChamber=use;}
+	bool GetUseChamber() const {return fUseChamber;}
 	G4VPhysicalVolume* ConstructWithDragon();
 	G4VPhysicalVolume* ConstructWithoutDragon();
 	void ConstructNeutronDetectorModules(G4VPhysicalVolume* world);
@@ -101,6 +103,7 @@ private:
 	bool fHaveTarget;
 	G4String fBGOMask;
 	bool fUseDRAGON;
+	bool fUseChamber;
 	DRAGON::DRAGONDetectorConstruction* fDragonDet;
 	DRAGON::DRAGONPhysicsList* fDragonPhys;
 };
