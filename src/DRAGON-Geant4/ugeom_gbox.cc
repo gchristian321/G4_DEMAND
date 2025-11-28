@@ -126,12 +126,19 @@ void DRAGONDetectorConstruction::ugeo_detector()
 	G4LogicalVolume* CMBG_log = new G4LogicalVolume(CMBG_solid, material,"CMBG");
 	CMBG_log->SetUserLimits(CMBRLimits);  //From ugstmed_trgt.f
 //C.  CMBG needs to be ONLY for solid target sims
+	G4cout << "targtype: " << targtype << "..."<<G4endl;
 	if (targtype == 0)
-	{G4VPhysicalVolume* CMBG_phys = new G4PVPlacement(0,G4ThreeVector(0.0*cm,0.0*cm,0*cm),CMBG_log,"CMBG",CMBR_log,false,0,checkOverlaps);}
+	{
+		G4VPhysicalVolume* CMBG_phys = new G4PVPlacement(0,G4ThreeVector(0.0*cm,0.0*cm,0*cm),CMBG_log,"CMBG",CMBR_log,false,0,checkOverlaps);
+		G4cout << "targtype: " << targtype << ", placed CMBG_phys..."<<G4endl;
+	}
 	else
 	{	  
 		if (targtype == 1)
-		{G4VPhysicalVolume* CMBG_phys = new G4PVPlacement(0,G4ThreeVector(0.0*cm,0.0*cm,0*cm),CMBG_log,"CMBG",CMBR_log,false,0,checkOverlaps);}
+		{
+			G4VPhysicalVolume* CMBG_phys = new G4PVPlacement(0,G4ThreeVector(0.0*cm,0.0*cm,0*cm),CMBG_log,"CMBG",CMBR_log,false,0,checkOverlaps);
+			G4cout << "targtype: " << targtype << ", placed CMBG_phys..."<<G4endl;
+		}
 	} 
      
 	y = beam_height; 

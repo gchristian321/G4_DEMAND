@@ -75,7 +75,8 @@ G4VPhysicalVolume* DemandDetectorConstruction::ConstructWithDragon()
 	fDragonDet->SetTUBE(4);
 	fDragonDet->SetPMTR("2.54 2.5");
 	fDragonDet->SetHOLE(4.496);
-	fDragonDet->SetTARG(2);
+//	fDragonDet->SetTARG(2);
+	fDragonDet->SetTARG(0);
 	fDragonDet->SetCheckOverlaps(false);
 	if(fBGOMask != ""){
 		fDragonDet->SetMASK(fBGOMask);
