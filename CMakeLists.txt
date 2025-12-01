@@ -69,6 +69,8 @@ set(EXAMPLE_SCRIPTS
   vis.mac
   config.mac
   config-demand-xyz.mac
+  config-example.mac
+  run-neutron_beam.mac
   )
 
 foreach(_script ${EXAMPLE_SCRIPTS})

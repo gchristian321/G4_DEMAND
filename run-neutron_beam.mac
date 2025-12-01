@@ -1,0 +1,21 @@
+# Initialize run
+#
+/run/initialize
+
+# Neutron source - 2 MeV
+#
+# Z=0, A=1 --> neutron
+/demand/generator/source/Z 0
+/demand/generator/source/A 1
+# Energy range <low> <high> <ignored>
+/demand/generator/source/energies 1.8 1.8 0 MeV
+# Theta range <low> <high> <ignored>
+/demand/generator/source/theta 0 1 0 deg
+# Phi range <low> <high> <ignored>
+/demand/generator/source/phi 0 360 0 deg
+# Source position relative to center of world
+/demand/generator/source/position 0 0 0 cm
+
+#/tracking/verbose 2
+/run/printProgress 10
+/run/beamOn 100
