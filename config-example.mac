@@ -1,0 +1,36 @@
+##
+## This config file creates an 8x8x1 (XxYxZ) array of 3x3x3 cm^3 detector cubes.
+## Located 100 cm downstream of the source position (0,0,0).
+
+##
+## Set detector geometry (8x8x1)
+/demand/detector/nx 8
+/demand/detector/ny 8
+/demand/detector/nz 1
+
+## Set width of each cube
+/demand/detector/wx 3 cm
+/demand/detector/wy 3 cm
+/demand/detector/wz 3 cm
+
+## Set detector location
+/demand/detector/xpos 0 cm
+/demand/detector/ypos 0 cm
+/demand/detector/zpos 100 cm
+
+## Set detection threshold (in keVee)
+/demand/detector/thresh 100 keV
+
+## Set readout type:
+## "cube" means a single PMT attached to each detector,
+## positions taken as center of the detector.
+## Also available: "bar" --> estimate position along long
+## axis as a Gaussian w/ some fixed resolution).
+/demand/detector/readout cube
+
+## Decide whether to rotate detectors to face the origin.
+/demand/detector/rotate false
+
+## Do not include any DRAGON infastructure
+/demand/detector/usedragon false
+/demand/detector/usechamber false
