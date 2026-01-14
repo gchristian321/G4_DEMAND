@@ -69,6 +69,38 @@ void DemandSteppingAction::UserSteppingAction(const G4Step* step)
 			DemandAnalysis::Instance()->AddEventCrossingDetector();
 		}
 	}
+//	PrintWorldLocationOfVolume(step, "PDAI");
+//	PrintWorldLocationOfVolume(step, "PDD2");
+}
+
+void DemandSteppingAction::PrintWorldLocationOfVolume(
+	const G4Step* step, const G4String& pvName, bool abort)
+{
+	auto pv = step->GetPreStepPoint()->GetTouchableHandle()->GetVolume();
+	if (!pv) return;
+
+	if (pv->GetName() == pvName) {
+		auto touch = step->GetPreStepPoint()->GetTouchableHandle();
+		auto T = touch->GetHistory()->GetTopTransform().Inverse();
+
+		G4ThreeVector world = T.NetTranslation();
+		
+		G4cout << "\n=== GEOMETRY PROBE ===\n"
+					 << "PV: " << pv->GetName()
+					 << " copy " << touch->GetCopyNumber()
+					 << "\nWorld origin [mm]: " << world/CLHEP::mm << G4endl;
+		auto p = step->GetPreStepPoint()->GetPosition();
+		G4cout << "step pos [mm] = " << p/CLHEP::mm << G4endl;
+		touch->GetVolume()
+			->GetLogicalVolume()
+			->GetSolid()
+			->DumpInfo();
+		G4cout << "=====================\n";
+
+		if(abort){
+			G4RunManager::GetRunManager()->AbortRun(true);
+		}
+	}
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -45,6 +45,8 @@ public:
 
 	// method from the base class
 	virtual void UserSteppingAction(const G4Step*);
+	void PrintWorldLocationOfVolume(
+		const G4Step* step, const G4String& pvName, bool abort = false);
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
