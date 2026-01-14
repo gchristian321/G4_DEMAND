@@ -74,7 +74,7 @@ G4VPhysicalVolume* DemandDetectorConstruction::ConstructWithDragon()
 		throw std::runtime_error(
 			"DemandDetectorConstruction:: UseDRAGON on but fDragonDet not set!");
 	}
-	fDragonDet->SetTUBE(4);
+	fDragonDet->SetTUBE(0);
 	fDragonDet->SetPMTR("2.54 2.5");
 	fDragonDet->SetHOLE(4.496);
 //	fDragonDet->SetTARG(2);
