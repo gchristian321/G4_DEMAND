@@ -28,6 +28,19 @@
 #include "DRAGONDigitizer.hh"
 #include "Materials.hh"
            
+namespace {
+void solid_vis (G4LogicalVolume* lv, int color=0)
+{
+	double cols[3] = {0.2,0.6,0.9};
+	if(color == 1) {cols[0]=0;cols[1]=1;cols[2]=1;};
+	auto vis = new G4VisAttributes(G4Colour(cols[0],cols[1],cols[2]));
+	vis->SetVisibility(true);
+	vis->SetForceSolid(true);        // THIS is the key
+// vis->SetForceWireframe(true); // alternative
+// vis->SetForceAuxEdgeVisible(true);
+	lv->SetVisAttributes(vis);
+}; }
+
 
 namespace DRAGON {
 
@@ -636,7 +649,9 @@ void DRAGONDetectorConstruction::ugeo_detector()
 	the3 =  180.*deg;
 	phi3 =    0.*deg;
       
-	//C.      tubetype = 0     
+	//C.      tubetype = 0
+
+	G4cout << "tubetype, targtype: " << tubetype << ", " << targtype << G4endl;
       
 	if(tubetype == 0 || (tubetype > 1 && tubetype < 7))
 	{
@@ -656,6 +671,7 @@ void DRAGONDetectorConstruction::ugeo_detector()
 		G4VPhysicalVolume* DHOL_phys = new G4PVPlacement(0,DHOL_pos,DHOL_log,"DHOL",CMBR_log,false,0,checkOverlaps);  
 		G4UserLimits* DHOLLimits = new G4UserLimits(10.0*cm);  //From ugstmed_trgt.f
 		DHOL_log->SetUserLimits(DHOLLimits);
+		solid_vis(DHOL_log);
         
 //C.---> Aluminum Collimator on the inside of the gas cell box	  
 		//--------------------PDAI----------------------// 
@@ -670,7 +686,8 @@ void DRAGONDetectorConstruction::ugeo_detector()
 		y = -beam_height;
 		z = -(box_length/2. - wall[1] - bpa_in_len);
 		G4ThreeVector PDAI_pos(0.0*cm,y*cm,-z*cm);
-		G4VPhysicalVolume* PDAI_phys = new G4PVPlacement(0,PDAI_pos,PDAI_log,"PDAI",CMBG_log,false,0,checkOverlaps);  
+		G4VPhysicalVolume* PDAI_phys = new G4PVPlacement(0,PDAI_pos,PDAI_log,"PDAI",CMBG_log,false,0,checkOverlaps);
+		solid_vis(PDAI_log);
 		//--------------------PDBI----------------------//
 		shape[0]=0.0;
 		shape[1]=0.450;
@@ -682,6 +699,7 @@ void DRAGONDetectorConstruction::ugeo_detector()
 		G4LogicalVolume* PDBI_log = new G4LogicalVolume(PDBI_solid, material,"PDBI");
 		G4VPhysicalVolume* PDBI_phys = new G4PVPlacement(0,G4ThreeVector(0.0*cm,0.0*cm,0*cm),PDBI_log,"PDBI",PDAI_log,false,0,checkOverlaps);  
 		PDBI_log->SetUserLimits(DHOLLimits);         //From ugstmed_trgt.f
+		solid_vis(PDBI_log);
          
 		//--------------------PDA1----------------------//
 		//---> collimator end collar detail outside box
@@ -695,7 +713,10 @@ void DRAGONDetectorConstruction::ugeo_detector()
 		G4LogicalVolume* PDA1_log = new G4LogicalVolume(PDA1_solid, material,"PDA1");
 		z = -(box_length/2. + bpa_len);
 		G4ThreeVector PDA1_pos(0.0*cm,0.0*cm,-z*cm);
-		G4VPhysicalVolume* PDA1_phys = new G4PVPlacement(0,PDA1_pos,PDA1_log,"PDA1",DETE_log,false,0,checkOverlaps);  
+		G4VPhysicalVolume* PDA1_phys = new G4PVPlacement(0,PDA1_pos,PDA1_log,"PDA1",DETE_log,false,0,checkOverlaps);
+		solid_vis(PDA1_log);
+
+		
 		//--------------------PDA2----------------------//
 		shape[0]=0.0;
 		shape[1]=0.450;
@@ -707,6 +728,8 @@ void DRAGONDetectorConstruction::ugeo_detector()
 		G4LogicalVolume* PDA2_log = new G4LogicalVolume(PDA2_solid, material,"PDA2");
 		G4VPhysicalVolume* PDA2_phys = new G4PVPlacement(0,G4ThreeVector(0.0*cm,0.0*cm,0*cm),PDA2_log,"PDA2",PDA1_log,false,0,checkOverlaps); 
 		PDA2_log->SetUserLimits(DHOLLimits);         //From ugstmed_trgt.f
+		solid_vis(PDA2_log);
+
 		//--------------------PDB1----------------------//
 		//----> section PDB next to the RIGHT of collimator detail outside box
 		shape[0]=0.0;
@@ -720,6 +743,7 @@ void DRAGONDetectorConstruction::ugeo_detector()
 		z =  -(box_length/2. + 2.*bpa_len + bpb_len);
 		G4ThreeVector PDB1_pos(0.0*cm,0.0*cm,-z*cm);
 		G4VPhysicalVolume* PDB1_phys = new G4PVPlacement(0,PDB1_pos,PDB1_log,"PDB1",DETE_log,false,0,checkOverlaps);
+		solid_vis(PDB1_log);
 		//--------------------PDB2----------------------//
 		shape[0]=0.0;
 		shape[1]=0.450;
@@ -731,6 +755,7 @@ void DRAGONDetectorConstruction::ugeo_detector()
 		G4LogicalVolume* PDB2_log = new G4LogicalVolume(PDB2_solid, material,"PDB2");
 		G4VPhysicalVolume* PDB2_phys = new G4PVPlacement(0,G4ThreeVector(0.0*cm,0.0*cm,0*cm),PDB2_log,"PDB2",PDB1_log,false,0,checkOverlaps); 
 		PDB2_log->SetUserLimits(DHOLLimits);         //From ugstmed_trgt.f
+		solid_vis(PDB2_log);
 		//--------------------PDD1----------------------//
 		//----> section BPD next in line to left of box
 		shape[0]=0.0;
@@ -743,7 +768,8 @@ void DRAGONDetectorConstruction::ugeo_detector()
 		G4LogicalVolume* PDD1_log = new G4LogicalVolume(PDD1_solid, material,"PDD1");
 		z = -(box_length/2. + 2.*bpa_len + 2.*bpb_len + bpc_len + bpd_len);
 		G4ThreeVector PDD1_pos(0.0*cm,0.0*cm,-z*cm);
-		G4VPhysicalVolume* PDD1_phys = new G4PVPlacement(0,PDD1_pos,PDD1_log,"PDD1",DETE_log,false,0,checkOverlaps); 
+		G4VPhysicalVolume* PDD1_phys = new G4PVPlacement(0,PDD1_pos,PDD1_log,"PDD1",DETE_log,false,0,checkOverlaps);
+		solid_vis(PDD1_log);
 		//--------------------PDD2----------------------//
 		shape[0]=0.0;
 		shape[1]=0.520;
@@ -755,9 +781,9 @@ void DRAGONDetectorConstruction::ugeo_detector()
 		G4LogicalVolume* PDD2_log = new G4LogicalVolume(PDD2_solid, material,"PDD2");
 		G4VPhysicalVolume* PDD2_phys = new G4PVPlacement(0,G4ThreeVector(0.0*cm,0.0*cm,0*cm),PDD2_log,"PDD2",PDD1_log,false,0,checkOverlaps); 
 		PDD2_log->SetUserLimits(DHOLLimits);         //From ugstmed_trgt.f
-   
-		//----> section PDE next in line to RIGHT of box
- 
+		solid_vis(PDD2_log);
+		// downstream end of this is where DEMAND frame is pressed up againse.
+
 		//--------------------PDE1----------------------//
 		shape[0]=0.0;
 		shape[1]=2.09;
@@ -770,6 +796,7 @@ void DRAGONDetectorConstruction::ugeo_detector()
 		z =  -(box_length/2. + 2.*bpa_len + 2.*bpb_len + 2.*bpc_len + 2.*bpd_len + bpe_len);
 		G4ThreeVector PDE1_pos(0.0*cm,0.0*cm,-z*cm);
 		G4VPhysicalVolume* PDE1_phys = new G4PVPlacement(0,PDE1_pos,PDE1_log,"PDE1",DETE_log,false,0,checkOverlaps);
+		solid_vis(PDE1_log,1);
 		//--------------------PDE2----------------------//
 		shape[0]=0.0;
 		shape[1]=0.520;
@@ -781,6 +808,7 @@ void DRAGONDetectorConstruction::ugeo_detector()
 		G4LogicalVolume* PDE2_log = new G4LogicalVolume(PDE2_solid, material,"PDE2");
 		G4VPhysicalVolume* PDE2_phys = new G4PVPlacement(0,G4ThreeVector(0.0*cm,0.0*cm,0*cm),PDE2_log,"PDE2",PDE1_log,false,0,checkOverlaps);
 		PDE2_log->SetUserLimits(DHOLLimits);         //From ugstmed_trgt.f
+		solid_vis(PDE2_log,1);
 
 //       C.----> section PDF next in line to RIGHT of box
          
@@ -796,6 +824,7 @@ void DRAGONDetectorConstruction::ugeo_detector()
 		z = -(box_length/2. + 2.*bpa_len + 2.*bpb_len + 2.*bpc_len + 2.*bpd_len + 2.*bpe_len + bpf_len + bpg_len);
 		G4ThreeVector PDF1_pos(0.0*cm,0.0*cm,-z*cm);
 		G4VPhysicalVolume* PDF1_phys = new G4PVPlacement(0,PDF1_pos,PDF1_log,"PDF1",DETE_log,false,0,checkOverlaps);
+		solid_vis(PDF1_log,1);
 		//--------------------PDF2----------------------//
 		shape[0]=0.0;
 		shape[1]=1.25;
@@ -807,6 +836,7 @@ void DRAGONDetectorConstruction::ugeo_detector()
 		G4LogicalVolume* PDF2_log = new G4LogicalVolume(PDF2_tube, material,"PDF2");
 		G4VPhysicalVolume* PDF2_phys = new G4PVPlacement(0,G4ThreeVector(0.0*cm,0.0*cm,0*cm),PDF2_log,"PDF2",PDF1_log,false,0,checkOverlaps);
 		PDF2_log->SetUserLimits(DHOLLimits);         //From ugstmed_trgt.f
+		solid_vis(PDF2_log,1);
 		//--------------------PDF3----------------------//
 		shape[0]=0.0;
 		shape[1]=1.04;
@@ -817,6 +847,7 @@ void DRAGONDetectorConstruction::ugeo_detector()
 		material = materials->Aluminium;
 		G4LogicalVolume* PDF3_log = new G4LogicalVolume(PDF3_tube, material,"PDF3");
 		G4VPhysicalVolume* PDF3_phys = new G4PVPlacement(0,G4ThreeVector(0.0*cm,0.0*cm,0*cm),PDF3_log,"PDF3",PDF2_log,false,0,checkOverlaps);
+		solid_vis(PDF3_log,1);
 		//--------------------PDF4----------------------//
 		shape[0]=0.0;
 		shape[1]=0.591;
@@ -828,6 +859,7 @@ void DRAGONDetectorConstruction::ugeo_detector()
 		G4LogicalVolume* PDF4_log = new G4LogicalVolume(PDF4_tube, material,"PDF4");
 		G4VPhysicalVolume* PDF4_phys = new G4PVPlacement(0,G4ThreeVector(0.0*cm,0.0*cm,0*cm),PDF4_log,"PDF4",PDF3_log,false,0,checkOverlaps);
 		PDF4_log->SetUserLimits(DHOLLimits);         //From ugstmed_trgt.f
+		solid_vis(PDF4_log,1);
  
 //       C.----> section BPH next in line to left of box
 
