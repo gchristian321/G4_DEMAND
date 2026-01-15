@@ -90,6 +90,8 @@ public:
 	DRAGON::DRAGONDetectorConstruction* GetDragonDetectorConstruction() const  {return fDragonDet;}
 	void SetDragonPhysicsList(DRAGON::DRAGONPhysicsList* phys) {fDragonPhys = phys;}
 	DRAGON::DRAGONPhysicsList* GetDragonPhysicsList() const  {return fDragonPhys;}
+
+	G4VPhysicalVolume* ConstructS2230Detectors(G4VPhysicalVolume*);
 	
 private:
 	bool fCheckOverlaps;
