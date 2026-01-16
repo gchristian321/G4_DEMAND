@@ -1,0 +1,7 @@
+/demand/detector/S2230
+
+/demand/detector/target/material He
+/demand/detector/target/thickness 12.3 centimeter
+
+/demand/detector/usedragon false
+/demand/detector/usechamber false

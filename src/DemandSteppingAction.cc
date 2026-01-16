@@ -72,6 +72,7 @@ void DemandSteppingAction::UserSteppingAction(const G4Step* step)
 	}
 //	PrintWorldLocationOfVolume(step, "PDAI");
 //	PrintWorldLocationOfVolume(step, "PDD2");
+	PrintWorldLocationOfVolume(step, "DEMAND_scintPV");
 }
 
 void DemandSteppingAction::PrintWorldLocationOfVolume(

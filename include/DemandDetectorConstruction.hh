@@ -91,7 +91,7 @@ public:
 	void SetDragonPhysicsList(DRAGON::DRAGONPhysicsList* phys) {fDragonPhys = phys;}
 	DRAGON::DRAGONPhysicsList* GetDragonPhysicsList() const  {return fDragonPhys;}
 
-	G4VPhysicalVolume* ConstructS2230Detectors(G4VPhysicalVolume*);
+	void ConstructS2230Detectors(G4VPhysicalVolume*);
 	bool GetUseS2230Assembly() const   { return fUseS2230Assembly; }
 	void SetUseS2230Assembly(bool use) { fUseS2230Assembly = use;  }
 	

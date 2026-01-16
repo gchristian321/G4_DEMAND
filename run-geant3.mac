@@ -7,6 +7,6 @@
 /demand/generator/reaction geant3
 
 /run/printProgress 1
-/demand/run/geant3 /data/experiments/g3dragon/gchristian/G3_DRAGON_Ne22an/dragon22.root 10
+/demand/run/geant3 /data/experiments/g3dragon/gchristian/G3_DRAGON_Ne22an/dragon22.root
 
 ## /demand/run/geant3 <ROOT file path> [<max number of events]>

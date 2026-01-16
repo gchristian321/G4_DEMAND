@@ -30,6 +30,7 @@
 #include "G4UserLimits.hh"
 #include "G4Trd.hh"
 #include "G4PhysicalVolumeStore.hh"
+#include "G4LogicalVolumeStore.hh"
 #include "G4UnionSolid.hh"
 #include "CADMesh.hh"
 
@@ -301,28 +302,47 @@ void DemandDetectorConstruction::ConstructNeutronDetectorModules(G4VPhysicalVolu
 void DemandDetectorConstruction::ConstructSDandField() {
 	auto demandDetector = new DemandSD("DemandSensitive");	
 
-	int detno = 1, moduleno = 0;
-	for(G4AssemblyVolume* assembly : fAssemblies) {
-		unsigned ncubes = assembly->TotalImprintedVolumes ();
-		auto itBegin = assembly->GetVolumesIterator();
-		auto thisModule = fModules.at(moduleno++);
-		G4double thresh = thisModule.m_Threshold;
-			
-		for(auto it = itBegin; it< itBegin + ncubes; ++it) {
-			G4LogicalVolume * cubeLogic = (*it)->GetLogicalVolume();
-			
-			G4SDManager::GetSDMpointer()->AddNewDetector(demandDetector);
-			cubeLogic->SetSensitiveDetector(demandDetector);
+	if(GetUseS2230Assembly()) {
+#if 0
+		G4LogicalVolume* DEMAND_scintLV =	G4LogicalVolumeStore::GetInstance()
+			->GetVolume("DEMAND_scintLV", true);
+		if(!DEMAND_scintLV){throw std::runtime_error("no DEMAND_scintLV found");}
 
-			G4int copyNo = (*it)->GetCopyNo();
-			demandDetector->AddThreshold(copyNo,thresh);
-			fModuleIndexMap.emplace(copyNo, &thisModule);
-			
-			char name[256];
-			sprintf(name,"demandCrystal_%d",detno);	
-			fSensitiveDetectorNames.push_back(name);
+		DEMAND_scintLV->SetSensitiveDetector(demandDetector);
+		G4SDManager::GetSDMpointer()->AddNewDetector(demandDetector);
 
-			++detno;
+		for (auto pv : *G4PhysicalVolumeStore::GetInstance()) {
+			if (pv->GetName() == "S2230_ModulePV") {
+				G4int copyNo = pv->GetCopyNo();
+				demandDetector->AddThreshold(copyNo, 100*keV);
+			}
+		}
+#endif
+	}
+	else{	
+		int detno = 1, moduleno = 0;
+		for(G4AssemblyVolume* assembly : fAssemblies) {
+			unsigned ncubes = assembly->TotalImprintedVolumes ();
+			auto itBegin = assembly->GetVolumesIterator();
+			auto thisModule = fModules.at(moduleno++);
+			G4double thresh = thisModule.m_Threshold;
+			
+			for(auto it = itBegin; it< itBegin + ncubes; ++it) {
+				G4LogicalVolume * cubeLogic = (*it)->GetLogicalVolume();
+			
+				G4SDManager::GetSDMpointer()->AddNewDetector(demandDetector);
+				cubeLogic->SetSensitiveDetector(demandDetector);
+
+				G4int copyNo = (*it)->GetCopyNo();
+				demandDetector->AddThreshold(copyNo,thresh);
+				fModuleIndexMap.emplace(copyNo, &thisModule);
+			
+				char name[256];
+				sprintf(name,"demandCrystal_%d",detno);	
+				fSensitiveDetectorNames.push_back(name);
+
+				++detno;
+			}
 		}
 	}
 }
@@ -658,307 +678,577 @@ G4LogicalVolume* BuildCrossFrameLV()
 
 }
 
-G4VPhysicalVolume* DemandDetectorConstruction::ConstructS2230Detectors(
-	G4VPhysicalVolume* mother_phys)
+// void DemandDetectorConstruction::ConstructS2230Detectors(
+// 	G4VPhysicalVolume* mother_phys)
+// {
+//   G4Material *matAir = G4NistManager::Instance()->FindOrBuildMaterial("G4_AIR");
+//   G4Material *matAl = G4NistManager::Instance()->FindOrBuildMaterial("G4_Al");
+
+// 	auto elNi = G4NistManager::Instance()->FindOrBuildElement("Ni");
+// 	auto elFe = G4NistManager::Instance()->FindOrBuildElement("Fe");
+// 	auto muMetal = new G4Material("MuMetal_80Ni20Fe", 8.7*g/cm3, 2);
+// 	muMetal->AddElement(elNi, 0.80);
+// 	muMetal->AddElement(elFe, 0.20);
+
+
+// 	// Dummy volume for entire assembly
+// 	// Dimensions in CAD are 393x393x47.8 mm^3 (x,y,z)
+// 	auto moduleSolid = new G4Box("ModuleSolid", 0.5*393*mm, 0.5*393*mm, 0.5*47.8*mm);
+// 	auto moduleLV    = new G4LogicalVolume(moduleSolid, matAir, "S2230_ModuleLV");
+// 	moduleLV->SetVisAttributes(G4VisAttributes::GetInvisible());
+
+// 	auto ConstructDetectorWithCasing = [&](){
+// 		// Outer box
+// 		double boxDims[] = { 160.*mm, 43.4*mm, 40.*mm }; // full lengths
+// 		auto outerBox = new G4Box(
+// 			"OuterBox",
+// 			0.5*boxDims[0],   // X half-length
+// 			0.5*boxDims[1],   // Y half-length
+// 			0.5*boxDims[2]    // Z half-length
+// 			);
+
+//     // Inner hollow
+// 		double boxDimsInner[3];
+// 		double wall_thickness = 3.2*mm;
+// 		for(int i=0; i< 3; ++i){
+// 			boxDimsInner[i] = boxDims[i] - 2*wall_thickness;
+// 		}
+// 		auto innerBox = new G4Box(
+// 			"InnerBox",
+// 			0.5*boxDimsInner[0],   // X half-length
+// 			0.5*boxDimsInner[1],   // Y half-length
+// 			0.5*boxDimsInner[2]    // Z half-length
+// 			);
+
+// 		// cutout at top
+// 		double cutout_diam = 20*mm;
+// 		auto cutoutSolid = new G4Tubs(
+// 			"cutoutSolid",
+// 			0, // inner radius
+// 			cutout_diam/2,    // outer radius
+// 			wall_thickness/2 + 1*mm,     // half-length (along Z)
+// 			0.0*deg,
+// 			360.0*deg
+// 			);	
+
+//     // Aluminum shell = outer minus inner
+// 		// first w/o cutout
+// 		auto shellSolid_nocutout = new G4SubtractionSolid(
+// 			"AlShell_nocutout",
+// 			outerBox,
+// 			innerBox
+// 			);
+
+// 		// now with cutout
+// 		auto rotCutout = new G4RotationMatrix();
+// 		rotCutout->rotateY(90*deg);
+// 		double posCutout = boxDimsInner[0]/2 + wall_thickness/2;
+// 		auto shellSolid = new G4SubtractionSolid(
+// 			"AlShell",
+// 			shellSolid_nocutout,
+// 			cutoutSolid,
+// 			rotCutout,
+// 			G4ThreeVector(posCutout,0,0)
+// 			);
+
+// 		auto shellLV = new G4LogicalVolume(
+// 			shellSolid,
+// 			matAl,
+// 			"AlShellLV"
+// 			);
+// 		solid_vis(shellLV,aluminumGrey,0.2);
+		
+// 		auto airLV = new G4LogicalVolume(
+// 			innerBox,
+// 			matAir,
+// 			"airLV"
+// 			);
+
+// 		// place air in casing
+// 		new G4PVPlacement(
+// 			nullptr,
+// 			G4ThreeVector(0,0,0),    // translation
+// 			airLV,
+// 			"airPV",
+// 			shellLV,
+// 			false,
+// 			0,
+// 			true
+// 			);
+
+	
+// 		// PMT
+// 		// Hollow cylinder
+// 		double pmt_len = 120*mm;
+// 		double pmt_diam = 31*mm;
+// 		double pmt_wall_thick = 0.8*mm; //(mu metal)
+	
+// 		auto pmtSolid = new G4Tubs(
+// 			"PMTSolid",
+// 			pmt_diam/2-pmt_wall_thick, // inner radius
+// 			pmt_diam/2,    // outer radius
+// 			pmt_len/2,     // half-length (along Z)
+// 			0.0*deg,
+// 			360.0*deg
+// 			);
+
+// 		// Logical volume
+// 		auto pmtLV = new G4LogicalVolume(
+// 			pmtSolid,
+// 			muMetal,   // e.g. muMetal, aluminum, etc.
+// 			"PMTLV"
+// 			);	
+// 		solid_vis(pmtLV,nearBlack);
+// 		//pmtLV->SetVisAttributes(G4VisAttributes::GetInvisible());
+
+// 		// PMT is placed in the air inside casing
+// 		// rotate --> cylinder axis z, need to be x
+// 		auto pmtRot = new G4RotationMatrix();
+// 		pmtRot->rotateY(90*deg);
+// 		// pmt is butted against far end of inner frame
+// 		double pmtPos = boxDimsInner[0]/2 - pmt_len/2;
+
+// 		// place inside air
+// 		new G4PVPlacement(
+// 			pmtRot,             // rotation
+// 			G4ThreeVector(pmtPos,0,0),    // translation
+// 			pmtLV,
+// 			"PMTPV",
+// 			airLV,
+// 			false,
+// 			0,
+// 			true
+// 			);
+
+
+// 		// PMT collar
+// 		// create with hole on z-axis then rotate
+// 		double collarDims[] = {
+// 			37*mm, 37*mm, 3.2*mm
+// 		};
+// 		auto collarOuter = new G4Box(
+// 			"collarOuter",
+// 			0.5*collarDims[0],   // X half-length
+// 			0.5*collarDims[1],   // Y half-length
+// 			0.5*collarDims[2]    // Z half-length
+// 			);
+
+// // Inner hollow
+// 		auto collarHole = new G4Tubs(
+// 			"collarHole",
+// 			0, // inner r
+// 			pmt_diam/2 + 0.1*mm, // outer r
+// 			collarDims[2]/2 + 1*mm, // half len
+// 			0.0*deg,
+// 			360.0*deg
+// 			);
+
+// 		auto collarSolid = new G4SubtractionSolid(
+// 			"collarSolid",
+// 			collarOuter,
+// 			collarHole
+// 			);
+// 		auto collarLV = new G4LogicalVolume(
+// 			collarSolid,
+// 			matAl,
+// 			"collarLV"
+// 			);
+// 		solid_vis(shellLV,aluminumGrey,0.2);
+		
+// 		// PMT collars
+// 		vector<double> collar_pos = {
+// 			(87.6-32)*mm, (166.6-32)*mm
+// 		};
+// 		for(size_t icol=0;icol<collar_pos.size();++icol){
+// 			std::stringstream sstr; sstr << "collarPV_" << icol;
+// 			new G4PVPlacement(
+// 				pmtRot,             // rotation
+// 				G4ThreeVector(collar_pos[icol]-boxDims[0]/2,0,0),    // translation
+// 				collarLV,
+// 				sstr.str().c_str(),
+// 				airLV,
+// 				false,
+// 				icol,
+// 				true
+// 				);
+// 		}
+
+// 		// OGS detector
+// 		const double scintDims[] = {30*mm,30*mm,30*mm};
+// 		auto scintBox = new G4Box(
+// 			"scintBox",
+// 			0.5*scintDims[0],   // X half-length
+// 			0.5*scintDims[1],   // Y half-length
+// 			0.5*scintDims[2]    // Z half-length
+// 			);
+	
+// 		auto scintLV = new G4LogicalVolume(
+// 			scintBox,
+// 			GetScintillatorMaterial(),
+// 			"DEMAND_scintLV"
+// 			);
+// 		solid_vis(scintLV, scintClear, 1);
+
+// 		// place in air
+// 		// positon is butted against end of pmt
+// 		double scintPos = pmtPos - pmt_len/2 - scintDims[0]/2;
+// 		new G4PVPlacement(
+// 			nullptr,             // rotation
+// 			G4ThreeVector(scintPos,0,0),    // translation
+// 			scintLV,
+// 			"DEMAND_scintPV",
+// 			airLV,
+// 			false,
+// 			0,
+// 			true
+// 			);
+
+// 		return shellLV;
+// 	};
+
+// 	auto shellLV = ConstructDetectorWithCasing();
+		
+// 	// Aluminum shell lives in the moduleLV
+// 	// inner edge of Al shell is at 32 mm, relative to beam center
+// 	// length of Al shell is 160 mm --> center at 32+80 = 112 mm.
+// 	//
+// 	// offset for detectors removed from the central axis is 44.5 mm.
+// 	double dS = 112*mm;
+// 	double dT = 44.5*mm;
+// 	vector<double> casing_X = {
+// 		-dS, -dS, 0, dS, dS, dT, 0, -dT
+// 	};
+// 	vector<double> casing_Y = {
+// 		0  ,  dT,dS, dT, 0 ,-dS,-dS,-dS
+// 	};
+// 	vector<double> casing_rot = {
+// 		180*deg, 180*deg, 270*deg, 0, 0,
+// 		90*deg, 90*deg, 90*deg
+// 	};
+
+// 	for(size_t i=0; i< casing_X.size(); ++i){
+
+// 		std::stringstream sstr;
+// 		sstr<<"AlShellPV_"<<i;
+// 		auto casingPos = G4ThreeVector(
+// 			casing_X.at(i), casing_Y.at(i), 0
+// 			);
+// 		auto casingRot = new G4RotationMatrix();
+// 		casingRot->rotateZ(casing_rot.at(i));
+
+// 		new G4PVPlacement(
+// 			casingRot,
+// 			casingPos,
+// 			shellLV,
+// 			sstr.str().c_str(),
+// 			moduleLV,
+// 			false,
+// 			i,
+// 			true
+// 			);
+// 	};	
+
+// 	// 
+// 	double module_zpos = 11.312*cm;
+// 	auto modulePV = new G4PVPlacement(
+// 		nullptr,
+// 		G4ThreeVector(0,0,module_zpos),
+// 		moduleLV,
+// 		"S2230_ModulePV",
+// 		mother_phys->GetLogicalVolume(),
+// 		false,
+// 		0,
+// 		true
+// 		);
+
+// 	// auto frameLV = BuildCrossFrameLV();
+// 	// new G4PVPlacement(
+// 	// 	nullptr,
+// 	// 	G4ThreeVector(),
+// 	// 	frameLV,
+// 	// 	"FramePV",
+// 	// 	mother_phys->GetLogicalVolume(),
+// 	// 	false, 0, true
+// 	// 	);
+
+
+// #if 0
+// 	///
+// 	/// Construct outer wire frame using exported
+// 	/// STL file and CADMesh.
+// 	auto mesh = CADMesh::TessellatedMesh::FromSTL("../TDE3468.stl");
+
+// // If the STL numbers are mm (very likely here):
+// 	mesh->SetScale(mm);
+
+// // If it turns out the STL numbers are inches, use:
+// // mesh->SetScale(25.4*mm);
+
+// 	auto frameSolid = mesh->GetSolid();
+// 	auto frameLV = new G4LogicalVolume(frameSolid, matAl, "FrameLV");
+
+// // vis (readable on black bg)
+// 	auto vis = new G4VisAttributes(G4Colour(0.45, 0.45, 0.48, 1.0));
+// 	vis->SetForceSolid(true);
+// 	vis->SetForceAuxEdgeVisible(true);
+// 	frameLV->SetVisAttributes(vis);
+
+// // place (start with no rot/offset because STL is centered)
+// 	auto rotFrame = new G4RotationMatrix();
+// 	rotFrame->rotateZ(180*deg);
+// 	new G4PVPlacement(rotFrame,
+// 										G4ThreeVector(0,0,0),
+// 										frameLV, "FramePV",
+// 										//mother_phys->GetLogicalVolume(),
+//                     moduleLV,
+// 										false, 0, true);
+// #endif
+// }
+
+
+
+void DemandDetectorConstruction::ConstructS2230Detectors(G4VPhysicalVolume* mother_phys)
 {
-  G4Material *matAir = G4NistManager::Instance()->FindOrBuildMaterial("G4_AIR");
-  G4Material *matAl = G4NistManager::Instance()->FindOrBuildMaterial("G4_Al");
+  auto* nist  = G4NistManager::Instance();
+  G4Material* matAir = nist->FindOrBuildMaterial("G4_AIR");
+  G4Material* matAl  = nist->FindOrBuildMaterial("G4_Al");
 
-	auto elNi = G4NistManager::Instance()->FindOrBuildElement("Ni");
-	auto elFe = G4NistManager::Instance()->FindOrBuildElement("Fe");
-	auto muMetal = new G4Material("MuMetal_80Ni20Fe", 8.7*g/cm3, 2);
-	muMetal->AddElement(elNi, 0.80);
-	muMetal->AddElement(elFe, 0.20);
+  // Mu-metal approximation (80% Ni, 20% Fe) for PMT shield
+  auto* elNi = nist->FindOrBuildElement("Ni");
+  auto* elFe = nist->FindOrBuildElement("Fe");
+  auto* muMetal = new G4Material("MuMetal_80Ni20Fe", 8.7*g/cm3, 2);
+  muMetal->AddElement(elNi, 0.80);
+  muMetal->AddElement(elFe, 0.20);
 
+  // -------------------------
+  // Module container (entire assembly)
+  // CAD extents ~ 393 x 393 x 47.8 mm^3 (x,y,z)
+  // -------------------------
+  auto* moduleSolid = new G4Box("ModuleSolid", 0.5*393*mm, 0.5*393*mm, 0.5*47.8*mm);
+  auto* moduleLV    = new G4LogicalVolume(moduleSolid, matAir, "S2230_ModuleLV");
+  moduleLV->SetVisAttributes(G4VisAttributes::GetInvisible());
 
-	// Dummy volume for entire assembly
-	// Dimensions in CAD are 393x393x47.8 mm^3 (x,y,z)
-	auto moduleSolid = new G4Box("ModuleSolid", 0.5*393*mm, 0.5*393*mm, 0.5*47.8*mm);
-	auto moduleLV    = new G4LogicalVolume(moduleSolid, matAir, "S2230_ModuleLV");
-	moduleLV->SetVisAttributes(G4VisAttributes::GetInvisible());
-	
-	// Outer box
-	double boxDims[] = { 160.*mm, 43.4*mm, 40.*mm }; // full lengths
-	auto outerBox = new G4Box(
-    "OuterBox",
-    0.5*boxDims[0],   // X half-length
-    0.5*boxDims[1],   // Y half-length
-    0.5*boxDims[2]    // Z half-length
-		);
+  // -------------------------
+  // Build ONE casing "assembly" LV that contains:
+  // - shell (Al subtraction solid)
+  // - inner air cavity (box) as sibling of shell
+  // - PMT + collars + scint inside inner air
+  // This assembly LV is then placed 8x in moduleLV.
+  // -------------------------
+  auto ConstructCasingAssemblyLV = [&]() -> G4LogicalVolume*
+  {
+    // Outer box full lengths (x,y,z)
+    const G4double boxDims[3] = { 160.*mm, 43.4*mm, 40.*mm };
+    const G4double wall_thickness = 3.2*mm;
 
-// Inner hollow
-	double boxDimsInner[3];
-	double wall_thickness = 3.2*mm;
-	for(int i=0; i< 3; ++i){
-		boxDimsInner[i] = boxDims[i] - 2*wall_thickness;
-	}
-	auto innerBox = new G4Box(
-    "InnerBox",
-    0.5*boxDimsInner[0],   // X half-length
-    0.5*boxDimsInner[1],   // Y half-length
-    0.5*boxDimsInner[2]    // Z half-length
-		);
+    // Inner (air cavity) full lengths
+    G4double boxDimsInner[3];
+    for (int i = 0; i < 3; ++i) boxDimsInner[i] = boxDims[i] - 2.0*wall_thickness;
 
-	// cutout at top
-	double cutout_diam = 20*mm;
-	auto cutoutSolid = new G4Tubs(
-		"cutoutSolid",
-		0, // inner radius
-		cutout_diam/2,    // outer radius
-		wall_thickness/2 + 1*mm,     // half-length (along Z)
-		0.0*deg,
-		360.0*deg
-		);	
+    // Assembly container is the *outer envelope* (air, invisible)
+    auto* casingAssemblySolid = new G4Box("CasingAssemblySolid",
+                                          0.5*boxDims[0], 0.5*boxDims[1], 0.5*boxDims[2]);
+    auto* casingAssemblyLV = new G4LogicalVolume(casingAssemblySolid, matAir, "CasingAssemblyLV");
+    casingAssemblyLV->SetVisAttributes(G4VisAttributes::GetInvisible());
 
-// Aluminum shell = outer minus inner
-	// first w/o cutout
-	auto shellSolid_nocutout = new G4SubtractionSolid(
-    "AlShell_nocutout",
-    outerBox,
-    innerBox
-		);
+    // ---- Shell solid (Al): outer minus inner ----
+    auto* outerBox = new G4Box("OuterBox",
+                               0.5*boxDims[0], 0.5*boxDims[1], 0.5*boxDims[2]);
 
-	// now with cutout
-	auto rotCutout = new G4RotationMatrix();
-	rotCutout->rotateY(90*deg);
-	double posCutout = boxDimsInner[0]/2 + wall_thickness/2;
-	auto shellSolid = new G4SubtractionSolid(
-		"AlShell",
-		shellSolid_nocutout,
-		cutoutSolid,
-		rotCutout,
-		G4ThreeVector(posCutout,0,0)
-		);
+    // Use a cutter for subtraction ONLY; do not re-use this for placed air.
+    auto* innerBoxCut = new G4Box("InnerBoxCut",
+                                  0.5*boxDimsInner[0],
+                                  0.5*boxDimsInner[1],
+                                  0.5*boxDimsInner[2]);
 
-	auto shellLV = new G4LogicalVolume(
-    shellSolid,
-    matAl,
-    "AlShellLV"
-		);
-	solid_vis(shellLV,aluminumGrey,0.2);
+    auto* shellSolid_nocutout = new G4SubtractionSolid("AlShell_nocutout", outerBox, innerBoxCut);
 
-	
-	// PMT
-	// Hollow cylinder
-	double pmt_len = 120*mm;
-	double pmt_diam = 31*mm;
-	double pmt_wall_thick = 0.8*mm; //(mu metal)
-	
-	auto pmtSolid = new G4Tubs(
-		"PMTSolid",
-		pmt_diam/2-pmt_wall_thick, // inner radius
-		pmt_diam/2,    // outer radius
-		pmt_len/2,     // half-length (along Z)
-		0.0*deg,
-		360.0*deg
-		);
+    // Cutout at top (a cylindrical notch). This is used only to subtract from shell.
+    const G4double cutout_diam = 20*mm;
+    auto* cutoutSolid = new G4Tubs("cutoutSolid",
+                                   0.0,
+                                   0.5*cutout_diam,
+                                   0.5*wall_thickness + 1.0*mm, // oversize ok for cutter
+                                   0.0*deg,
+                                   360.0*deg);
 
-// Logical volume
-	auto pmtLV = new G4LogicalVolume(
-    pmtSolid,
-    muMetal,   // e.g. muMetal, aluminum, etc.
-    "PMTLV"
-		);	
-	solid_vis(pmtLV,nearBlack);
-	//pmtLV->SetVisAttributes(G4VisAttributes::GetInvisible());
+    auto* rotCutout = new G4RotationMatrix();
+    rotCutout->rotateY(90*deg);
 
-	// PMT collar
-	// create with hole on z-axis then rotate
-	double collarDims[] = {
-		37*mm, 37*mm, 3.2*mm
-	};
-	auto collarOuter = new G4Box(
-    "collarOuter",
-    0.5*collarDims[0],   // X half-length
-    0.5*collarDims[1],   // Y half-length
-    0.5*collarDims[2]    // Z half-length
-		);
+    const G4double posCutout = 0.5*boxDimsInner[0] + 0.5*wall_thickness; // along +X
 
-// Inner hollow
-	auto collarHole = new G4Tubs(
-		"collarHole",
-		0, // inner r
-		pmt_diam/2 + 0.1*mm, // outer r
-		collarDims[2]/2 + 1*mm, // half len
-		0.0*deg,
-		360.0*deg
-		);
+    auto* shellSolid = new G4SubtractionSolid("AlShell",
+                                              shellSolid_nocutout,
+                                              cutoutSolid,
+                                              rotCutout,
+                                              G4ThreeVector(posCutout, 0, 0));
 
-	auto collarSolid = new G4SubtractionSolid(
-    "collarSolid",
-		collarOuter,
-		collarHole
-		);
-	auto collarLV = new G4LogicalVolume(
-    collarSolid,
-    matAl,
-    "collarLV"
-		);
-	solid_vis(shellLV,aluminumGrey,0.2);
+    auto* shellLV = new G4LogicalVolume(shellSolid, matAl, "AlShellLV");
+    solid_vis(shellLV, aluminumGrey, 0.2);
 
+    // Place shell inside casing assembly
+    new G4PVPlacement(nullptr, G4ThreeVector(), shellLV, "AlShellPV",
+                      casingAssemblyLV, false, 0, true);
 
-	// OGS detector
-	const double scintDims[] = {30*mm,30*mm,30*mm};
-	auto scintBox = new G4Box(
-    "scintBox",
-    0.5*scintDims[0],   // X half-length
-    0.5*scintDims[1],   // Y half-length
-    0.5*scintDims[2]    // Z half-length
-		);
-	
-	auto scintLV = new G4LogicalVolume(
-    scintBox,
-    GetScintillatorMaterial(),
-    "DEMAND_scintLV"
-		);
-	solid_vis(scintLV, scintClear, 1);
-	
-	
-  // Aluminum shell lives in the moduleLV
-	// inner edge of Al shell is at 32 mm, relative to beam center
-	// length of Al shell is 160 mm --> center at 32+80 = 112 mm.
-	//
-	// offset for detectors removed from the central axis is 44.5 mm.
-	double dS = 112*mm;
-	double dT = 44.5*mm;
-	vector<double> casing_X = {
-		-dS, -dS, 0, dS, dS, dT, 0, -dT
-	};
-	vector<double> casing_Y = {
-		0  ,  dT,dS, dT, 0 ,-dS,-dS,-dS
-	};
-	vector<double> casing_rot = {
-		180*deg, 180*deg, 270*deg, 0, 0,
-		90*deg, 90*deg, 90*deg
-	};
+    // ---- Inner air cavity (placed) ----
+    // IMPORTANT: this must be a sibling of the shell (same mother), NOT a child of shellLV.
+    // Shrink slightly to avoid coplanar-face / tolerance overlaps.
+    const G4double eps = 0.05*mm;
 
-	for(size_t i=0; i< casing_X.size(); ++i){
-		std::stringstream sstr;
-		sstr<<"AlShellPV_"<<i;
+    auto* innerAirSolid = new G4Box("InnerAirSolid",
+                                    0.5*boxDimsInner[0] - eps,
+                                    0.5*boxDimsInner[1] - eps,
+                                    0.5*boxDimsInner[2] - eps);
 
-		auto casingPos = G4ThreeVector(
-			casing_X.at(i), casing_Y.at(i), 0
-			);
-		auto casingRot = new G4RotationMatrix();
-		casingRot->rotateZ(casing_rot.at(i));
+    auto* airLV = new G4LogicalVolume(innerAirSolid, matAir, "airLV");
 
-		// al casing is placed in the abstract "module"
-		auto AlShellPV = new G4PVPlacement(
-			casingRot,
-			casingPos,
-			shellLV,
-			sstr.str().c_str(),
-			moduleLV,
-			false,
-			0,
-			true
-			);
+    new G4PVPlacement(nullptr, G4ThreeVector(), airLV, "airPV",
+                      casingAssemblyLV, false, 0, true);
 
-		// PMT is placed in the Al casing
-		// rotate --> cylinder axis z, need to be x
-		auto pmtRot = new G4RotationMatrix();
-		pmtRot->rotateY(90*deg);
-		// pmt is butted against far end of inner frame
-		double pmtPos = boxDimsInner[0]/2 - pmt_len/2;
+    // -------------------------
+    // Internals go inside airLV
+    // -------------------------
 
-		new G4PVPlacement(
-			pmtRot,             // rotation
-			G4ThreeVector(pmtPos,0,0),    // translation
-			pmtLV,
-			"PMTPV",
-			shellLV,
-			false,
-			0,
-			true
-			);
+    // PMT: hollow cylinder (mu-metal)
+    const G4double pmt_len = 120*mm;
+    const G4double pmt_diam = 31*mm;
+    const G4double pmt_wall_thick = 0.8*mm;
 
-		// PMT collars
-		vector<double> collar_pos = {
-			(87.6-32)*mm, (166.6-32)*mm
-		};
-		for(size_t icol=0;icol<collar_pos.size();++icol){
-			std::stringstream sstr; sstr << "collarPV_" << icol;
-			new G4PVPlacement(
-				pmtRot,             // rotation
-				G4ThreeVector(collar_pos[icol]-boxDims[0]/2,0,0),    // translation
-				collarLV,
-				sstr.str().c_str(),
-				shellLV,
-				false,
-				0,
-				true
-				);
-		}
-		// also OGS scintillator
-		// positon is butted against end of pmt
-		double scintPos = pmtPos - pmt_len/2 - scintDims[0]/2;
-		new G4PVPlacement(
-			nullptr,             // rotation
-			G4ThreeVector(scintPos,0,0),    // translation
-			scintLV,
-			"scintPV",
-			shellLV,
-			false,
-			0,
-			true
-			);		
-	}
+    auto* pmtSolid = new G4Tubs("PMTSolid",
+                                0.5*pmt_diam - pmt_wall_thick, // inner radius
+                                0.5*pmt_diam,                  // outer radius
+                                0.5*pmt_len,                   // half-length (local Z axis)
+                                0.0*deg,
+                                360.0*deg);
 
-	// 
-	double module_zpos = 11.312*cm;
-	auto modulePV = new G4PVPlacement(
-		nullptr,
-		G4ThreeVector(0,0,module_zpos),
-		moduleLV,
-		"S2230_ModulePV",
-		mother_phys->GetLogicalVolume(),
-		false,
-		0,
-		true
-		);
+    auto* pmtLV = new G4LogicalVolume(pmtSolid, muMetal, "PMTLV");
+    solid_vis(pmtLV, nearBlack);
 
-	// auto frameLV = BuildCrossFrameLV();
-	// new G4PVPlacement(
-	// 	nullptr,
-	// 	G4ThreeVector(),
-	// 	frameLV,
-	// 	"FramePV",
-	// 	mother_phys->GetLogicalVolume(),
-	// 	false, 0, true
-	// 	);
+    // rotate cylinder so axis is along +X (local)
+    auto* pmtRot = new G4RotationMatrix();
+    pmtRot->rotateY(90*deg);
 
+    // place PMT in air: "butt" against +X end of inner cavity
+		double gap = 0.1*mm; // to get rid of overlap warning
+    const G4double pmtPos = 0.5*boxDimsInner[0] - 0.5*pmt_len - gap;
 
-	///
-	/// Construct outer wire frame using exported
-	/// STL file and CADMesh.
-	auto mesh = CADMesh::TessellatedMesh::FromSTL("../TDE3468.stl");
+    new G4PVPlacement(pmtRot,
+                      G4ThreeVector(pmtPos, 0, 0),
+                      pmtLV,
+                      "PMTPV",
+                      airLV,
+                      false,
+                      0,
+                      true);
 
-// If the STL numbers are mm (very likely here):
-	mesh->SetScale(mm);
+    // PMT collars (Al): square plate with circular hole (aligned to PMT axis)
+    const G4double collarDims[3] = { 33.4*mm, 33.4*mm, 3.2*mm };
 
-// If it turns out the STL numbers are inches, use:
-// mesh->SetScale(25.4*mm);
+    auto* collarOuter = new G4Box("collarOuter",
+                                  0.5*collarDims[0],
+                                  0.5*collarDims[1],
+                                  0.5*collarDims[2]);
 
-	auto frameSolid = mesh->GetSolid();
-	auto frameLV = new G4LogicalVolume(frameSolid, matAl, "FrameLV");
+    auto* collarHole = new G4Tubs("collarHole",
+                                  0.0,
+                                  0.5*pmt_diam + 0.1*mm,
+                                  0.5*collarDims[2] + 1.0*mm, // oversize cutter
+                                  0.0*deg,
+                                  360.0*deg);
 
-// vis (readable on black bg)
-	auto vis = new G4VisAttributes(G4Colour(0.45, 0.45, 0.48, 1.0));
-	vis->SetForceSolid(true);
-	vis->SetForceAuxEdgeVisible(true);
-	frameLV->SetVisAttributes(vis);
+    auto* collarSolid = new G4SubtractionSolid("collarSolid", collarOuter, collarHole);
+    auto* collarLV = new G4LogicalVolume(collarSolid, matAl, "collarLV");
+    solid_vis(collarLV, aluminumGrey, 0.2);
 
-// place (start with no rot/offset because STL is centered)
-	auto rotFrame = new G4RotationMatrix();
-	rotFrame->rotateZ(180*deg);
-	new G4PVPlacement(rotFrame,
-										G4ThreeVector(0,0,0),
-										frameLV, "FramePV",
-										//mother_phys->GetLogicalVolume(),
+    // collar positions (your CAD-based numbers)
+    std::vector<G4double> collar_pos = { (87.6-32)*mm, (166.6-32)*mm };
+    for (size_t icol = 0; icol < collar_pos.size(); ++icol) {
+      std::stringstream sstr; sstr << "collarPV_" << icol;
+
+      new G4PVPlacement(pmtRot,
+                        G4ThreeVector(collar_pos[icol] - 0.5*boxDims[0], 0, 0),
+                        collarLV,
+                        sstr.str().c_str(),
+                        airLV,
+                        false,
+                        (int)icol,
+                        true);
+    }
+
+    // OGS scintillator: 30 mm cube
+    const G4double scintDims[3] = { 30*mm, 30*mm, 30*mm };
+
+    auto* scintBox = new G4Box("scintBox",
+                               0.5*scintDims[0],
+                               0.5*scintDims[1],
+                               0.5*scintDims[2]);
+
+    auto* scintLV = new G4LogicalVolume(scintBox, GetScintillatorMaterial(), "DEMAND_scintLV");
+    solid_vis(scintLV, scintClear, 1);
+
+    // butt against PMT on -X side
+    const G4double scintPos = pmtPos - 0.5*pmt_len - 0.5*scintDims[0];
+
+    new G4PVPlacement(nullptr,
+                      G4ThreeVector(scintPos, 0, 0),
+                      scintLV,
+                      "DEMAND_scintPV",
+                      airLV,
+                      false,
+                      0,
+                      true);
+
+    return casingAssemblyLV;
+  };
+
+  // Build the casing assembly once
+  auto* casingAssemblyLV = ConstructCasingAssemblyLV();
+
+  // -------------------------
+  // Place 8 casings into moduleLV
+  // -------------------------
+  const G4double dS = 112*mm;
+  const G4double dT = 44.5*mm;
+
+  std::vector<G4double> casing_X = { -dS, -dS, 0,  dS,  dS,  dT, 0,  -dT };
+  std::vector<G4double> casing_Y = {  0,   dT, dS, dT,  0,  -dS, -dS, -dS };
+  std::vector<G4double> casing_rot = { 180*deg, 180*deg, 270*deg, 0*deg, 0*deg, 90*deg, 90*deg, 90*deg };
+
+  for (size_t i = 0; i < casing_X.size(); ++i) {
+    auto* casingRot = new G4RotationMatrix();
+    casingRot->rotateZ(casing_rot[i]);
+
+    auto casingPos = G4ThreeVector(casing_X[i], casing_Y[i], 0);
+
+    std::stringstream sstr; sstr << "CasingPV_" << i;
+    new G4PVPlacement(casingRot,
+                      casingPos,
+                      casingAssemblyLV,
+                      sstr.str().c_str(),
+                      moduleLV,
+                      false,
+                      (int)i,
+                      true);
+  }
+
+  // -------------------------
+  // Place module into world (mother_phys)
+  // -------------------------
+  const G4double module_zpos = 11.312*cm;
+  new G4PVPlacement(nullptr,
+                    G4ThreeVector(0,0,module_zpos),
                     moduleLV,
-										false, 0, true);
-	
-	
-	return modulePV;
-}
+                    "S2230_ModulePV",
+                    mother_phys->GetLogicalVolume(),
+                    false,
+                    0,
+                    true);
 
+  // NOTE on IDs:
+  // - each casing instance has copyNo = i at the CasingPV level
+  // - inside each casing, PMT/collars/scint have their own copyNos
+  // In a SensitiveDetector you can use touchable history:
+  //   touch->GetVolume(0)->GetCopyNo()  (scint copy, etc)
+  //   touch->GetVolume(1)->GetCopyNo()  (airPV copy: will be 0 here)
+  //   touch->GetVolume(2)->GetCopyNo()  (CasingPV_i copy: i)  <-- useful
+}

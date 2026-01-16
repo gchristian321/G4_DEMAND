@@ -1,0 +1,4 @@
+/demand/detector/S2230
+
+/demand/detector/bgomask ../mask_S2230.txt
+/demand/detector/usedragon true
