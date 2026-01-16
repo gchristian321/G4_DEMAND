@@ -92,6 +92,8 @@ public:
 	DRAGON::DRAGONPhysicsList* GetDragonPhysicsList() const  {return fDragonPhys;}
 
 	G4VPhysicalVolume* ConstructS2230Detectors(G4VPhysicalVolume*);
+	bool GetUseS2230Assembly() const   { return fUseS2230Assembly; }
+	void SetUseS2230Assembly(bool use) { fUseS2230Assembly = use;  }
 	
 private:
 	bool fCheckOverlaps;
@@ -106,6 +108,7 @@ private:
 	G4String fBGOMask;
 	bool fUseDRAGON;
 	bool fUseChamber;
+	bool fUseS2230Assembly;
 	DRAGON::DRAGONDetectorConstruction* fDragonDet;
 	DRAGON::DRAGONPhysicsList* fDragonPhys;
 };

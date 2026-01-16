@@ -46,6 +46,7 @@ DemandDetectorConstruction::DemandDetectorConstruction()
 	fBGOMask="";
 	fUseDRAGON=false;
 	fUseChamber=true;
+	fUseS2230Assembly = false;
 	fDragonDet=nullptr;
 	fDragonPhys=nullptr;
 }
@@ -63,7 +64,6 @@ G4VPhysicalVolume* DemandDetectorConstruction::Construct()
 	auto worldPV = fUseDRAGON ?
 		ConstructWithDragon() :
 		ConstructWithoutDragon() ;
-	ConstructS2230Detectors(worldPV);
 	return worldPV;
 }
 
@@ -88,11 +88,22 @@ G4VPhysicalVolume* DemandDetectorConstruction::ConstructWithDragon()
 		fDragonDet->SetMASK(fBGOMask);
 	}
 	G4VPhysicalVolume* WRLD_phys = fDragonDet->Construct();
+
+	// neutron detectors
 	// place neutron detectors in "DETE" volume, not world
-	ConstructNeutronDetectorModules(
-		G4PhysicalVolumeStore::GetInstance()->GetVolume("DETE")
-		);
-	//ConstructNeutronDetectorModules(WRLD_phys);
+	if (GetUseS2230Assembly()) {
+		// use packaged S2230 asselbly w/ detectors inside
+		ConstructS2230Detectors(
+			G4PhysicalVolumeStore::GetInstance()->GetVolume("DETE")
+			);
+	}
+	else {
+		//  ose "old neutron detectors from module commands"
+		ConstructNeutronDetectorModules(
+			G4PhysicalVolumeStore::GetInstance()->GetVolume("DETE")
+			);
+		//ConstructNeutronDetectorModules(WRLD_phys);
+	}
 	
 	return WRLD_phys;
 }
@@ -153,7 +164,16 @@ G4VPhysicalVolume* DemandDetectorConstruction::ConstructWithoutDragon()
   worldAttr->SetVisibility(false);
   worldLV->SetVisAttributes(worldAttr);
 
-	ConstructNeutronDetectorModules(world);
+	// neutron detectors
+	// place neutron detectors in "DETE" volume, not world
+	if (GetUseS2230Assembly()) {
+		// use packaged S2230 asselbly w/ detectors inside
+		ConstructS2230Detectors(world);
+	}
+	else {
+		//  ose "old neutron detectors from module commands"
+		ConstructNeutronDetectorModules(world);
+	}
 	
 	//     
   // Target
@@ -789,7 +809,7 @@ G4VPhysicalVolume* DemandDetectorConstruction::ConstructS2230Detectors(
 	auto scintLV = new G4LogicalVolume(
     scintBox,
     GetScintillatorMaterial(),
-    "scintLV"
+    "DEMAND_scintLV"
 		);
 	solid_vis(scintLV, scintClear, 1);
 	
@@ -884,9 +904,11 @@ G4VPhysicalVolume* DemandDetectorConstruction::ConstructS2230Detectors(
 			);		
 	}
 
+	// 
+	double module_zpos = 11.312*cm;
 	auto modulePV = new G4PVPlacement(
 		nullptr,
-		G4ThreeVector(0,0,-20*cm),
+		G4ThreeVector(0,0,module_zpos),
 		moduleLV,
 		"S2230_ModulePV",
 		mother_phys->GetLogicalVolume(),

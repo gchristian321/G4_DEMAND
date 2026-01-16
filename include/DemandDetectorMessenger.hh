@@ -47,6 +47,7 @@ class DemandDetectorMessenger: public G4UImessenger
 	  G4UIcmdWithADoubleAndUnit *fTargetThicknessCmd;
 	  G4UIcmdWithAString *fTargetMaterialCmd;
 	  G4UIcmdWithoutParameter* fAddModuleCmd;
+	  G4UIcmdWithoutParameter* fUseS2230Assembly;
 	  G4UIcmdWithAString *         fBGOMaskCmd;
 	  G4UIcmdWithABool *           fUseDRAGONCmd;
 	  G4UIcmdWithABool *           fUseChamberCmd;

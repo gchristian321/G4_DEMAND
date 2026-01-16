@@ -219,6 +219,12 @@ DemandDetectorMessenger::DemandDetectorMessenger(
   fAddModuleCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
   fAddModuleCmd->SetToBeBroadcasted(false);
 
+  fUseS2230Assembly = new G4UIcmdWithoutParameter("/demand/detector/S2230",this);
+  fUseS2230Assembly->SetGuidance("Use assembly from exp S2230.");
+//  fUseS2230Assembly->SetParameterName("add_module",false);
+  fUseS2230Assembly->AvailableForStates(G4State_PreInit,G4State_Idle);
+  fUseS2230Assembly->SetToBeBroadcasted(false);
+
 	fCurrentModuleNumber = 0;
 }
 
@@ -247,6 +253,7 @@ DemandDetectorMessenger::~DemandDetectorMessenger()
 	delete fTargetThicknessCmd;
 	delete fTargetMaterialCmd;
 	delete fAddModuleCmd;
+	delete fUseS2230Assembly;
 	delete fBGOMaskCmd;
 }
 
@@ -363,6 +370,9 @@ void DemandDetectorMessenger::SetNewValue(
 	else if(command == fAddModuleCmd){
 		fDemandDetector->AddModule();
 		++fCurrentModuleNumber;
+	}
+	else if(command == fUseS2230Assembly){
+		fDemandDetector->SetUseS2230Assembly(true);
 	}
 	else if(command == fBGOMaskCmd){
 		fDemandDetector->SetBGOMask(newValue);

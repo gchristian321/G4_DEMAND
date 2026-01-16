@@ -63,8 +63,9 @@ void DemandSteppingAction::UserSteppingAction(const G4Step* step)
 			= step->GetPreStepPoint()->GetTouchableHandle()
 			->GetVolume()->GetLogicalVolume();
 
-		if(volume->GetName() == "logic_Demand_LocalBox_" &&
-			 step->GetTrack()->GetTrackID() == 1)
+		if((volume->GetName() == "logic_Demand_LocalBox_" ||
+				volume->GetName() == "DEMAND_scintLV")
+			 && step->GetTrack()->GetTrackID() == 1)
 		{
 			DemandAnalysis::Instance()->AddEventCrossingDetector();
 		}
