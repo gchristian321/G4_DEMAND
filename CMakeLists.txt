@@ -76,6 +76,8 @@ set(EXAMPLE_SCRIPTS
   dragon_2014_IC.dat
   config-example.mac
   run-neutron_beam.mac
+  config-S2230.mac
+  config-S2230_nodragon.mac
   )
 
 foreach(_script ${EXAMPLE_SCRIPTS})
