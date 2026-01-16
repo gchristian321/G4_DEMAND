@@ -30,6 +30,8 @@
 #include "G4UserLimits.hh"
 #include "G4Trd.hh"
 #include "G4PhysicalVolumeStore.hh"
+#include "G4UnionSolid.hh"
+#include "CADMesh.hh"
 
 using namespace std;
 
@@ -568,6 +570,72 @@ void solid_vis (G4LogicalVolume* lv, double alpha = 1)
 G4Colour aluminumGrey(0.80, 0.80, 0.82, 1.0);
 G4Colour nearBlack(0.50, 0.50, 0.50, 1.0);
 G4Colour scintClear(0.75, 0.85, 1.00, 1.0);
+
+
+G4LogicalVolume* BuildCrossFrameLV()
+{
+  auto nist = G4NistManager::Instance();
+  auto Al   = nist->FindOrBuildMaterial("G4_Al");
+
+  // ---- Overall thickness from STL ----
+  const G4double halfZ = 23.925*mm;
+
+  // ---- Central block ----
+  const G4double hubHX = 60*mm;
+  const G4double hubHY = 60*mm;
+  const G4double beamHoleR = 22*mm;
+
+  auto hubBox = new G4Box("HubBox", hubHX, hubHY, halfZ);
+  auto hubHole = new G4Tubs("HubHole", 0, beamHoleR, halfZ+1*mm, 0, 360*deg);
+  auto hub = new G4SubtractionSolid("Hub", hubBox, hubHole);
+
+  // ---- Arm parameters (tune these) ----
+  const G4double armLen = 160*mm;
+  const G4double armW  = 50*mm;
+  const G4double wall  = 10*mm;
+
+  // Outer arm
+  auto armOuterX = new G4Box("ArmOuterX", 0.5*armLen, 0.5*armW, halfZ);
+  auto armInnerX = new G4Box("ArmInnerX",
+                             0.5*(armLen - 2*wall),
+                             0.5*(armW  - 2*wall),
+                             halfZ+1*mm);
+
+  auto armX = new G4SubtractionSolid("ArmX", armOuterX, armInnerX);
+
+  auto armOuterY = new G4Box("ArmOuterY", 0.5*armW, 0.5*armLen, halfZ);
+  auto armInnerY = new G4Box("ArmInnerY",
+                             0.5*(armW  - 2*wall),
+                             0.5*(armLen - 2*wall),
+                             halfZ+1*mm);
+
+  auto armY = new G4SubtractionSolid("ArmY", armOuterY, armInnerY);
+
+  // ---- Build unions ----
+  G4VSolid* s = hub;
+
+  // +X / -X arms
+  s = new G4UnionSolid("uXplus",  s, armX, nullptr,
+                       G4ThreeVector(hubHX + 0.5*armLen, 0, 0));
+  s = new G4UnionSolid("uXminus", s, armX, nullptr,
+                       G4ThreeVector(-(hubHX + 0.5*armLen), 0, 0));
+
+  // +Y / -Y arms
+  s = new G4UnionSolid("uYplus",  s, armY, nullptr,
+                       G4ThreeVector(0, hubHY + 0.5*armLen, 0));
+  s = new G4UnionSolid("uYminus", s, armY, nullptr,
+                       G4ThreeVector(0, -(hubHY + 0.5*armLen), 0));
+
+  auto lv = new G4LogicalVolume(s, Al, "CrossFrameLV");
+
+  auto vis = new G4VisAttributes(G4Colour(0.45, 0.45, 0.48, 1.0));
+  vis->SetForceSolid(true);
+  vis->SetForceAuxEdgeVisible(true);
+  lv->SetVisAttributes(vis);
+
+  return lv;
+}
+
 }
 
 G4VPhysicalVolume* DemandDetectorConstruction::ConstructS2230Detectors(
@@ -826,6 +894,48 @@ G4VPhysicalVolume* DemandDetectorConstruction::ConstructS2230Detectors(
 		0,
 		true
 		);
+
+	// auto frameLV = BuildCrossFrameLV();
+	// new G4PVPlacement(
+	// 	nullptr,
+	// 	G4ThreeVector(),
+	// 	frameLV,
+	// 	"FramePV",
+	// 	mother_phys->GetLogicalVolume(),
+	// 	false, 0, true
+	// 	);
+
+
+	///
+	/// Construct outer wire frame using exported
+	/// STL file and CADMesh.
+	auto mesh = CADMesh::TessellatedMesh::FromSTL("../TDE3468.stl");
+
+// If the STL numbers are mm (very likely here):
+	mesh->SetScale(mm);
+
+// If it turns out the STL numbers are inches, use:
+// mesh->SetScale(25.4*mm);
+
+	auto frameSolid = mesh->GetSolid();
+	auto frameLV = new G4LogicalVolume(frameSolid, matAl, "FrameLV");
+
+// vis (readable on black bg)
+	auto vis = new G4VisAttributes(G4Colour(0.45, 0.45, 0.48, 1.0));
+	vis->SetForceSolid(true);
+	vis->SetForceAuxEdgeVisible(true);
+	frameLV->SetVisAttributes(vis);
+
+// place (start with no rot/offset because STL is centered)
+	auto rotFrame = new G4RotationMatrix();
+	rotFrame->rotateZ(180*deg);
+	new G4PVPlacement(rotFrame,
+										G4ThreeVector(0,0,0),
+										frameLV, "FramePV",
+										//mother_phys->GetLogicalVolume(),
+                    moduleLV,
+										false, 0, true);
+	
 	
 	return modulePV;
 }
