@@ -82,6 +82,8 @@ class DemandRunAction : public G4UserRunAction
 	  G4long SetupGeant3Input(const G4String&);
 	  void GetGeant3Event(G4long indx, G3Event*) const;
 	  void SetMaxEvents(G4long max){fMaxEvents=max;}
+  	void SetG3RequireCoincidence(bool require)
+		{ fG3RequireCoincidence = require; }
 
   private:
 	  void CleanupGeant3Input();
@@ -95,6 +97,7 @@ class DemandRunAction : public G4UserRunAction
 	  G4int react, recdet;
 	  std::vector<G4long> fEventIndices;
 	  G4long fMaxEvents;
+    bool fG3RequireCoincidence;
 
 	  DemandRunMessenger* fRunMessenger;
 };

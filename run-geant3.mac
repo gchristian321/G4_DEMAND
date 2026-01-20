@@ -6,7 +6,9 @@
 #
 /demand/generator/reaction geant3
 
-/run/printProgress 1
+/run/printProgress 100
+
+/demand/run/geant3_coincidence false
 /demand/run/geant3 /data/experiments/g3dragon/gchristian/G3_DRAGON_Ne22an/dragon22.root
 
 ## /demand/run/geant3 <ROOT file path> [<max number of events]>

@@ -9,6 +9,7 @@ class G4UIcmdWithADoubleAndUnit;
 class G4UIcmdWith3VectorAndUnit;
 class G4UIcmdWithAnInteger;
 class G4UIcmdWithAString;
+class G4UIcmdWithABool;
 class G4UIcommand;
 class DemandRunAction;
 
@@ -18,11 +19,12 @@ public:
 	DemandRunMessenger(DemandRunAction*);
 	virtual ~DemandRunMessenger();
 	virtual void SetNewValue(G4UIcommand*, G4String);
-
+	
 private:
 	G4UIdirectory* fRunDir;
 	G4UIcmdWithAString* fGeant3SetupCmd;
-
+	G4UIcmdWithABool* fGeant3RequireCoincidenceCmd;
+	
 	DemandRunAction* fRun;
 };
 

@@ -64,6 +64,7 @@ DemandRunAction::DemandRunAction()
 	}
 
 	fRunMessenger = new DemandRunMessenger(this);
+	fG3RequireCoincidence = true;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -196,7 +197,10 @@ G4long DemandRunAction::SetupGeant3Input(const G4String& g3fname)
 	fEventIndices.clear();
 	for(G4long entry = 0; entry < fG3Tree->GetEntries(); ++entry){
 		fG3Tree->GetEntry ( entry );
-		if ( react != 0 && recdet != 0 ) {
+
+		bool condition = fG3RequireCoincidence ?
+			react != 0 && recdet != 0 : react != 0;
+		if ( condition ) {
 			if(fMaxEvents < 0 || fEventIndices.size() < fMaxEvents){
 				fEventIndices.push_back(entry);
 			}
