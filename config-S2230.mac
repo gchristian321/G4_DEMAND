@@ -1,4 +1,13 @@
 /demand/detector/S2230
 
+/demand/detector/S2230_thresh 0 100 keV
+/demand/detector/S2230_thresh 1 100 keV
+/demand/detector/S2230_thresh 2 100 keV
+/demand/detector/S2230_thresh 3 100 keV
+/demand/detector/S2230_thresh 4 100 keV
+/demand/detector/S2230_thresh 5 100 keV
+/demand/detector/S2230_thresh 6 -1 MeV
+/demand/detector/S2230_thresh 7 -1 MeV
+
 /demand/detector/bgomask ../mask_S2230.txt
 /demand/detector/usedragon true
