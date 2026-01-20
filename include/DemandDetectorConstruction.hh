@@ -94,6 +94,9 @@ public:
 	void ConstructS2230Detectors(G4VPhysicalVolume*);
 	bool GetUseS2230Assembly() const   { return fUseS2230Assembly; }
 	void SetUseS2230Assembly(bool use) { fUseS2230Assembly = use;  }
+	void SetS2230Threshold(size_t i, double thresh) {
+		fS2230Thresholds.at(i) = thresh;
+	}
 	
 private:
 	bool fCheckOverlaps;
@@ -109,6 +112,7 @@ private:
 	bool fUseDRAGON;
 	bool fUseChamber;
 	bool fUseS2230Assembly;
+	std::vector<double> fS2230Thresholds;
 	DRAGON::DRAGONDetectorConstruction* fDragonDet;
 	DRAGON::DRAGONPhysicsList* fDragonPhys;
 };

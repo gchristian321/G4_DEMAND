@@ -137,7 +137,7 @@ void DemandEventAction::EndOfEventAction(const G4Event* event)
 			G4double thresh = 
 				sensitiveDetector.GetThreshold(hit->GetID());
 
-			if(hit->GetEnergyQuenched() > thresh) {
+			if(thresh > 0 && hit->GetEnergyQuenched() > thresh) {
 				auto pos = FigureOutMeasuredPosition(*hit);
 				analysisManager->AddHit(
 					hit->GetEnergyQuenched(),

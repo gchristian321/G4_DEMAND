@@ -1,3 +1,5 @@
+#include <sstream>
+
 #include "G4UIcmdWithADoubleAndUnit.hh"
 #include "G4UIcmdWith3VectorAndUnit.hh"
 #include "G4UIcmdWithAnInteger.hh"
@@ -218,14 +220,22 @@ DemandDetectorMessenger::DemandDetectorMessenger(
 //  fAddModuleCmd->SetParameterName("add_module",false);
   fAddModuleCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
   fAddModuleCmd->SetToBeBroadcasted(false);
+	fCurrentModuleNumber = 0;
 
+	////
   fUseS2230Assembly = new G4UIcmdWithoutParameter("/demand/detector/S2230",this);
   fUseS2230Assembly->SetGuidance("Use assembly from exp S2230.");
 //  fUseS2230Assembly->SetParameterName("add_module",false);
   fUseS2230Assembly->AvailableForStates(G4State_PreInit,G4State_Idle);
   fUseS2230Assembly->SetToBeBroadcasted(false);
 
-	fCurrentModuleNumber = 0;
+	fS2230ThresholdCmd = 
+		new G4UIcmdWithAString("/demand/detector/S2230_thresh", this);
+	fS2230ThresholdCmd->SetGuidance("Set the detector threshold (S2230)");
+	fS2230ThresholdCmd->SetParameterName("s2230thresh",false);
+	fS2230ThresholdCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
+	fS2230ThresholdCmd->SetToBeBroadcasted(false);
+	fS2230ThresholdCmd->SetDefaultValue("1 100 keV");
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -255,6 +265,7 @@ DemandDetectorMessenger::~DemandDetectorMessenger()
 	delete fAddModuleCmd;
 	delete fUseS2230Assembly;
 	delete fBGOMaskCmd;
+	delete fS2230ThresholdCmd;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -376,5 +387,18 @@ void DemandDetectorMessenger::SetNewValue(
 	}
 	else if(command == fBGOMaskCmd){
 		fDemandDetector->SetBGOMask(newValue);
+	}
+
+	else if(command == fS2230ThresholdCmd){
+		std::istringstream iss(newValue);
+		G4String strDet;
+    G4String strThresh;
+    iss >> strDet;
+    std::getline(iss >> std::ws, strThresh);
+		
+		G4int iDet = fNxCmd->GetNewIntValue(strDet);
+		G4double  Thresh = fTargetThicknessCmd->GetNewDoubleValue(strThresh);
+	
+		fDemandDetector->SetS2230Threshold(iDet, Thresh);
 	}
 }

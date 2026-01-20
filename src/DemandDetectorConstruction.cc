@@ -48,6 +48,9 @@ DemandDetectorConstruction::DemandDetectorConstruction()
 	fUseDRAGON=false;
 	fUseChamber=true;
 	fUseS2230Assembly = false;
+	for(size_t i=0;i<8;++i){
+		fS2230Thresholds.push_back(100*keV);
+	}
 	fDragonDet=nullptr;
 	fDragonPhys=nullptr;
 }
@@ -311,10 +314,27 @@ void DemandDetectorConstruction::ConstructSDandField() {
 		DEMAND_scintLV->SetSensitiveDetector(demandDetector);
 		G4SDManager::GetSDMpointer()->AddNewDetector(demandDetector);
 
+    // std::stringstream sstr; sstr << "CasingPV_" << i;
+    // new G4PVPlacement(casingRot,
+    //                   casingPos,
+    //                   casingAssemblyLV,
+    //                   sstr.str().c_str(),
+    //                   moduleLV,
+    //                   false,
+    //                   (int)i,
+    //                   true);
+
 		for (auto pv : *G4PhysicalVolumeStore::GetInstance()) {
-			if (pv->GetName() == "S2230_ModulePV") {
+			if (std::string(pv->GetName()).substr(0,8) == "CasingPV") {
 				G4int copyNo = pv->GetCopyNo();
-				demandDetector->AddThreshold(copyNo, 100*keV);
+				G4double thresh = 100*keV;
+				try { thresh = fS2230Thresholds.at(copyNo); }
+				catch(std::exception& e){
+					G4cerr << "ERROR: can't set threshold for detno " << copyNo << G4endl;
+					throw e;
+				}
+				demandDetector->AddThreshold(copyNo, thresh);
+				G4cout << " S2230 Threshold, det " << copyNo << ", " << thresh/keV << " keVee\n";
 			}
 		}
 #endif
