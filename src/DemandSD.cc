@@ -38,10 +38,15 @@ G4bool DemandSD::ProcessHits(G4Step* step, G4TouchableHistory*) {
 	G4StepPoint* preStepPoint = step->GetPreStepPoint();
 	G4TouchableHistory* touchable
 		= (G4TouchableHistory*)(preStepPoint->GetTouchable());
-	G4int copyNo = touchable->GetVolume()->GetCopyNo();
 	G4double hitTime = preStepPoint->GetGlobalTime();
 	G4ThreeVector position_actual = preStepPoint->GetPosition();
-	G4ThreeVector position = touchable->GetVolume()->GetTranslation();
+
+	G4int volumeDepth = 0;
+	if(touchable->GetVolume()->GetName() == "DEMAND_scintPV") {
+		volumeDepth = 2;
+	}
+	G4int copyNo = touchable->GetVolume(volumeDepth)->GetCopyNo();
+	G4ThreeVector position = touchable->GetVolume(volumeDepth)->GetTranslation();
 	
 	bool alreadyHaveHitInVolume = false;
 	for(DemandHit* existingHit : *(fHitsCollection->GetVector())) {
@@ -66,7 +71,7 @@ G4bool DemandSD::ProcessHits(G4Step* step, G4TouchableHistory*) {
 	}
 
 #if 0
-	std::cout << "TEXNEUT HIT!!!\n";
+	std::cout << "DEMAND HIT!!!\n";
 	std::cout << "VOLUME:: " << touchable->GetVolume()->GetName() << std::endl;
 	std::cout << "copyNo " << copyNo << "\n";
 	std::cout << "position: (" << position.x() << ", " << position.y() << ", " << position.z() << ")\n";
