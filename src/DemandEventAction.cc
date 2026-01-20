@@ -136,7 +136,7 @@ void DemandEventAction::EndOfEventAction(const G4Event* event)
 				*(hit->GetPhysicalVolume()->GetLogicalVolume()->GetSensitiveDetector()));
 			G4double thresh = 
 				sensitiveDetector.GetThreshold(hit->GetID());
-
+			
 			if(thresh > 0 && hit->GetEnergyQuenched() > thresh) {
 				auto pos = FigureOutMeasuredPosition(*hit);
 				analysisManager->AddHit(
@@ -146,7 +146,8 @@ void DemandEventAction::EndOfEventAction(const G4Event* event)
 					pos.y(),
 					pos.z(),
 					hit->GetParticleA(),
-					hit->GetParticleZ() );
+					hit->GetParticleZ(),
+					hit->GetID());
 			}
 			if(hit->GetTime() < tmin) {
 				tmin = hit->GetTime();

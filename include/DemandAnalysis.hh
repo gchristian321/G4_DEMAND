@@ -45,7 +45,7 @@ public:
 	void CloseFile();
 	void Write();
 	void Clear();
-	void AddHit(double edep, double time, double xpos, double ypos, double zpos, int pA, int pZ);
+	void AddHit(double edep, double time, double xpos, double ypos, double zpos, int pA, int pZ, int detno = 0);
 	void SetFirstInteraction(double,double,double,double);
 	void Analyze();
 	long GetEventsAboveThreshold() const;

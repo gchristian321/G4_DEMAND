@@ -45,6 +45,7 @@ vector<double> *fTime = 0;
 vector<double> *fXpos = 0;
 vector<double> *fYpos = 0;
 vector<double> *fZpos = 0;
+vector<int> *fDetno = 0;
 vector<int> *fpA = 0;
 vector<int> *fpZ = 0;
 
@@ -97,6 +98,7 @@ void DemandAnalysis::OpenFile(const string& filename)
 	fTree->Branch("xpos",&fXpos);
 	fTree->Branch("ypos",&fYpos);
 	fTree->Branch("zpos",&fZpos);
+	fTree->Branch("detno",&fDetno);
 
 	fTree->Branch("particleA",&fpA);
 	fTree->Branch("particleZ",&fpZ);
@@ -149,7 +151,8 @@ void DemandAnalysis::Clear()
 	fXpos->clear();
 	fYpos->clear();
 	fZpos->clear();
-
+	fDetno->clear();
+	
 	fpA->clear();
 	fpZ->clear();
 
@@ -169,7 +172,7 @@ void DemandAnalysis::SetFirstInteraction(double time, double x, double y, double
 }
 
 void DemandAnalysis::AddHit(	
-	double edep, double time, double xpos, double ypos, double zpos, int pA, int pZ)
+	double edep, double time, double xpos, double ypos, double zpos, int pA, int pZ, int detno)
 {
 	// add resolutions
 	time += G4RandGauss::shoot(0, TIME_RES/FWHM);
@@ -183,6 +186,7 @@ void DemandAnalysis::AddHit(
 	fXpos->emplace(fXpos->begin() + dit, xpos);
 	fYpos->emplace(fYpos->begin() + dit, ypos);
 	fZpos->emplace(fZpos->begin() + dit, zpos);
+	fDetno->emplace(fDetno->begin() + dit, detno);
 	fpA->emplace(fpA->begin() + dit, pA);
 	fpZ->emplace(fpZ->begin() + dit, pZ);
 	fNumHits++;
