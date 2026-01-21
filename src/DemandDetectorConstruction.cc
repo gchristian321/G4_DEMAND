@@ -822,7 +822,8 @@ void DemandDetectorConstruction::ConstructS2230Detectors(G4VPhysicalVolume* moth
 
     // butt against PMT on -X side
     const G4double scintPos = pmtPos - 0.5*pmt_len - 0.5*scintDims[0];
-
+		G4cout << "ScintPos: " << scintPos << G4endl;
+		
     new G4PVPlacement(nullptr,
                       G4ThreeVector(scintPos, 0, 0),
                       scintLV,

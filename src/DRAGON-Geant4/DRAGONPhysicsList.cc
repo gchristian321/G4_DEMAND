@@ -174,7 +174,7 @@ void DRAGONPhysicsList::ConstructParticle()
     fOptPhysicsList->ConstructParticle();
     fHadElastPhysics->ConstructParticle();
     fHadPhysicsFTFP_BERT->ConstructParticle();
-
+#if 0
     if (G4Threading::IsMasterThread()) {
         static G4bool isDefined = false;
         if (!isDefined) {
@@ -183,6 +183,7 @@ void DRAGONPhysicsList::ConstructParticle()
             isDefined = true;
         }
     }
+#endif
 
 }
 
