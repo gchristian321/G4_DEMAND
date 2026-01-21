@@ -631,79 +631,7 @@ G4Colour aluminumGrey(0.80, 0.80, 0.82, 1.0);
 G4Colour nearBlack(0.50, 0.50, 0.50, 1.0);
 G4Colour scintClear(0.75, 0.85, 1.00, 1.0);
 
-
-G4LogicalVolume* BuildCrossFrameLV()
-{
-	// Attempt to get ChatGPT to read the CAD file
-	// for me and translate to G4 code.
-
-	// Not working at the moment - using CAD import
-	// instead (this has problems with neutrons getting
-	// stuck at boundaries, so will need to be fixed).
-	//
-  auto nist = G4NistManager::Instance();
-  auto Al   = nist->FindOrBuildMaterial("G4_Al");
-
-  // ---- Overall thickness from STL ----
-  const G4double halfZ = 23.925*mm;
-
-  // ---- Central block ----
-  const G4double hubHX = 60*mm;
-  const G4double hubHY = 60*mm;
-  const G4double beamHoleR = 22*mm;
-
-  auto hubBox = new G4Box("HubBox", hubHX, hubHY, halfZ);
-  auto hubHole = new G4Tubs("HubHole", 0, beamHoleR, halfZ+1*mm, 0, 360*deg);
-  auto hub = new G4SubtractionSolid("Hub", hubBox, hubHole);
-
-  // ---- Arm parameters (tune these) ----
-  const G4double armLen = 160*mm;
-  const G4double armW  = 50*mm;
-  const G4double wall  = 10*mm;
-
-  // Outer arm
-  auto armOuterX = new G4Box("ArmOuterX", 0.5*armLen, 0.5*armW, halfZ);
-  auto armInnerX = new G4Box("ArmInnerX",
-                             0.5*(armLen - 2*wall),
-                             0.5*(armW  - 2*wall),
-                             halfZ+1*mm);
-
-  auto armX = new G4SubtractionSolid("ArmX", armOuterX, armInnerX);
-
-  auto armOuterY = new G4Box("ArmOuterY", 0.5*armW, 0.5*armLen, halfZ);
-  auto armInnerY = new G4Box("ArmInnerY",
-                             0.5*(armW  - 2*wall),
-                             0.5*(armLen - 2*wall),
-                             halfZ+1*mm);
-
-  auto armY = new G4SubtractionSolid("ArmY", armOuterY, armInnerY);
-
-  // ---- Build unions ----
-  G4VSolid* s = hub;
-
-  // +X / -X arms
-  s = new G4UnionSolid("uXplus",  s, armX, nullptr,
-                       G4ThreeVector(hubHX + 0.5*armLen, 0, 0));
-  s = new G4UnionSolid("uXminus", s, armX, nullptr,
-                       G4ThreeVector(-(hubHX + 0.5*armLen), 0, 0));
-
-  // +Y / -Y arms
-  s = new G4UnionSolid("uYplus",  s, armY, nullptr,
-                       G4ThreeVector(0, hubHY + 0.5*armLen, 0));
-  s = new G4UnionSolid("uYminus", s, armY, nullptr,
-                       G4ThreeVector(0, -(hubHY + 0.5*armLen), 0));
-
-  auto lv = new G4LogicalVolume(s, Al, "CrossFrameLV");
-
-  auto vis = new G4VisAttributes(G4Colour(0.45, 0.45, 0.48, 1.0));
-  vis->SetForceSolid(true);
-  vis->SetForceAuxEdgeVisible(true);
-  lv->SetVisAttributes(vis);
-
-  return lv;
-}
-
-}
+} // namespace
 
 
 void DemandDetectorConstruction::ConstructS2230Detectors(G4VPhysicalVolume* mother_phys)
@@ -957,7 +885,7 @@ void DemandDetectorConstruction::ConstructS2230Detectors(G4VPhysicalVolume* moth
   //   touch->GetVolume(0)->GetCopyNo()  (scint copy, etc)
   //   touch->GetVolume(1)->GetCopyNo()  (airPV copy: will be 0 here)
   //   touch->GetVolume(2)->GetCopyNo()  (CasingPV_i copy: i)  <-- useful
-
+	
 #if 0
 	///
 	/// Construct outer wire frame using exported
@@ -991,3 +919,5 @@ void DemandDetectorConstruction::ConstructS2230Detectors(G4VPhysicalVolume* moth
 #endif
 
 }
+
+
