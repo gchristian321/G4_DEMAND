@@ -37,6 +37,15 @@ DemandRunMessenger::DemandRunMessenger(DemandRunAction* run):
 	fGeant3SetupCmd->SetToBeBroadcasted(false);
 	fGeant3SetupCmd->SetDefaultValue("");
 
+	fOutputFileNameCmd =
+		new G4UIcmdWithAString("/demand/run/output_file", this);
+	fOutputFileNameCmd->SetGuidance(
+		"Set output file name");
+	fOutputFileNameCmd->SetParameterName("out_fname",false);
+	fOutputFileNameCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
+	fOutputFileNameCmd->SetToBeBroadcasted(false);
+	fOutputFileNameCmd->SetDefaultValue("");
+
 	fGeant3RequireCoincidenceCmd =
 		new G4UIcmdWithABool("/demand/run/geant3_coincidence", this);
 	fGeant3RequireCoincidenceCmd->SetGuidance(
@@ -53,6 +62,7 @@ DemandRunMessenger::~DemandRunMessenger()
 {
 //  delete fRunDir;
 	delete fGeant3SetupCmd;
+	delete fOutputFileNameCmd;
 	delete fGeant3RequireCoincidenceCmd;
 }
 
@@ -63,6 +73,9 @@ void DemandRunMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
 	if(command == fGeant3SetupCmd){
 		G4long nevt = fRun->SetupGeant3Input(newValue);
 		G4RunManager::GetRunManager()->BeamOn(nevt);
+	}
+	if(command == fOutputFileNameCmd){
+		fRun->SetOutputFileName(newValue);
 	}
 	if(command == fGeant3RequireCoincidenceCmd){
 		bool require = fGeant3RequireCoincidenceCmd->GetNewBoolValue(newValue);

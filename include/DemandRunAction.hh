@@ -84,11 +84,14 @@ class DemandRunAction : public G4UserRunAction
 	  void SetMaxEvents(G4long max){fMaxEvents=max;}
   	void SetG3RequireCoincidence(bool require)
 		{ fG3RequireCoincidence = require; }
+	  void SetOutputFileName(const G4String& name)
+		{ fOutputFileName = name; }
 
   private:
 	  void CleanupGeant3Input();
 	
   private:
+	  G4String fOutputFileName;
 	  G4int fNumRuns;
 	  TFile* fG3File;
   	TTree* fG3Tree;

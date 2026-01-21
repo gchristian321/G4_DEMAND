@@ -24,6 +24,7 @@ private:
 	G4UIdirectory* fRunDir;
 	G4UIcmdWithAString* fGeant3SetupCmd;
 	G4UIcmdWithABool* fGeant3RequireCoincidenceCmd;
+	G4UIcmdWithAString* fOutputFileNameCmd;
 	
 	DemandRunAction* fRun;
 };
