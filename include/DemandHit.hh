@@ -48,7 +48,7 @@ private:
   G4int fID;
   G4ThreeVector fPos; // detector center
 	G4ThreeVector fActualPos; // actual coordinates of the interaction
-	std::map<std::pair<G4int, G4int>, G4double> fEnergyByParticle; //<<A,Z>, edep>
+	std::map<G4int, G4double> fEnergyByParticle; //<pd->GetPDGEncoding(), edep>
 	G4double fEnergy;
 	G4double fEnergyQuenched;
   G4double fTime;

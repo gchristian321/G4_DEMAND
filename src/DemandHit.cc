@@ -4,6 +4,7 @@
 #include "G4ParticleDefinition.hh"
 #include "G4Electron.hh"
 #include "G4Positron.hh"
+#include "G4ParticleTable.hh"
 
 G4ThreadLocal G4Allocator<DemandHit>* DemandHitAllocator;
 
@@ -26,19 +27,9 @@ DemandHit::~DemandHit() {
 
 void DemandHit::AppendEnergy(G4double edep, const G4ParticleDefinition* particle)
 {
-	auto particleAZ =
-		std::make_pair(particle->GetAtomicMass(), particle->GetAtomicNumber());
-
-	if(particle == G4Electron::Definition() ||
-		 particle == G4Positron::Definition()) {
-
-		particleAZ.first = 0;
-		particleAZ.second = 1001;
-	}
-
-	auto it = fEnergyByParticle.find(particleAZ);
+	auto it = fEnergyByParticle.find(particle->GetPDGEncoding());
 	if(it == fEnergyByParticle.end()) {
-		fEnergyByParticle.emplace(particleAZ, edep);
+		fEnergyByParticle.emplace(particle->GetPDGEncoding(), edep);
 	}
 	else {
 		it->second += edep;
@@ -50,19 +41,23 @@ void DemandHit::AppendEnergy(G4double edep, const G4ParticleDefinition* particle
 	fEnergyQuenched = 0;
 	G4double maxDeposit = 0;
 	for(const auto& p : fEnergyByParticle) {
+		auto theParticle = G4ParticleTable::GetParticleTable()->
+			FindParticle(p.first);
+		auto e_deposit = p.second;
+		
 		G4double eQuench = DemandSD::CalculateQuenching(
-			p.second, p.first.first, p.first.second);
+			e_deposit, theParticle);
 		if(eQuench > 0) { fEnergyQuenched += eQuench; }
 		if(eQuench > maxDeposit) {
-			maxDeposit = eQuench;
-			fParticleA = p.first.first;
-			fParticleZ = p.first.second;
+			maxDeposit = eQuench;	
+			fParticleA = theParticle->GetAtomicMass();
+			fParticleZ = theParticle->GetAtomicNumber();
 		}
 #if 0
 		G4cout << "Quenched Energies\n";
 		G4cout << "num hits in volume: " << fEnergyByParticle.size() << "\n";
-		G4cout << "Current A, Z: " << particleAZ.first << ", " << particleAZ.second << "\n";
-		G4cout << "MAX hit A, Z: " << fParticleA << ", " << fParticleZ << "\n";
+		G4cout << "Current particle: " << theParticle->GetParticleName() << "\n";
+		G4cout << "MAX hit particle (A,Z): " << fParticleA << ", " << fParticleZ << "\n";
 		G4cout << "eQuench, edep, fEnergyQuenched: " << eQuench << ", " << p.second << ", " << fEnergyQuenched << "\n";
 		G4cout << "------------" << G4endl;
 #endif
