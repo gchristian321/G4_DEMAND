@@ -28,8 +28,15 @@ void DemandSD::Initialize(G4HCofThisEvent* hce) {
 }
 
 G4bool DemandSD::ProcessHits(G4Step* step, G4TouchableHistory*) {
-	G4double edep = step->GetTotalEnergyDeposit();
-	if (fabs(edep) < 1e-6) { return true; }
+	// ---> GAC New 2026/01/22
+	// ---> Need to account for "non ionizing" energy deposition
+	//      where the particle is a neutron. This is highly quenched
+	//      (effectively zero scintillatio light), so remove it from
+	//      the total.
+	//
+	G4double edep_total = step->GetTotalEnergyDeposit();
+	G4double edep = edep_total - step->GetNonIonizingEnergyDeposit();
+	if (edep < 1 * CLHEP::eV) { return true; }
 	
 	// edep = CalculateQuenching(
 	// 	edep, step->GetTrack()->GetParticleDefinition());
