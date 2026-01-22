@@ -55,9 +55,17 @@ void DemandHit::AppendEnergy(G4double edep, const G4ParticleDefinition* particle
 		if(eQuench > 0) { fEnergyQuenched += eQuench; }
 		if(eQuench > maxDeposit) {
 			maxDeposit = eQuench;
-			fParticleA = particleAZ.first;
-			fParticleZ = particleAZ.second;
+			fParticleA = p.first.first;
+			fParticleZ = p.first.second;
 		}
+#if 0
+		G4cout << "Quenched Energies\n";
+		G4cout << "num hits in volume: " << fEnergyByParticle.size() << "\n";
+		G4cout << "Current A, Z: " << particleAZ.first << ", " << particleAZ.second << "\n";
+		G4cout << "MAX hit A, Z: " << fParticleA << ", " << fParticleZ << "\n";
+		G4cout << "eQuench, edep, fEnergyQuenched: " << eQuench << ", " << p.second << ", " << fEnergyQuenched << "\n";
+		G4cout << "------------" << G4endl;
+#endif
 	}
 }
 
