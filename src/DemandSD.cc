@@ -143,5 +143,9 @@ G4double DemandSD::CalculateQuenching(
 	else if(Z == 6) { // Carbon
 		light = 0.017*( edep );
 	}
+	else {
+		light = 0;
+		G4cerr << "WARNING: unrecognized particle (A, Z) = (" << A << ", " << Z << "), setting light = 0!" << G4endl;
+	}
 	return light > 0 ? light : 0;
 }
