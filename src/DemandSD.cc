@@ -3,6 +3,9 @@
 #include "G4ParticleDefinition.hh"
 #include "G4Electron.hh"
 #include "G4Positron.hh"
+#include "G4Proton.hh"
+#include "G4LossTableManager.hh"
+#include "G4EmSaturation.hh"
 
 DemandSD::DemandSD(G4String name) :
   G4VSensitiveDetector(name), fHitsCollection(0), fHCID(-1) {
@@ -91,6 +94,33 @@ G4bool DemandSD::ProcessHits(G4Step* step, G4TouchableHistory*) {
 G4double DemandSD::CalculateQuenching(
 	G4double edep, const G4ParticleDefinition* particle)
 {
+# if 0
+	G4double light = 0;
+	if (particle == G4Electron::Definition() ||
+			particle == G4Positron::Definition())  {
+		light = edep;
+	}
+	else if (particle == G4Proton::Definition()) {
+		// use semi-emperical fit
+	}
+	else {
+		// use birks eqn with birks constant set from fit
+		// to LaPlace data [see GetScintillatorMaterial() in
+		// DemandDetectorConstruction.cc ]
+	 
+		auto emSat = G4LossTableManager::Instance()->EmSaturation();
+		if (!emSat) {
+			throw std::runtime_error("DemandSD::CalculateQuenching --> no emSat...");
+		}
+
+    // Returns "visible" edep using Birks constant of the current material
+    return emSat->VisibleEnergyDepositionAtAStep(step);
+	}
+	return light > 0 ? light : 0;
+}
+#endif
+
+#if 1
 	int A = particle->GetAtomicMass();
 	int Z = particle->GetAtomicNumber();
 	if(particle == G4Electron::Definition() ||
@@ -99,11 +129,14 @@ G4double DemandSD::CalculateQuenching(
 	}
 
 	return CalculateQuenching(edep,A,Z);
+#endif
 }
 
 G4double DemandSD::CalculateQuenching(
 	G4double edep, G4int A, G4int Z)
 {
+//	return 0;
+#if 1
 	G4double light = edep;
 	if(A == 0 && abs(Z) == 1001) { // electron or positron
 		light = edep;
@@ -151,4 +184,5 @@ G4double DemandSD::CalculateQuenching(
 		G4cerr << "WARNING: unrecognized particle (A, Z) = (" << A << ", " << Z << "), setting light = 0!" << G4endl;
 	}
 	return light > 0 ? light : 0;
+#endif
 }
