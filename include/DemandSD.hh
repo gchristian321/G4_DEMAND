@@ -5,6 +5,7 @@
 #include "DemandHit.hh"
 #include <map>
 
+class G4Step;
 class G4ParticleDefinition;
 
 class DemandSD : public G4VSensitiveDetector {
@@ -15,6 +16,9 @@ public:
   virtual void Initialize(G4HCofThisEvent*HCE);
   virtual G4bool ProcessHits(G4Step*aStep,G4TouchableHistory*ROhist);
 
+	G4double CalculateQuenching(
+		G4double edep, const G4Step* step) const;
+	
 	static G4double CalculateQuenching(
 		G4double edep, const G4ParticleDefinition* particle);
 	

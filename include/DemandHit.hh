@@ -14,7 +14,7 @@ class G4ParticleDefinition;
 
 class DemandHit : public G4VHit {
 public:
-  DemandHit(G4int,G4ThreeVector,G4ThreeVector,G4double,G4double,
+  DemandHit(G4int,G4ThreeVector,G4ThreeVector,G4double,G4double,G4double,
 					 const G4ParticleDefinition*,
 					 G4VPhysicalVolume*);
   virtual ~DemandHit();
@@ -35,20 +35,21 @@ public:
 
 	void AddAdditionalHitInVolume(
 		G4ThreeVector pos, G4ThreeVector actualPos,
-		G4double edep, G4double time,
+		G4double edep, G4double edep_quenched, G4double time,
 		const G4ParticleDefinition*);
 	
   inline void* operator new(size_t);
   inline void operator delete(void*);
 
 private:
-	void AppendEnergy(G4double edep, const G4ParticleDefinition*);
+	void AppendEnergy(G4double edep, G4double edep_quenched, const G4ParticleDefinition*);
 	
 private:
   G4int fID;
   G4ThreeVector fPos; // detector center
 	G4ThreeVector fActualPos; // actual coordinates of the interaction
-	std::map<G4int, G4double> fEnergyByParticle; //<pd->GetPDGEncoding(), edep>
+	//<pd->GetPDGEncoding(), <edep, edep_quenched> >
+	std::map<G4int, std::pair<G4double, G4double> > fEnergyByParticle; 
 	G4double fEnergy;
 	G4double fEnergyQuenched;
   G4double fTime;

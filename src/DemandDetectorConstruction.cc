@@ -33,6 +33,7 @@
 #include "G4LogicalVolumeStore.hh"
 #include "G4UnionSolid.hh"
 #include "CADMesh.hh"
+#include "G4IonisParamMat.hh"
 
 using namespace std;
 
@@ -415,6 +416,14 @@ G4Material* DemandDetectorConstruction::GetScintillatorMaterial()
 		material->AddElement(GetElementFromLibrary("H"), 36);
 		material->AddElement(GetElementFromLibrary("C"), 42);
     material->AddElement(GetElementFromLibrary("Si"), 1);
+
+		// Set birks constant from fit to published proton quenching
+		// data [T.A. Laplace et al 2020 JINST 15 P11020].
+		// Data retreived from berkeley lab scintillator library
+		// https://scintillator.lbl.gov/organic-glass-quenching-data/
+		//
+		// Fit on GAC OneDrive SMU/projects/DRAGON-alpha_n/S2230/NeutronSinglesAnalysis_sydney/OGS - Quenching.ipynb
+		material->GetIonisation()->SetBirksConstant(0.104222 * mm/MeV);
 	}
 	return material;
 }

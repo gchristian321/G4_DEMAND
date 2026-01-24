@@ -41,9 +41,8 @@ G4bool DemandSD::ProcessHits(G4Step* step, G4TouchableHistory*) {
 	G4double edep = edep_total - step->GetNonIonizingEnergyDeposit();
 	if (edep < 1 * CLHEP::eV) { return true; }
 	
-	// edep = CalculateQuenching(
-	// 	edep, step->GetTrack()->GetParticleDefinition());
-	// if (fabs(edep) < 1e-6) { return true; }
+	G4double edep_quenched =
+		this->CalculateQuenching(edep, step);
 	
 	G4StepPoint* preStepPoint = step->GetPreStepPoint();
 	G4TouchableHistory* touchable
@@ -66,7 +65,7 @@ G4bool DemandSD::ProcessHits(G4Step* step, G4TouchableHistory*) {
 					"PhysicalVolumes are different but IDs are the same");
 			}
 			existingHit->AddAdditionalHitInVolume(
-				position,position_actual,edep,hitTime,
+				position,position_actual,edep,edep_quenched,hitTime,
 				step->GetTrack()->GetParticleDefinition());
 			alreadyHaveHitInVolume = true;
 		}
@@ -74,7 +73,7 @@ G4bool DemandSD::ProcessHits(G4Step* step, G4TouchableHistory*) {
 
 	if(!alreadyHaveHitInVolume) {
 		DemandHit* hit = new DemandHit(
-			copyNo,position,position_actual,edep,hitTime,
+			copyNo,position,position_actual,edep,edep_quenched,hitTime,
 			step->GetTrack()->GetParticleDefinition(),
 			touchable->GetVolume());
 		fHitsCollection->insert(hit);
@@ -92,16 +91,20 @@ G4bool DemandSD::ProcessHits(G4Step* step, G4TouchableHistory*) {
 }
 
 G4double DemandSD::CalculateQuenching(
-	G4double edep, const G4ParticleDefinition* particle)
+	G4double edep, const G4Step* step) const
 {
-# if 0
 	G4double light = 0;
+	auto particle = step->GetTrack()->GetParticleDefinition();
 	if (particle == G4Electron::Definition() ||
 			particle == G4Positron::Definition())  {
+		// --> no quenching for e-, e+
 		light = edep;
 	}
 	else if (particle == G4Proton::Definition()) {
-		// use semi-emperical fit
+		// --> use semi-emperical fit
+		//  a*E - b*(1.0 - np.exp(-c*E))
+		const double a = 0.7787, b = 1.62564, c = 0.417876;
+		light = a*edep - b*(1 - exp(-c*edep));
 	}
 	else {
 		// use birks eqn with birks constant set from fit
@@ -116,11 +119,14 @@ G4double DemandSD::CalculateQuenching(
     // Returns "visible" edep using Birks constant of the current material
     return emSat->VisibleEnergyDepositionAtAStep(step);
 	}
+	
 	return light > 0 ? light : 0;
 }
-#endif
 
-#if 1
+
+G4double DemandSD::CalculateQuenching( // static //
+	G4double edep, const G4ParticleDefinition* particle)
+{
 	int A = particle->GetAtomicMass();
 	int Z = particle->GetAtomicNumber();
 	if(particle == G4Electron::Definition() ||
@@ -129,7 +135,6 @@ G4double DemandSD::CalculateQuenching(
 	}
 
 	return CalculateQuenching(edep,A,Z);
-#endif
 }
 
 G4double DemandSD::CalculateQuenching(

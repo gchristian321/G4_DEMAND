@@ -57,6 +57,10 @@
 
 #include "G4SystemOfUnits.hh"
 
+#include "G4EmCalculator.hh"
+#include "G4Proton.hh"
+
+
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 namespace {
@@ -219,6 +223,36 @@ int main(int argc,char** argv)
 		delete ui;
 	}
 
+#if 1
+	// output dE/dx for p --> OGS
+	{
+		std::ofstream ofs("dedx_protons.txt");
+		ofs << "E(MeV)   \tdE/dx(MeV/mm)\n";
+		ofs.precision(6);
+		
+		G4EmCalculator calc;
+		G4double Emin = 1*eV;
+		G4double Emax = 1.0*GeV;
+		G4int    N    = 600;
+
+		G4double logEmin = std::log10(Emin);
+		G4double logEmax = std::log10(Emax);
+
+		char buf[4096];
+		for (G4int i = 0; i < N; ++i) {
+			G4double logE = logEmin + (logEmax - logEmin) * i / (N - 1);
+			G4double E    = std::pow(10.0, logE);
+			G4double dedx = calc.GetDEDX(
+				E, G4Proton::Definition(),
+				detConstruction->GetScintillatorMaterial()
+				);
+			sprintf(buf, "%-9.6E\t%.6g", E/MeV, dedx/(MeV/mm));
+			ofs << buf << G4endl;
+		}
+		ofs.close();
+	}
+#endif
+	
   // Job termination
   // Free the store: user actions, physics_list and detector_description are
   // owned and deleted by the run manager, so they should not be deleted 

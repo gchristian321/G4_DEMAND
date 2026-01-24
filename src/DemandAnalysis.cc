@@ -41,6 +41,7 @@ TTree* fTree = 0;
 TTree* fGenTree = 0;
 
 vector<double> *fEdep = 0;
+vector<double> *fEdep_noquench = 0;
 vector<double> *fTime = 0;
 vector<double> *fXpos = 0;
 vector<double> *fYpos = 0;
@@ -94,6 +95,7 @@ void DemandAnalysis::OpenFile(const string& filename)
 	fTree = new TTree("DemandTree", "Para-Terphenyl detector tree");
 
 	fTree->Branch("edep",&fEdep);
+	fTree->Branch("edep_noquench",&fEdep_noquench);
 	fTree->Branch("time",&fTime);
 	fTree->Branch("xpos",&fXpos);
 	fTree->Branch("ypos",&fYpos);
@@ -147,6 +149,7 @@ void DemandAnalysis::Write()
 void DemandAnalysis::Clear()
 {
 	fEdep->clear();
+	fEdep_noquench->clear();
 	fTime->clear();
 	fXpos->clear();
 	fYpos->clear();
@@ -172,7 +175,9 @@ void DemandAnalysis::SetFirstInteraction(double time, double x, double y, double
 }
 
 void DemandAnalysis::AddHit(	
-	double edep, double time, double xpos, double ypos, double zpos, int pA, int pZ, int detno)
+	double edep, double edep_noquench, double time,
+	double xpos, double ypos, double zpos,
+	int pA, int pZ, int detno)
 {
 	// add resolutions
 	time += G4RandGauss::shoot(0, TIME_RES/FWHM);
@@ -183,6 +188,7 @@ void DemandAnalysis::AddHit(
 	auto dit = it - fTime->begin();
 	fTime->emplace(it, time);
 	fEdep->emplace(fEdep->begin() + dit, edep);
+	fEdep_noquench->emplace(fEdep_noquench->begin() + dit, edep_noquench);
 	fXpos->emplace(fXpos->begin() + dit, xpos);
 	fYpos->emplace(fYpos->begin() + dit, ypos);
 	fZpos->emplace(fZpos->begin() + dit, zpos);
