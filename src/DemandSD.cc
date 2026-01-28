@@ -95,12 +95,16 @@ G4double DemandSD::CalculateQuenching(
 {
 	G4double light = 0;
 	auto particle = step->GetTrack()->GetParticleDefinition();
+	//
+	// energy where protons switch from semi-emperical fit to
+	// birks
+	const G4double proton_crossover = 25.5084 * CLHEP::MeV;
 	if (particle == G4Electron::Definition() ||
 			particle == G4Positron::Definition())  {
 		// --> no quenching for e-, e+
 		light = edep;
 	}
-	else if (particle == G4Proton::Definition()) {
+	else if (particle == G4Proton::Definition() && edep < proton_crossover) {
 		// --> use semi-emperical fit
 		//  a*E - b*(1.0 - np.exp(-c*E))
 		const double a = 0.7787, b = 1.62564, c = 0.417876;
@@ -117,7 +121,7 @@ G4double DemandSD::CalculateQuenching(
 		}
 
     // Returns "visible" edep using Birks constant of the current material
-    return emSat->VisibleEnergyDepositionAtAStep(step);
+    light = emSat->VisibleEnergyDepositionAtAStep(step);
 	}
 	
 	return light > 0 ? light : 0;

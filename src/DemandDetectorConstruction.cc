@@ -422,8 +422,12 @@ G4Material* DemandDetectorConstruction::GetScintillatorMaterial()
 		// Data retreived from berkeley lab scintillator library
 		// https://scintillator.lbl.gov/organic-glass-quenching-data/
 		//
+		// For the fit, the scale parameter S is fixed to 1.
 		// Fit on GAC OneDrive SMU/projects/DRAGON-alpha_n/S2230/NeutronSinglesAnalysis_sydney/OGS - Quenching.ipynb
-		material->GetIonisation()->SetBirksConstant(0.104222 * mm/MeV);
+		//
+		// Note that the Birks quenching is used for heavy ions and protons
+		// above 25.5 MeV.  Below that a semi-emperical fit is used for protons.
+		material->GetIonisation()->SetBirksConstant(0.07283 * mm/MeV);
 	}
 	return material;
 }
