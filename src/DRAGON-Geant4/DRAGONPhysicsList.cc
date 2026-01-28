@@ -124,7 +124,7 @@ DRAGON_det(det),CARDNAME("c12ag.dat"),alpha(false),beamenerg(0)
   fIonPhysicsList = new G4IonPhysics(verboseLevel);
   
   // Optical physics (Cherenkov, scintillation, absorption, etc.)
-  fOptPhysicsList = new G4OpticalPhysics(verboseLevel);   
+//  fOptPhysicsList = new G4OpticalPhysics(verboseLevel);   
   // (Opcional) configura efectos ópticos si quieres
   // fOptPhysicsList->SetScintillationYieldFactor(1.0);
   // fOptPhysicsList->SetTrackSecondariesFirst(kCerenkov, true);
@@ -154,7 +154,7 @@ DRAGONPhysicsList::~DRAGONPhysicsList()
   //delete fRadDecPhysicsList;
   delete fEmPhysicsList;
   delete fIonPhysicsList;
-  delete fOptPhysicsList;
+//  delete fOptPhysicsList;
   delete fStepLimiterPhysics;
   delete fHadElastPhysics;
   delete fHadPhysicsFTFP_BERT;
@@ -171,7 +171,7 @@ void DRAGONPhysicsList::ConstructParticle()
     fEmPhysicsList->ConstructParticle();
     fDecPhysicsList->ConstructParticle();
     fIonPhysicsList->ConstructParticle();
-    fOptPhysicsList->ConstructParticle();
+//   fOptPhysicsList->ConstructParticle();
     fHadElastPhysics->ConstructParticle();
     fHadPhysicsFTFP_BERT->ConstructParticle();
 #if 0
@@ -198,7 +198,7 @@ void DRAGONPhysicsList::ConstructProcess()
     fEmPhysicsList->ConstructProcess();
     fDecPhysicsList->ConstructProcess();
     fIonPhysicsList->ConstructProcess();
-    fOptPhysicsList->ConstructProcess();
+//    fOptPhysicsList->ConstructProcess();
     fStepLimiterPhysics->ConstructProcess();
     fHadElastPhysics->ConstructProcess();
     fHadPhysicsFTFP_BERT->ConstructProcess();
