@@ -135,9 +135,9 @@ G4double DemandSD::CalculateEnergyResolution(G4double e_MeVee)
 	// to 22Na, 7Be, 137Cs compton edges (see DEMAND NIM paper)
 	//
 	// FWHM/E(ee) v. E(MeVee) given by sqrt(A^2/x + B^2/x^2 + C^2)
-	// A=   0(0), B=0.0618(23), C=0.135(2)
+	// A=   0.00(7), B=0.0618(23), C=0.1354(22)
 
-	const G4double A = 0, B = 0.0618, C = 0.135;
+	const G4double A = 0, B = 0.0618, C = 0.1354;
 	const G4double FWHM = e_MeVee*sqrt(A*A/e_MeVee + pow(B/e_MeVee, 2) + C*C);
 	return G4RandGauss::shoot(e_MeVee, FWHM/2.355);	
 }
