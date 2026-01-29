@@ -6,6 +6,8 @@
 #include "G4Proton.hh"
 #include "G4LossTableManager.hh"
 #include "G4EmSaturation.hh"
+#include "G4RunManager.hh"
+#include "DemandRunAction.hh"
 
 DemandSD::DemandSD(G4String name) :
   G4VSensitiveDetector(name), fHitsCollection(0), fHCID(-1) {
@@ -127,7 +129,23 @@ G4double DemandSD::CalculateQuenching(
 	return light > 0 ? light : 0;
 }
 
+G4double DemandSD::CalculateEnergyResolution(G4double e_MeVee)
+{
+	// GAC --> energy resolution from fits of DEMAND detectors
+	// to 22Na, 7Be, 137Cs compton edges (see DEMAND NIM paper)
+	//
+	// FWHM/E(ee) v. E(MeVee) given by sqrt(A^2/x + B^2/x^2 + C^2)
+	// A=   0(0), B=0.0618(23), C=0.135(2)
 
+	const G4double A = 0, B = 0.0618, C = 0.135;
+	const G4double FWHM = e_MeVee*sqrt(A*A/e_MeVee + pow(B/e_MeVee, 2) + C*C);
+	return G4RandGauss::shoot(e_MeVee, FWHM/2.355);	
+}
+
+
+#if 0
+// old quenching codes no longer used
+//
 G4double DemandSD::CalculateQuenching( // static //
 	G4double edep, const G4ParticleDefinition* particle)
 {
@@ -144,8 +162,6 @@ G4double DemandSD::CalculateQuenching( // static //
 G4double DemandSD::CalculateQuenching(
 	G4double edep, G4int A, G4int Z)
 {
-//	return 0;
-#if 1
 	G4double light = edep;
 	if(A == 0 && abs(Z) == 1001) { // electron or positron
 		light = edep;
@@ -193,5 +209,5 @@ G4double DemandSD::CalculateQuenching(
 		G4cerr << "WARNING: unrecognized particle (A, Z) = (" << A << ", " << Z << "), setting light = 0!" << G4endl;
 	}
 	return light > 0 ? light : 0;
-#endif
 }
+#endif

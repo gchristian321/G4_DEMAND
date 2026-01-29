@@ -19,6 +19,7 @@
 #include "DemandPrimaryGeneratorAction.hh"
 #include "DemandDetectorConstruction.hh"
 #include "ReactionKinematics.hh"
+#include "DemandSD.hh"
 
 using std::string;
 using std::vector;
@@ -28,13 +29,13 @@ namespace {
 
 const double FWHM = 1/(2*sqrt(2*log(2)));
 const double TIME_RES = 0.6 * ns * FWHM;
-double ResEnergy(double energy) {
-	// Use resolution from NIMA 792, p. 74 (2015)
-	// (Eq. 3, NOTE it's given in % in the paper)
-	const double a=0.93, b=7.68, c=0.2;
-	const double res_fwhm = energy*sqrt(pow(a,2) + pow(b,2)/energy + pow(c/energy,2))/100;
-	return res_fwhm * FWHM;
-}
+// double ResEnergy(double energy) {
+// 	// Use resolution from NIMA 792, p. 74 (2015)
+// 	// (Eq. 3, NOTE it's given in % in the paper)
+// 	const double a=0.93, b=7.68, c=0.2;
+// 	const double res_fwhm = energy*sqrt(pow(a,2) + pow(b,2)/energy + pow(c/energy,2))/100;
+// 	return res_fwhm * FWHM;
+// }
 
 TFile* fFile = 0;
 TTree* fTree = 0;
@@ -181,7 +182,8 @@ void DemandAnalysis::AddHit(
 {
 	// add resolutions
 	time += G4RandGauss::shoot(0, TIME_RES/FWHM);
-	edep += G4RandGauss::shoot(0, ResEnergy(edep));
+//	edep += G4RandGauss::shoot(0, ResEnergy(edep));
+	edep = DemandSD::CalculateEnergyResolution(edep);
 	
 	// time sort
 	auto it = lower_bound(fTime->begin(), fTime->end(), time);

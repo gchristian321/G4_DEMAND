@@ -16,14 +16,16 @@ public:
   virtual void Initialize(G4HCofThisEvent*HCE);
   virtual G4bool ProcessHits(G4Step*aStep,G4TouchableHistory*ROhist);
 
+	static G4double CalculateEnergyResolution(G4double e_MeVee);
+	
 	G4double CalculateQuenching(
 		G4double edep, const G4Step* step) const;
 	
-	static G4double CalculateQuenching(
-		G4double edep, const G4ParticleDefinition* particle);
+	// static G4double CalculateQuenching(
+	// 	G4double edep, const G4ParticleDefinition* particle);
 	
-	static G4double CalculateQuenching(
-		G4double edep, G4int A, G4int Z);
+	// static G4double CalculateQuenching(
+	// 	G4double edep, G4int A, G4int Z);
 
 	void AddThreshold(G4int copyNo, G4double thresh)
 		{

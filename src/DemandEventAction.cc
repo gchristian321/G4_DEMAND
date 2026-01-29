@@ -136,8 +136,14 @@ void DemandEventAction::EndOfEventAction(const G4Event* event)
 				*(hit->GetPhysicalVolume()->GetLogicalVolume()->GetSensitiveDetector()));
 			G4double thresh = 
 				sensitiveDetector.GetThreshold(hit->GetID());
+
+			// use randomized energy for threshold
+			// separate randomization used for stored value
+			// (to simulate separate resolution chains for CFD/ADC)
+			G4double e_quench_res = DemandSD::CalculateEnergyResolution(
+				hit->GetEnergyQuenched());
 			
-			if(thresh > 0 && hit->GetEnergyQuenched() > thresh) {
+			if(thresh > 0 &&  e_quench_res > thresh) {
 				auto pos = FigureOutMeasuredPosition(*hit);
 				analysisManager->AddHit(
 					hit->GetEnergyQuenched(),
