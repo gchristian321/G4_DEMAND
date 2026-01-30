@@ -31,6 +31,7 @@
 #ifndef DemandAnalysis_h
 #define DemandAnalysis_h 1
 #include <string>
+#include <vector>
 
 namespace CLHEP { class HepLorentzVector; }
 namespace g4gen { class ReactionKinematics; }
@@ -50,6 +51,7 @@ public:
 							int pA, int pZ, int detno = 0);
 	void SetFirstInteraction(double,double,double,double);
 	void Analyze();
+	std::vector<long> GetEventsAboveSoftwareCut(std::vector<G4double> cuts) const;
 	long GetEventsAboveThreshold() const;
 	long GetEventsCrossingDetector() const;
 	void AddEventCrossingDetector();

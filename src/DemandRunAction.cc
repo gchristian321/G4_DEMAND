@@ -127,8 +127,16 @@ void DemandRunAction::EndOfRunAction(const G4Run* run)
 	
 	G4cout << "Number of events with neutron crossing detector: " <<
 		analysisManager->GetEventsCrossingDetector() << G4endl;
+
+	std::vector<G4double> cuts = {50*keV, 75*keV, 100*keV, 125*keV, 150*keV, 200*keV, 300*keV, 400*keV};
+	auto nAboveCut = analysisManager->GetEventsAboveSoftwareCut(cuts);
+	G4cout << "Number of events above SW cuts (keVee): ";
+	for(auto c: cuts) { G4cout << c/keV << " "; }
+	G4cout << " : ";
+	for(auto n: nAboveCut) {G4cout << n << " ";}
+	G4cout<<G4endl;
 	
-  analysisManager->CloseFile();
+	analysisManager->CloseFile();
 	CleanupGeant3Input();
 }
 

@@ -344,3 +344,16 @@ void DemandAnalysis::FillGenTree()
 	fNeutronMomentum->SetPxPyPzE(0,0,0,0);
 	fRecoilMomentum->SetPxPyPzE(0,0,0,0);
 }
+
+
+std::vector<long> DemandAnalysis::GetEventsAboveSoftwareCut(
+	std::vector<G4double> cuts) const
+{
+	std::vector<long> output;
+	for(const auto& c : cuts){
+		long N = fTree->GetPlayer()->GetEntries(
+			Form("edep[0] > %.6E", c) );
+		output.push_back(N);
+	}
+	return output;
+}
