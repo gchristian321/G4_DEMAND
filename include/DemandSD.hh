@@ -12,6 +12,10 @@ class DemandSD : public G4VSensitiveDetector {
 public:
   DemandSD(G4String name);
   virtual ~DemandSD();
+
+	// Guard against accidental copying
+	DemandSD(const DemandSD&) = delete;
+	DemandSD& operator=(const DemandSD&) = delete;
   
   virtual void Initialize(G4HCofThisEvent*HCE);
   virtual G4bool ProcessHits(G4Step*aStep,G4TouchableHistory*ROhist);

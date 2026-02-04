@@ -132,10 +132,11 @@ void DemandEventAction::EndOfEventAction(const G4Event* event)
 	for(auto& hitCollection : hDemandHC) {
 		for(int j=0; j< hitCollection->entries(); j++) {
 			auto hit = (*hitCollection)[j];
-			auto sensitiveDetector = dynamic_cast<DemandSD&>(
-				*(hit->GetPhysicalVolume()->GetLogicalVolume()->GetSensitiveDetector()));
+			auto sensitiveDetector = dynamic_cast<DemandSD*>(
+				hit->GetPhysicalVolume()->GetLogicalVolume()->GetSensitiveDetector()
+				);
 			G4double thresh = 
-				sensitiveDetector.GetThreshold(hit->GetID());
+				sensitiveDetector->GetThreshold(hit->GetID());
 
 			// use randomized energy for threshold
 			// separate randomization used for stored value
