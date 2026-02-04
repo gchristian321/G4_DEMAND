@@ -12,6 +12,22 @@
 class G4VPhysicalVolume;
 class G4ParticleDefinition;
 
+
+struct HitInfo_t {
+	double edep;
+	double edep_quenched;
+	int num_hits;
+	HitInfo_t(
+		double edep_ = 0,
+		double edep_quenched_ = 0,
+		int num_hits_ = 0
+		): edep(edep_),
+			 edep_quenched(edep_quenched_),
+			 num_hits(num_hits_)
+		{}
+};
+
+
 class DemandHit : public G4VHit {
 public:
   DemandHit(G4int,G4ThreeVector,G4ThreeVector,G4double,G4double,G4double,
@@ -49,7 +65,7 @@ private:
   G4ThreeVector fPos; // detector center
 	G4ThreeVector fActualPos; // actual coordinates of the interaction
 	//<pd->GetPDGEncoding(), <edep, edep_quenched> >
-	std::map<G4int, std::pair<G4double, G4double> > fEnergyByParticle; 
+	std::map<G4int, HitInfo_t > fEnergyByParticle;
 	G4double fEnergy;
 	G4double fEnergyQuenched;
   G4double fTime;

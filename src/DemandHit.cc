@@ -33,28 +33,49 @@ void DemandHit::AppendEnergy(
 	auto it = fEnergyByParticle.find(particle->GetPDGEncoding());
 	if(it == fEnergyByParticle.end()) {
 		fEnergyByParticle.emplace(
-			particle->GetPDGEncoding(), std::make_pair(edep, edep_quenched));
+			particle->GetPDGEncoding(),
+			HitInfo_t(edep, edep_quenched, 0)
+			);
 	}
 	else {
-		it->second.first += edep;
-		it->second.second += edep_quenched;
+		it->second.edep += edep;
+		it->second.edep_quenched += edep_quenched;
+		it->second.num_hits += 1;
 	}
 
 	fEnergy += edep;
 	fEnergyQuenched += edep_quenched;
+#if 0
+	{
+		// G4double light = 0;
+		// if (particle->GetPDGEncoding() == 2212) {
+		// 	const double a = 0.7787, b = 1.62564, c = 0.417876;
+		// 	light = a*fEnergy - b*(1 - exp(-c*fEnergy));
+		// 	fEnergyQuenched = light;
+		// }
+		
+		G4cout << "Det " << fID << ", " <<particle->GetParticleName() << " "
+					 << fEnergyByParticle[particle->GetPDGEncoding()].num_hits << ": "
+					 << edep << ", " << edep_quenched << " --> "
+					 << ", " << fEnergyByParticle[particle->GetPDGEncoding()].edep << ", "
+					 << fEnergyByParticle[particle->GetPDGEncoding()].edep_quenched
+					 << " --> " << fEnergy << ", " << fEnergyQuenched
+//					 << " --> " << light
+					 << G4endl;
+	}
 
 	// get particle A, Z of max energy deposition
 	G4double maxDeposit = 0;
 	for(const auto& p : fEnergyByParticle) {
 		auto theParticle = G4ParticleTable::GetParticleTable()->
 			FindParticle(p.first);
-		if(p.second.second > maxDeposit){
-			maxDeposit = p.second.second;
+		if(p.second.edep_quenched > maxDeposit){
+			maxDeposit = p.second.edep_quenched;
 			fParticleA = theParticle->GetAtomicMass();
 			fParticleZ = theParticle->GetAtomicNumber();			
 		}
 	}
-	
+#endif
 #if 0
 	// re-calculate all quenched energies
 	fEnergyQuenched = 0;
