@@ -15,7 +15,7 @@ DemandHit::DemandHit(
 	G4VPhysicalVolume* physicalvolume) :
   G4VHit(), fID(ID), fPos(pos), fActualPos(actualPos),
 	fEnergy(0), fEnergyQuenched(0), fTime(time),
-	fParticleA(-1), fParticleZ(-1),
+	fParticleA(-1), fParticleZ(-1), fParticleID(-1),
 	fPhysicalVolume(physicalvolume) {
 
 	AppendEnergy(energy, energy_quenched, particle);
@@ -63,7 +63,7 @@ void DemandHit::AppendEnergy(
 //					 << " --> " << light
 					 << G4endl;
 	}
-
+#endif
 	// get particle A, Z of max energy deposition
 	G4double maxDeposit = 0;
 	for(const auto& p : fEnergyByParticle) {
@@ -72,10 +72,11 @@ void DemandHit::AppendEnergy(
 		if(p.second.edep_quenched > maxDeposit){
 			maxDeposit = p.second.edep_quenched;
 			fParticleA = theParticle->GetAtomicMass();
-			fParticleZ = theParticle->GetAtomicNumber();			
+			fParticleZ = theParticle->GetAtomicNumber();
+			fParticleID = theParticle->GetPDGEncoding();
 		}
 	}
-#endif
+
 #if 0
 	// re-calculate all quenched energies
 	fEnergyQuenched = 0;

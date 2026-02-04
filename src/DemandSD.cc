@@ -9,14 +9,32 @@
 #include "G4RunManager.hh"
 #include "DemandRunAction.hh"
 
+#include "TGraph.h"
+
 DemandSD::DemandSD(G4String name) :
   G4VSensitiveDetector(name), fHitsCollection(0), fHCID(-1) {
   G4String HCname = "demandCollection";
   collectionName.insert(HCname);
+
+	// Read file of LaPlace Quenching data
+	// T.A. Laplace et al 2020 JINST 15 P11020
+	// http://doi.org/10.1088/1748-0221/15/11/P11020
+	G4String quench_fname = "../Quenching_LaPlace.dat";
+	fProtonQuenchingData = TGraph(quench_fname.c_str());
+	if(fProtonQuenchingData.IsZombie() || fProtonQuenchingData.GetN() == 0){
+		G4Exception("DemandSD", "QuenchFileMissing", FatalException,
+                ("Could not read quenching file: " + quench_fname).c_str()
+			);
+	}	else {
+		for(int i=0; i< fProtonQuenchingData.GetN(); ++i){
+			fProtonQuenchingData.SetPointY(
+				i, fProtonQuenchingData.GetPointY(i) * 0.477
+				);
+		}
+	}
 }
 
 DemandSD::~DemandSD() {
-
 }
 
 void DemandSD::Initialize(G4HCofThisEvent* hce) {
@@ -107,10 +125,22 @@ G4double DemandSD::CalculateQuenching(
 		light = edep;
 	}
 	else if (particle == G4Proton::Definition() && edep < proton_crossover) {
-		// --> use semi-emperical fit
-		//  a*E - b*(1.0 - np.exp(-c*E))
-		const double a = 0.7787, b = 1.62564, c = 0.417876;
-		light = a*edep - b*(1 - exp(-c*edep));
+		const double RangeMin = fProtonQuenchingData.GetPointX(0);
+		const double RangeMax = fProtonQuenchingData.GetPointX(
+			fProtonQuenchingData.GetN() - 1 );
+
+		bool UseQuenchingInterp = false; // --> true to use interpolated quenching
+		
+		if(UseQuenchingInterp && edep >= RangeMin && edep < RangeMax){
+			// --> use interpolation of LaPlace data
+			light = fProtonQuenchingData.Eval(edep);
+		}
+		else {
+			// --> use semi-emperical fit
+			//  a*E - b*(1.0 - np.exp(-c*E))
+			const double a = 0.7787, b = 1.62564, c = 0.417876;
+			light = a*edep - b*(1 - exp(-c*edep));
+		}
 	}
 	else {
 		// use birks eqn with birks constant set from fit

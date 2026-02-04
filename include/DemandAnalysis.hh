@@ -48,7 +48,7 @@ public:
 	void Clear();
 	void AddHit(double edep, double edep_noquench, double time,
 							double xpos, double ypos, double zpos,
-							int pA, int pZ, int detno = 0);
+							int pA, int pZ, int pID, int detno = 0);
 	void SetFirstInteraction(double,double,double,double);
 	void Analyze();
 	std::vector<long> GetEventsAboveSoftwareCut(std::vector<G4double> cuts) const;

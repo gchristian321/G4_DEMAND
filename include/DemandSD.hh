@@ -3,6 +3,7 @@
 
 #include "G4VSensitiveDetector.hh"
 #include "DemandHit.hh"
+#include "TGraph.h"
 #include <map>
 
 class G4Step;
@@ -55,6 +56,7 @@ private:
   DemandHitsCollection* fHitsCollection;
   G4int fHCID;
 	std::map<G4int, G4double> fThresholdMap;
+	TGraph fProtonQuenchingData;
 };
 
 #endif

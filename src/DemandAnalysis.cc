@@ -50,6 +50,7 @@ vector<double> *fZpos = 0;
 vector<int> *fDetno = 0;
 vector<int> *fpA = 0;
 vector<int> *fpZ = 0;
+vector<int> *fpID = 0;
 
 int fNumHits = 0;
 double fEkin = 0;
@@ -105,6 +106,7 @@ void DemandAnalysis::OpenFile(const string& filename)
 
 	fTree->Branch("particleA",&fpA);
 	fTree->Branch("particleZ",&fpZ);
+	fTree->Branch("particleID",&fpID);
 
 	fTree->Branch("numHits",&fNumHits,"numHits/I");
 	fTree->Branch("ekin",&fEkin,"ekin/D");
@@ -159,6 +161,7 @@ void DemandAnalysis::Clear()
 	
 	fpA->clear();
 	fpZ->clear();
+	fpID->clear();
 
 	fNumHits = 0;
 	fEkin = 0;
@@ -178,26 +181,29 @@ void DemandAnalysis::SetFirstInteraction(double time, double x, double y, double
 void DemandAnalysis::AddHit(	
 	double edep, double edep_noquench, double time,
 	double xpos, double ypos, double zpos,
-	int pA, int pZ, int detno)
+	int pA, int pZ, int pID, int detno)
 {
 	// add resolutions
 	time += G4RandGauss::shoot(0, TIME_RES/FWHM);
 //	edep += G4RandGauss::shoot(0, ResEnergy(edep));
 	edep = DemandSD::CalculateEnergyResolution(edep);
-	
-	// time sort
-	auto it = lower_bound(fTime->begin(), fTime->end(), time);
-	auto dit = it - fTime->begin();
-	fTime->emplace(it, time);
-	fEdep->emplace(fEdep->begin() + dit, edep);
-	fEdep_noquench->emplace(fEdep_noquench->begin() + dit, edep_noquench);
-	fXpos->emplace(fXpos->begin() + dit, xpos);
-	fYpos->emplace(fYpos->begin() + dit, ypos);
-	fZpos->emplace(fZpos->begin() + dit, zpos);
-	fDetno->emplace(fDetno->begin() + dit, detno);
-	fpA->emplace(fpA->begin() + dit, pA);
-	fpZ->emplace(fpZ->begin() + dit, pZ);
-	fNumHits++;
+
+	if(edep > 0){
+		// time sort
+		auto it = lower_bound(fTime->begin(), fTime->end(), time);
+		auto dit = it - fTime->begin();
+		fTime->emplace(it, time);
+		fEdep->emplace(fEdep->begin() + dit, edep);
+		fEdep_noquench->emplace(fEdep_noquench->begin() + dit, edep_noquench);
+		fXpos->emplace(fXpos->begin() + dit, xpos);
+		fYpos->emplace(fYpos->begin() + dit, ypos);
+		fZpos->emplace(fZpos->begin() + dit, zpos);
+		fDetno->emplace(fDetno->begin() + dit, detno);
+		fpA->emplace(fpA->begin() + dit, pA);
+		fpZ->emplace(fpZ->begin() + dit, pZ);
+		fpID->emplace(fpID->begin() + dit, pID);
+		fNumHits++;
+	}
 }
 
 void DemandAnalysis::Analyze()

@@ -148,12 +148,14 @@ void DemandEventAction::EndOfEventAction(const G4Event* event)
 				auto pos = FigureOutMeasuredPosition(*hit);
 				analysisManager->AddHit(
 					hit->GetEnergyQuenched(),
+					hit->GetEnergy(),
 					hit->GetTime(),
 					pos.x(),
 					pos.y(),
 					pos.z(),
 					hit->GetParticleA(),
 					hit->GetParticleZ(),
+					hit->GetParticleID(),
 					hit->GetID());
 			}
 			if(hit->GetTime() < tmin) {

@@ -48,6 +48,7 @@ public:
 	const G4VPhysicalVolume* GetPhysicalVolume() const {return fPhysicalVolume;};
 	G4int GetParticleA() const { return fParticleA;}
 	G4int GetParticleZ() const { return fParticleZ;}
+	G4int GetParticleID() const { return fParticleID;}
 
 	void AddAdditionalHitInVolume(
 		G4ThreeVector pos, G4ThreeVector actualPos,
@@ -72,6 +73,7 @@ private:
 	G4VPhysicalVolume* fPhysicalVolume;
 	G4int fParticleA;
 	G4int fParticleZ;
+	G4int fParticleID;
 };
 
 typedef G4THitsCollection<DemandHit> DemandHitsCollection;
