@@ -358,7 +358,7 @@ std::vector<long> DemandAnalysis::GetEventsAboveSoftwareCut(
 	std::vector<long> output;
 	for(const auto& c : cuts){
 		long N = fTree->GetPlayer()->GetEntries(
-			Form("edep[0] > %.6E", c) );
+			Form("edep[0] > %.6E && particleID[0] == 2212", c) );
 		output.push_back(N);
 	}
 	return output;
