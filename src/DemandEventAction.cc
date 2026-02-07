@@ -124,6 +124,10 @@ void DemandEventAction::EndOfEventAction(const G4Event* event)
 
 	// Get analysis manager
 	auto analysisManager = DemandAnalysis::Instance();
+	// save step tree before clearing
+	if(analysisManager->GetSaveStepTree()){
+		analysisManager->FillStepTree();
+	}
 	analysisManager->Clear();
 
 	// Loop hits
@@ -144,7 +148,7 @@ void DemandEventAction::EndOfEventAction(const G4Event* event)
 			G4double e_quench_res = DemandSD::CalculateEnergyResolution(
 				hit->GetEnergyQuenched());
 			
-			if(thresh > 0 &&  e_quench_res > thresh) {
+			if(thresh >= 0 &&  e_quench_res > thresh) {
 				auto pos = FigureOutMeasuredPosition(*hit);
 				analysisManager->AddHit(
 					hit->GetEnergyQuenched(),
@@ -175,6 +179,7 @@ void DemandEventAction::EndOfEventAction(const G4Event* event)
 	}
 	analysisManager->Analyze();
 	analysisManager->FillGenTree();
+	analysisManager->SetRecdet(-1);
 }  
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

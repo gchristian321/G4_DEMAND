@@ -65,6 +65,7 @@ DemandRunAction::DemandRunAction()
 
 	fRunMessenger = new DemandRunMessenger(this);
 	fG3RequireCoincidence = true;
+	recdet = 0;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -104,6 +105,7 @@ void DemandRunAction::BeginOfRunAction(const G4Run* /*run*/)
 	else {
 		fileName << fOutputFileName;
 	}
+	analysisManager->SetSaveStepTree(true);
 	analysisManager->OpenFile(fileName.str());
 }
 
@@ -258,5 +260,6 @@ void DemandRunAction::GetGeant3Event(G4long indx, G3Event* g3evt) const
 		p_rec * cost_r,
 		E_rec + m_rec
 		);
+	g3evt->fRecdet = recdet;
 }
 

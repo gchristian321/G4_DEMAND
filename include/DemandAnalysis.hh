@@ -58,6 +58,17 @@ public:
 	void SetGeneratedNeutron(const CLHEP::HepLorentzVector& p);
 	void SetGeneratedRecoil(const CLHEP::HepLorentzVector& p);
 	void FillGenTree();
+
+	// stepping tree (optional)
+	void SetSaveStepTree(bool);
+	bool GetSaveStepTree() const;
+	void FillStepTree();
+	void SetRecdet(G4int);
+	void AddStep(
+		G4int detno, G4double edep, G4double edep_quenched, G4double stepLen,
+		G4String particleName, G4int particleID
+		);
+
 private:
 	void CalculateReaction(g4gen::ReactionKinematics*);
 };

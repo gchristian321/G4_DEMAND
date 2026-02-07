@@ -71,6 +71,19 @@ TLorentzVector *fFirstInteraction = 0;
 TLorentzVector *fNeutronMomentum = 0;
 TLorentzVector *fRecoilMomentum = 0;
 Int_t fCrossedDetector = 0;
+
+// step tree
+bool fSaveStepTree = false;
+TTree* fStepTree = 0;
+
+G4int fIsRecdet = 0;
+G4int fNumSteps = 0;
+std::vector<G4int>    *fStepDetno = 0;
+std::vector<G4double> *fStepEdep = 0;
+std::vector<G4double> *fStepEdepQuenched = 0;
+std::vector<G4double> *fStepLen = 0;
+std::vector<G4int>    *fStepParticleID = 0;
+std::vector<std::string>  *fStepParticleName = 0;
 }
 
 DemandAnalysis::DemandAnalysis() { }
@@ -113,7 +126,7 @@ void DemandAnalysis::OpenFile(const string& filename)
 	fTree->Branch("theta",&fTheta,"theta/D");
 	fTree->Branch("phi",&fPhi,"phi/D");
 	fTree->Branch("ex",&fEx,"ex/D");
-	
+
 	fTree->Branch("firstInteraction", "TLorentzVector", &fFirstInteraction);
 
 	fTree->Branch("pneut","TLorentzVector",&fNeutronMomentum);
@@ -133,6 +146,20 @@ void DemandAnalysis::OpenFile(const string& filename)
 	fGenTree->Branch("precoil","TLorentzVector",&fRecoilMomentum);
 	fGenTree->Branch("crossed_detector",&fCrossedDetector);
 	fGenTree->Branch("detected",&fDetected);
+	fGenTree->Branch("recdet",&fIsRecdet);
+
+	if(fSaveStepTree) {
+		fStepTree = new TTree("StepTree", "Tree of all steps");
+
+		fStepTree->Branch("fIsRecdet", &fIsRecdet);
+		fStepTree->Branch("fNumSteps", &fNumSteps);
+		fStepTree->Branch("fStepDetno", &fStepDetno);
+		fStepTree->Branch("fStepEdep", &fStepEdep);
+		fStepTree->Branch("fStepEdepQuenched", &fStepEdepQuenched);
+		fStepTree->Branch("fStepLen", &fStepLen);
+		fStepTree->Branch("fStepParticleName", &fStepParticleName);
+		fStepTree->Branch("fStepParticleID", &fStepParticleID);
+	}
 }
 
 void DemandAnalysis::CloseFile()
@@ -147,6 +174,9 @@ void DemandAnalysis::Write()
 	fFile->cd();
 	fTree->Write();
 	fGenTree->Write();
+	if(fSaveStepTree && fStepTree){
+		fStepTree->Write();
+	}
 }
 
 void DemandAnalysis::Clear()
@@ -158,7 +188,7 @@ void DemandAnalysis::Clear()
 	fYpos->clear();
 	fZpos->clear();
 	fDetno->clear();
-	
+
 	fpA->clear();
 	fpZ->clear();
 	fpID->clear();
@@ -170,6 +200,18 @@ void DemandAnalysis::Clear()
 	fEx = 0;
 
 	fFirstInteraction->SetXYZT(0,0,0,0);
+//	fIsRecdet = 0;  //handled.mamually.in EndOfEventAction
+
+	// step tree
+	if(fSaveStepTree){
+		fNumSteps = 0;
+		fStepDetno->clear();
+		fStepEdep->clear();
+		fStepEdepQuenched->clear();
+		fStepLen->clear();
+		fStepParticleName->clear();
+		fStepParticleID->clear();
+	};
 }
 
 void DemandAnalysis::SetFirstInteraction(double time, double x, double y, double z)
@@ -178,7 +220,7 @@ void DemandAnalysis::SetFirstInteraction(double time, double x, double y, double
 		x,y,z,time);
 }
 
-void DemandAnalysis::AddHit(	
+void DemandAnalysis::AddHit(
 	double edep, double edep_noquench, double time,
 	double xpos, double ypos, double zpos,
 	int pA, int pZ, int pID, int detno)
@@ -212,10 +254,10 @@ void DemandAnalysis::Analyze()
 
 	++fEventsAboveThreshold;
 	fDetected = true;
-	
+
 	// first hit
 	const double M0 = G4Neutron::Definition()->GetPDGMass();
-	
+
 	TVector3 hitPos(fXpos->at(0), fYpos->at(0), fZpos->at(0));
 	const double hitTime = fTime->at(0);
 	const double hitVel = hitPos.Mag() / hitTime;
@@ -240,7 +282,7 @@ void DemandAnalysis::Analyze()
 	fRx = pos.x();
 	fRy = pos.y();
 	fRz = pos.z();
-	
+
 	fFile->cd();
 	fTree->Fill();
 }
@@ -275,7 +317,7 @@ void DemandAnalysis::CalculateReaction(g4gen::ReactionKinematics* reaction)
 			).GetBeamEnergy();
 
 	G4double ebeam = incident_beam_energy;
-	
+
 	// energy loss through half target
 	if(dynamic_cast<const DemandDetectorConstruction&>(
 			 *(G4RunManager::GetRunManager()->GetUserDetectorConstruction())).
@@ -286,7 +328,7 @@ void DemandAnalysis::CalculateReaction(g4gen::ReactionKinematics* reaction)
 		if ( trgtLV ) {
 			double thickness = dynamic_cast<G4Box&>(*(trgtLV->GetSolid())).
 				GetZHalfLength()*2.;
-			
+
 			static G4EmCalculator* emCalc = 0;
 			if(!emCalc) { emCalc = new G4EmCalculator(); }
 			G4double dedx = emCalc->ComputeTotalDEDX(
@@ -306,9 +348,9 @@ void DemandAnalysis::CalculateReaction(g4gen::ReactionKinematics* reaction)
 		pbeam*sin(thbeam)*sin(phbeam),
 		pbeam*cos(thbeam),
 		mbeam + ebeam);
-		
 
-	
+
+
 	double m3 = reaction->GetProduct(0).m();
 	double p3 = sqrt(pow(m3+fEkin,2) - m3*m3);
 	G4LorentzVector ejectile(
@@ -324,7 +366,7 @@ void DemandAnalysis::CalculateReaction(g4gen::ReactionKinematics* reaction)
 		throw std::logic_error(
 			"DemandAnalysis::CalculateReaction :: NULL Recoil Definition");
 	}
-	
+
 	double m4 = recoilDefinition->GetPDGMass();
 	G4LorentzVector recoil = beam + target - ejectile;
 	fEx = recoil.m() - m4;
@@ -362,4 +404,37 @@ std::vector<long> DemandAnalysis::GetEventsAboveSoftwareCut(
 		output.push_back(N);
 	}
 	return output;
+}
+
+
+// Step Tree //
+void DemandAnalysis::SetSaveStepTree(bool save)
+{ fSaveStepTree = save; }
+
+bool DemandAnalysis::GetSaveStepTree() const
+{ return fSaveStepTree; }
+
+void DemandAnalysis::FillStepTree()
+{
+	if(fSaveStepTree && fStepTree && fNumSteps > 0) {
+		fStepTree->Fill();
+	}
+}
+
+void DemandAnalysis::SetRecdet(G4int recdet)
+{ fIsRecdet = recdet; }
+
+void DemandAnalysis::AddStep(
+	G4int detno, G4double edep, G4double edep_quenched, G4double stepLen,
+	G4String particleName, G4int particleID)
+{
+	if(fSaveStepTree){
+		++fNumSteps;
+		fStepDetno->push_back(detno);
+		fStepEdep->push_back(edep);
+		fStepEdepQuenched->push_back(edep_quenched);
+		fStepLen->push_back(stepLen);
+		fStepParticleName->push_back(particleName);
+		fStepParticleID->push_back(particleID);
+	}
 }

@@ -7,6 +7,7 @@
 #include "G4LossTableManager.hh"
 #include "G4EmSaturation.hh"
 #include "G4RunManager.hh"
+#include "DemandAnalysis.hh"
 #include "DemandRunAction.hh"
 
 #include "TGraph.h"
@@ -99,6 +100,44 @@ G4bool DemandSD::ProcessHits(G4Step* step, G4TouchableHistory*) {
 		fHitsCollection->insert(hit);
 	}
 
+	bool PrintAllHits = false;
+	if(PrintAllHits){
+		static G4int eventAboveZeroID = -1;
+		static G4int eventIDLast = -1;
+		const G4int eventID =
+			G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
+		if(eventID != eventIDLast){
+			eventIDLast = eventID;
+			++eventAboveZeroID;
+		}
+		int isProton = 0;
+		if(step->GetTrack()->GetParticleDefinition()->GetPDGEncoding() == 2212){
+			isProton = 1;
+		}
+		G4int isRecdet = static_cast<const DemandRunAction*>(
+			G4RunManager::GetRunManager()->GetUserRunAction())
+			->GetRecdet();
+		
+		// event detector particle energy
+		G4cout << "HIT: " << eventID << " " <<
+			eventAboveZeroID << " " << copyNo << " " <<
+			step->GetTrack()->GetParticleDefinition()->GetParticleName() << " " <<
+			isProton << " " << edep << " " << edep_quenched << " " << isRecdet << G4endl;
+	}
+
+	auto analysisManager = DemandAnalysis::Instance();
+	if(analysisManager->GetSaveStepTree()){
+		auto particle = step->GetTrack()->GetParticleDefinition();
+		analysisManager->AddStep(
+			copyNo, edep, edep_quenched, step->GetStepLength(),
+			particle->GetParticleName(), particle->GetPDGEncoding()
+			);
+	}
+
+
+
+	
+	
 #if 0
 	std::cout << "DEMAND HIT!!!\n";
 	std::cout << "VOLUME:: " << touchable->GetVolume()->GetName() << std::endl;

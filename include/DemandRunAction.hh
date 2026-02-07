@@ -68,6 +68,7 @@ struct G3Event
 	G4ThreeVector   fMomentumDirection;
 	G4double        fKineticEnergy;
 	G4LorentzVector fRecoilLorentzVector;
+	G4int           fRecdet;
 };
 
 class DemandRunAction : public G4UserRunAction
@@ -87,6 +88,8 @@ class DemandRunAction : public G4UserRunAction
 	  void SetOutputFileName(const G4String& name)
 		{ fOutputFileName = name; }
 
+	  G4int GetRecdet() const { return recdet; }
+	
   private:
 	  void CleanupGeant3Input();
 	

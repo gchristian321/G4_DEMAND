@@ -182,6 +182,7 @@ void DemandPrimaryGeneratorAction::ShootGeant3(G4Event* anEvent)
 	DemandAnalysis::Instance()->SetGeneratedRecoil(
 		g3evt.fRecoilLorentzVector
 		);
+	DemandAnalysis::Instance()->SetRecdet(g3evt.fRecdet);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
