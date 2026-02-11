@@ -236,6 +236,17 @@ DemandDetectorMessenger::DemandDetectorMessenger(
 	fS2230ThresholdCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
 	fS2230ThresholdCmd->SetToBeBroadcasted(false);
 	fS2230ThresholdCmd->SetDefaultValue("1 100 keV");
+
+
+	fS2230ThresholdSigmaCmd =
+		new G4UIcmdWithADoubleAndUnit("/demand/detector/S2230_thresh_sigma",this);
+  fS2230ThresholdSigmaCmd->SetGuidance("Set the resolution of threshold cut-in.");
+  fS2230ThresholdSigmaCmd->SetParameterName("s2230thresh_sig",false);
+  fS2230ThresholdSigmaCmd->SetDefaultUnit("keV");
+  fS2230ThresholdSigmaCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
+  fS2230ThresholdSigmaCmd->SetToBeBroadcasted(false);
+	fS2230ThresholdSigmaCmd->SetDefaultValue(12.6*keV);
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -266,6 +277,7 @@ DemandDetectorMessenger::~DemandDetectorMessenger()
 	delete fUseS2230Assembly;
 	delete fBGOMaskCmd;
 	delete fS2230ThresholdCmd;
+	delete fS2230ThresholdSigmaCmd;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -400,5 +412,9 @@ void DemandDetectorMessenger::SetNewValue(
 		G4double  Thresh = fTargetThicknessCmd->GetNewDoubleValue(strThresh);
 	
 		fDemandDetector->SetS2230Threshold(iDet, Thresh);
+	}
+	else if(command == fS2230ThresholdSigmaCmd){
+		const G4double ThreshSigma = fS2230ThresholdSigmaCmd->GetNewDoubleValue(newValue);
+		fDemandDetector->SetS2230ThresholdSigma(ThreshSigma);
 	}
 }

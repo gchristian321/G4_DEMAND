@@ -97,6 +97,8 @@ public:
 	void SetS2230Threshold(size_t i, double thresh) {
 		fS2230Thresholds.at(i) = thresh;
 	}
+	void SetS2230ThresholdSigma(G4double sig) { fS2230ThresholdSigma = sig; }
+	G4double GetS2230ThresholdSigma() const { return fS2230ThresholdSigma; }
 	
 private:
 	bool fCheckOverlaps;
@@ -113,6 +115,7 @@ private:
 	bool fUseChamber;
 	bool fUseS2230Assembly;
 	std::vector<double> fS2230Thresholds;
+	G4double fS2230ThresholdSigma;
 	DRAGON::DRAGONDetectorConstruction* fDragonDet;
 	DRAGON::DRAGONPhysicsList* fDragonPhys;
 };

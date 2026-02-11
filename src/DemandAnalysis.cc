@@ -227,8 +227,9 @@ void DemandAnalysis::AddHit(
 {
 	// add resolutions
 	time += G4RandGauss::shoot(0, TIME_RES/FWHM);
+	// energy resolution already done in DemandEventAction
 //	edep += G4RandGauss::shoot(0, ResEnergy(edep));
-	edep = DemandSD::CalculateEnergyResolution(edep);
+// 	edep = DemandSD::CalculateEnergyResolution(edep);
 
 	if(edep > 0){
 		// time sort

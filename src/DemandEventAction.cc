@@ -148,10 +148,15 @@ void DemandEventAction::EndOfEventAction(const G4Event* event)
 			G4double e_quench_res = DemandSD::CalculateEnergyResolution(
 				hit->GetEnergyQuenched());
 			
-			if(thresh >= 0 &&  e_quench_res > thresh) {
+			const G4double thresh_sig = static_cast<const DemandDetectorConstruction*>(
+				G4RunManager::GetRunManager()->GetUserDetectorConstruction()
+				)->GetS2230ThresholdSigma();
+			G4double e_thresh = G4RandGauss::shoot(e_quench_res, thresh_sig);
+			
+			if(thresh >= 0 &&  e_thresh > thresh) {
 				auto pos = FigureOutMeasuredPosition(*hit);
 				analysisManager->AddHit(
-					hit->GetEnergyQuenched(),
+					e_quench_res, // hit->GetEnergyQuenched(),
 					hit->GetEnergy(),
 					hit->GetTime(),
 					pos.x(),
