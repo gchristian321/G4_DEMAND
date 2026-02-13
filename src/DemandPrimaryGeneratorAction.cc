@@ -64,6 +64,7 @@
 DemandPrimaryGeneratorAction::DemandPrimaryGeneratorAction()
  : G4VUserPrimaryGeneratorAction(),
    fParticleGun(nullptr),
+	 fShootGeantino(false),
 	 fBeamA(1),
 	 fBeamZ(0),
 	 fBeamEnergy(1*MeV),
@@ -172,7 +173,7 @@ void DemandPrimaryGeneratorAction::ShootGeant3(G4Event* anEvent)
 	fParticleGun->SetParticleEnergy( g3evt.fKineticEnergy );
 	fParticleGun->SetParticleMomentumDirection( g3evt.fMomentumDirection );
 
-	fParticleGun->GeneratePrimaryVertex(anEvent);
+	this->GeneratePrimaryVertex(anEvent);
 
 	const G4double mass   = fParticleGun->GetParticleDefinition()->GetPDGMass();
 	const G4double pmag   = sqrt(pow(g3evt.fKineticEnergy+mass,2) - mass*mass);
@@ -278,7 +279,7 @@ void DemandPrimaryGeneratorAction::ShootBeam(G4Event* anEvent)
 	fParticleGun->SetParticleMomentumDirection(
 		momentum.vect().unit());
 
-	fParticleGun->GeneratePrimaryVertex(anEvent);
+	this->GeneratePrimaryVertex(anEvent);
 
 	DemandAnalysis::Instance()->SetGeneratedNeutron(momentum);
 	DemandAnalysis::Instance()->SetGeneratedRecoil(G4LorentzVector(0,0,0,0));
@@ -338,7 +339,7 @@ void DemandPrimaryGeneratorAction::ShootReaction(G4Event* anEvent)
 	fParticleGun->SetParticleEnergy(
 		momentum.e() - momentum.m());
 
-	fParticleGun->GeneratePrimaryVertex(anEvent);
+	this->GeneratePrimaryVertex(anEvent);
 
 	DemandAnalysis::Instance()->SetGeneratedNeutron(momentum);
 	DemandAnalysis::Instance()->SetGeneratedRecoil(recoil_momentum);
@@ -696,4 +697,15 @@ void DemandPrimaryGeneratorAction::SetSourcePhiLimits(double low, double high)
 			": Must be >=0, <= 360 (deg) with low <= high.";
 		throw std::range_error(sstr.str());
 	}
+}
+
+
+void DemandPrimaryGeneratorAction::GeneratePrimaryVertex(G4Event* anEvent)
+{
+	if(fShootGeantino){
+		fParticleGun->SetParticleDefinition(
+			G4ParticleTable::GetParticleTable()->FindParticle("geantino")
+			);
+	}
+	fParticleGun->GeneratePrimaryVertex(anEvent);
 }

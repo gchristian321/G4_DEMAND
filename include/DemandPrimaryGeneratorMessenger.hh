@@ -9,8 +9,10 @@ class G4UIcmdWithADoubleAndUnit;
 class G4UIcmdWith3VectorAndUnit;
 class G4UIcmdWithAnInteger;
 class G4UIcmdWithAString;
+class G4UIcmdWithoutParameter;
 class G4UIcommand;
 class DemandPrimaryGeneratorAction;
+
 
 class DemandPrimaryGeneratorMessenger: public G4UImessenger
 {
@@ -37,6 +39,7 @@ private:
 	G4UIcmdWith3VectorAndUnit *fSourceThetaLimits;
 	G4UIcmdWith3VectorAndUnit *fSourcePhiLimits;
 	G4UIcmdWith3VectorAndUnit *fSourcePosition;
+	G4UIcmdWithoutParameter   *fShootGeantinoCmd;
 
 	DemandPrimaryGeneratorAction* fPrimary;
 };

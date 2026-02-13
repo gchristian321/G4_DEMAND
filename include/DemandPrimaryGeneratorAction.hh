@@ -103,7 +103,9 @@ public:
 		{ return fReactionGenerator; }
 
 	const G4String& GetReaction() const { return fReaction; }
-	
+	void SetShootGeantino(bool on) {fShootGeantino = on;}
+	bool GetShootGeantine() const { return fShootGeantino; }
+
 private:
 	bool SetupBeam();
 	bool SetupReaction(bool);
@@ -112,9 +114,11 @@ private:
 	void ShootGeant3(G4Event*);
 	bool CheckThetaLimits(
 		const G4LorentzVector& lv, const G4ThreeVector& pos);
+	void GeneratePrimaryVertex(G4Event* anEvent);
 	
 private:
   G4ParticleGun*  fParticleGun; // G4 particle gun
+	bool fShootGeantino;
 	G4ThreeVector fReactionPosition;
 	int fBeamA;
 	int fBeamZ;

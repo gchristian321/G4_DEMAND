@@ -9,6 +9,8 @@
 #include "G4UIcmdWith3VectorAndUnit.hh"
 #include "G4UIcmdWithAnInteger.hh"
 #include "G4UIcmdWithAString.hh"
+#include "G4UIcmdWithoutParameter.hh"
+
 #include "G4UIcommand.hh"
 #include "G4UIdirectory.hh"
 #include "G4UIcmdWithABool.hh"
@@ -162,6 +164,11 @@ DemandPrimaryGeneratorMessenger::DemandPrimaryGeneratorMessenger(DemandPrimaryGe
   fSourcePosition->AvailableForStates(G4State_PreInit,G4State_Idle);
   fSourcePosition->SetToBeBroadcasted(false);
 	fSourcePosition->SetDefaultValue(G4ThreeVector(0,0,0));
+
+  fShootGeantinoCmd = new G4UIcmdWithoutParameter("/demand/generator/geantino",this);
+  fShootGeantinoCmd->SetGuidance("Shoot geantino along ordinary particle track");
+  fShootGeantinoCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
+  fShootGeantinoCmd->SetToBeBroadcasted(false);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -185,6 +192,7 @@ DemandPrimaryGeneratorMessenger::~DemandPrimaryGeneratorMessenger()
 	delete fSourceThetaLimits;
 	delete fSourcePhiLimits;
 	delete fSourcePosition;
+	delete fShootGeantinoCmd;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -246,5 +254,8 @@ void DemandPrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command, G4String
 	else if(command == fSourcePosition){
 		auto e = fSourcePosition->GetNew3VectorValue(newValue);
 		fPrimary->SetSourcePosition(e[0],e[1],e[2]);
+	}
+	else if(command == fShootGeantinoCmd){
+		fPrimary->SetShootGeantino(true);
 	}
 }
