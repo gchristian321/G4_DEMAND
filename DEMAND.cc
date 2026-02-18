@@ -223,7 +223,7 @@ int main(int argc,char** argv)
 		delete ui;
 	}
 
-#if 1
+#if 0
 	// output dE/dx for p --> OGS
 	{
 		std::ofstream ofs("dedx_protons.txt");
