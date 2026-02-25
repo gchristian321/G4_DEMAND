@@ -241,7 +241,7 @@ void DemandRunAction::GetGeant3Event(G4long indx, G3Event* g3evt) const
 	}
 	
 	fG3Tree->GetEntry ( eventNo );
-	g3evt->fPosition.set(xint,yint,zint);
+	g3evt->fPosition.set(xint*cm, yint*cm, zint*cm);
 
 	G4double sint_n  = sqrt(1.0 - cost_n*cost_n);
 	g3evt->fMomentumDirection.set(
@@ -249,7 +249,7 @@ void DemandRunAction::GetGeant3Event(G4long indx, G3Event* g3evt) const
 		sint_n * sinp_n,
 		cost_n
 		);
-	g3evt->fKineticEnergy = E_n;
+	g3evt->fKineticEnergy = E_n*MeV;
 
 	const double m_rec = 23.2741642 * GeV; // hard coded - same as GEANT3
 	const double p_rec = sqrt(pow(E_rec+m_rec, 2) - m_rec*m_rec);

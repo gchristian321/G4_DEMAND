@@ -18,6 +18,10 @@ class G4Material;
 class G4VPhysicalVolume;
 class G4AssemblyVolume;
 class G4LogicalVolume;
+class G4PVPlacement;
+namespace CLHEP {
+class HepRotation;
+}
 namespace DRAGON {
 class DRAGONDetectorConstruction;
 class DRAGONPhysicsList;
@@ -118,10 +122,63 @@ private:
 	G4double fS2230ThresholdSigma;
 	DRAGON::DRAGONDetectorConstruction* fDragonDet;
 	DRAGON::DRAGONPhysicsList* fDragonPhys;
+
+private:
+// class to sqeuentially place components along the z axis
+	class SequentialPlacer {
+ public:
+		SequentialPlacer(G4double initial_pos,
+										 bool forward, G4double eps=0.001
+			): fForward(forward), fZpos(initial_pos), fEps(eps) {}
+		G4double GetZpos()const{return fZpos;}
+		G4PVPlacement* PlaceVolume(
+			CLHEP::HepRotation*, G4double, G4double, G4LogicalVolume*,
+			const G4String&, G4LogicalVolume*, bool, G4int, bool
+			);
+		G4PVPlacement* PlaceVolume(
+			CLHEP::HepRotation*, G4double, G4double, G4double, G4LogicalVolume*,
+			const G4String&, G4LogicalVolume*, bool, G4int, bool
+			);
+		G4PVPlacement* PlaceVolumeNoMove(
+			CLHEP::HepRotation*, G4double, G4double, G4double, G4LogicalVolume*,
+			const G4String&, G4LogicalVolume*, bool, G4int, bool
+			);
+		G4double GetZextent(G4LogicalVolume*)const;
+ private:
+		bool fForward;
+		G4double fZpos, fEps;
+	};
+
+
+	// class to make components of the outer "skeleton" wireframe
+	class SkeletonFrame {
+ public:
+		SkeletonFrame():
+			fSFthick(3.175*CLHEP::mm), fEps(0.001*CLHEP::mm), fEps3(fEps,fEps,fEps)
+			{
+				ConstructFrame();
+				ConstructH();
+			}
+		~SkeletonFrame(){}
+		G4double GetSFthick()const{return fSFthick;};
+		G4LogicalVolume* GetFrameLV()const{return fFrameLV;}
+		G4LogicalVolume* GetHLV()const{return fHLV;}
+		G4double GetTotalThickness()const{return fTotalThickness;}
+		G4double GetHYpos()const{return fHoleYpos;}
+ private:
+		void ConstructFrame();
+		void ConstructH();
+ private:
+		const G4double fSFthick;
+		const G4double fEps;
+		const G4ThreeVector fEps3;
+		G4double fTotalThickness; // outside->outside
+		G4double fHoleYpos;
+		G4LogicalVolume* fFrameLV;
+		G4LogicalVolume* fHLV;
+	};
+
 };
-
-
-
 
 #endif
 

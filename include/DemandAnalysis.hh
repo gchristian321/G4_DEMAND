@@ -33,7 +33,7 @@
 #include <string>
 #include <vector>
 
-namespace CLHEP { class HepLorentzVector; }
+namespace CLHEP { class HepLorentzVector; class Hep3Vector; }
 namespace g4gen { class ReactionKinematics; }
 
 class DemandAnalysis {
@@ -46,15 +46,20 @@ public:
 	void CloseFile();
 	void Write();
 	void Clear();
+	void ClearPrimaryScatters();
 	void AddHit(double edep, double edep_noquench, double time,
 							double xpos, double ypos, double zpos,
 							int pA, int pZ, int pID, int detno = 0);
+	void AddPrimaryScatter(
+		const CLHEP::Hep3Vector& p, double T, double E, const G4String& v);
+	void SortPrimaryScatters();
 	void SetFirstInteraction(double,double,double,double);
 	void Analyze();
 	std::vector<long> GetEventsAboveSoftwareCut(std::vector<G4double> cuts) const;
 	long GetEventsAboveThreshold() const;
 	long GetEventsCrossingDetector() const;
 	void AddEventCrossingDetector();
+	void SetReacPos(const G4ThreeVector& p);
 	void SetGeneratedNeutron(const CLHEP::HepLorentzVector& p);
 	void SetGeneratedRecoil(const CLHEP::HepLorentzVector& p);
 	void FillGenTree();

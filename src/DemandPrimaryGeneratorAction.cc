@@ -95,8 +95,13 @@ DemandPrimaryGeneratorAction::DemandPrimaryGeneratorAction()
   // on DetectorConstruction class we get world volume 
   // from G4LogicalVolumeStore
   //
+	fParticleGun->SetParticlePosition(G4ThreeVector(0,0,0));
+#if 0
   G4double worldZHalfLength = 0.;
   auto worldLV = G4LogicalVolumeStore::GetInstance()->GetVolume("World");
+	if(!worldLV) {
+		worldLV = G4LogicalVolumeStore::GetInstance()->GetVolume("WRLD");
+	}
 
   // Check that the world volume has box shape
   G4Box* worldBox = nullptr;
@@ -117,6 +122,7 @@ DemandPrimaryGeneratorAction::DemandPrimaryGeneratorAction()
   } 
   fParticleGun
     ->SetParticlePosition(G4ThreeVector(0., 0., -worldZHalfLength));
+#endif
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -177,6 +183,7 @@ void DemandPrimaryGeneratorAction::ShootGeant3(G4Event* anEvent)
 
 	const G4double mass   = fParticleGun->GetParticleDefinition()->GetPDGMass();
 	const G4double pmag   = sqrt(pow(g3evt.fKineticEnergy+mass,2) - mass*mass);
+	DemandAnalysis::Instance()->SetReacPos(g3evt.fPosition);
 	DemandAnalysis::Instance()->SetGeneratedNeutron(
 		G4LorentzVector(pmag*g3evt.fMomentumDirection, g3evt.fKineticEnergy+mass)
 		);
@@ -184,6 +191,7 @@ void DemandPrimaryGeneratorAction::ShootGeant3(G4Event* anEvent)
 		g3evt.fRecoilLorentzVector
 		);
 	DemandAnalysis::Instance()->SetRecdet(g3evt.fRecdet);
+	this->SetReactionPosition(g3evt.fPosition);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -251,11 +259,11 @@ void DemandPrimaryGeneratorAction::ShootBeam(G4Event* anEvent)
 			module->m_Voxnum[0] * module->m_Voxsize[0];
 		double yWidth =
 			module->m_Voxnum[1] * module->m_Voxsize[1];
-		fParticleGun->SetParticlePosition(
-			G4ThreeVector(
-				G4RandFlat::shoot(-xWidth/2, +xWidth/2),
+		auto pos = 			G4ThreeVector(
+			G4RandFlat::shoot(-xWidth/2, +xWidth/2),
 				G4RandFlat::shoot(-yWidth/2, +yWidth/2),
-				0) );																			
+			0);
+		fParticleGun->SetParticlePosition(pos);
 	
 #else
 		// isotropic source over detector surface
@@ -281,6 +289,7 @@ void DemandPrimaryGeneratorAction::ShootBeam(G4Event* anEvent)
 
 	this->GeneratePrimaryVertex(anEvent);
 
+	DemandAnalysis::Instance()->SetReacPos(fParticleGun->GetParticlePosition());
 	DemandAnalysis::Instance()->SetGeneratedNeutron(momentum);
 	DemandAnalysis::Instance()->SetGeneratedRecoil(G4LorentzVector(0,0,0,0));
 }
@@ -341,6 +350,7 @@ void DemandPrimaryGeneratorAction::ShootReaction(G4Event* anEvent)
 
 	this->GeneratePrimaryVertex(anEvent);
 
+	DemandAnalysis::Instance()->SetReacPos(fParticleGun->GetParticlePosition());
 	DemandAnalysis::Instance()->SetGeneratedNeutron(momentum);
 	DemandAnalysis::Instance()->SetGeneratedRecoil(recoil_momentum);
 }

@@ -185,6 +185,7 @@ void DemandEventAction::EndOfEventAction(const G4Event* event)
 	analysisManager->Analyze();
 	analysisManager->FillGenTree();
 	analysisManager->SetRecdet(-1);
+	analysisManager->ClearPrimaryScatters();
 }  
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

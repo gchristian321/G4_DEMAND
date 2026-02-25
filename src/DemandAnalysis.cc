@@ -68,9 +68,20 @@ bool fDetected = false;
 
 TLorentzVector *fFirstInteraction = 0;
 
+TVector3       *fReacPos = 0;
 TLorentzVector *fNeutronMomentum = 0;
 TLorentzVector *fRecoilMomentum = 0;
 Int_t fCrossedDetector = 0;
+
+std::vector<double> *fPrimaryScatterX = 0;
+std::vector<double> *fPrimaryScatterY = 0;
+std::vector<double> *fPrimaryScatterZ = 0;
+std::vector<double> *fPrimaryScatterT = 0;
+std::vector<double> *fPrimaryScatterE = 0;
+std::vector<std::string> *fPrimaryScatterVolumeName = 0;
+
+double fTimeHit0;
+
 
 // step tree
 bool fSaveStepTree = false;
@@ -129,6 +140,7 @@ void DemandAnalysis::OpenFile(const string& filename)
 
 	fTree->Branch("firstInteraction", "TLorentzVector", &fFirstInteraction);
 
+	fTree->Branch("reacpos","TVector3",&fReacPos);
 	fTree->Branch("pneut","TLorentzVector",&fNeutronMomentum);
 	fTree->Branch("precoil","TLorentzVector",&fRecoilMomentum);
 
@@ -136,17 +148,37 @@ void DemandAnalysis::OpenFile(const string& filename)
 	fTree->Branch("yreact",&fRy,"yreact/D");
 	fTree->Branch("zreact",&fRz,"zreact/D");
 
+	fTree->Branch("scatterX",&fPrimaryScatterX);
+	fTree->Branch("scatterY",&fPrimaryScatterY);
+	fTree->Branch("scatterZ",&fPrimaryScatterZ);
+	fTree->Branch("scatterT",&fPrimaryScatterT);
+	fTree->Branch("scatterE",&fPrimaryScatterE);
+	fTree->Branch("scatterVolumeName",&fPrimaryScatterVolumeName);
+
+	fTree->Branch("timeHit0", &fTimeHit0);
+	
 
 	fEventsAboveThreshold = 0;
 	fEventsCrossingDetector = 0;
 
 	fGenTree = new TTree("GenTree", "Tree of generated neutrons");
 
+	fGenTree->Branch("reacpos","TVector3",&fReacPos);
 	fGenTree->Branch("pneut","TLorentzVector",&fNeutronMomentum);
 	fGenTree->Branch("precoil","TLorentzVector",&fRecoilMomentum);
 	fGenTree->Branch("crossed_detector",&fCrossedDetector);
 	fGenTree->Branch("detected",&fDetected);
 	fGenTree->Branch("recdet",&fIsRecdet);
+
+	// fGenTree->Branch("scatterX",&fPrimaryScatterX);
+	// fGenTree->Branch("scatterY",&fPrimaryScatterY);
+	// fGenTree->Branch("scatterZ",&fPrimaryScatterZ);
+	// fGenTree->Branch("scatterT",&fPrimaryScatterT);
+	// fGenTree->Branch("scatterE",&fPrimaryScatterE);
+	// fGenTree->Branch("scatterVolumeName",&fPrimaryScatterVolumeName);
+
+	// fGenTree->Branch("timeHit0",&fTimeHit0);
+
 
 	if(fSaveStepTree) {
 		fStepTree = new TTree("StepTree", "Tree of all steps");
@@ -179,8 +211,20 @@ void DemandAnalysis::Write()
 	}
 }
 
+void DemandAnalysis::ClearPrimaryScatters()
+{
+	fPrimaryScatterX->clear();
+	fPrimaryScatterY->clear();
+	fPrimaryScatterZ->clear();
+	fPrimaryScatterT->clear();
+	fPrimaryScatterE->clear();
+	fPrimaryScatterVolumeName->clear();
+}
+
 void DemandAnalysis::Clear()
 {
+	fTimeHit0 = -1;
+	
 	fEdep->clear();
 	fEdep_noquench->clear();
 	fTime->clear();
@@ -200,8 +244,8 @@ void DemandAnalysis::Clear()
 	fEx = 0;
 
 	fFirstInteraction->SetXYZT(0,0,0,0);
-//	fIsRecdet = 0;  //handled.mamually.in EndOfEventAction
-
+//	fIsRecdet = 0;  //handled.mamnually.in EndOfEventAction
+	
 	// step tree
 	if(fSaveStepTree){
 		fNumSteps = 0;
@@ -220,11 +264,48 @@ void DemandAnalysis::SetFirstInteraction(double time, double x, double y, double
 		x,y,z,time);
 }
 
+void DemandAnalysis::AddPrimaryScatter(
+	const CLHEP::Hep3Vector& pos, double time, double energy, const G4String& vname)
+{
+	fPrimaryScatterX->push_back(pos.x());
+	fPrimaryScatterY->push_back(pos.y());
+	fPrimaryScatterZ->push_back(pos.z());
+	fPrimaryScatterT->push_back(time);
+	fPrimaryScatterE->push_back(energy);
+	fPrimaryScatterVolumeName->push_back(vname);
+}
+
+void DemandAnalysis::SortPrimaryScatters()
+{
+	// time sort
+	vector<Int_t> indx(fPrimaryScatterT->size());
+	TMath::Sort(int(indx.size()), fPrimaryScatterT->data(), &indx[0], false);
+	auto X = *fPrimaryScatterX;
+	auto Y = *fPrimaryScatterY;
+	auto Z = *fPrimaryScatterZ;
+	auto T = *fPrimaryScatterT;
+	auto E = *fPrimaryScatterE;
+	auto N = *fPrimaryScatterVolumeName;
+	for(size_t i=0; i< indx.size(); ++i){
+		fPrimaryScatterX->at(i) = X.at(indx.at(i));
+		fPrimaryScatterY->at(i) = Y.at(indx.at(i));
+		fPrimaryScatterZ->at(i) = Z.at(indx.at(i));
+		fPrimaryScatterE->at(i) = E.at(indx.at(i));
+		fPrimaryScatterT->at(i) = T.at(indx.at(i));
+		fPrimaryScatterVolumeName->at(i) = N.at(indx.at(i));
+	}
+}
+
 void DemandAnalysis::AddHit(
 	double edep, double edep_noquench, double time,
 	double xpos, double ypos, double zpos,
 	int pA, int pZ, int pID, int detno)
 {
+	// record TRUE time of earliest hit
+	if(fTimeHit0 < 0 || time < fTimeHit0){
+		fTimeHit0 = time;
+	}
+	
 	// add resolutions
 	time += G4RandGauss::shoot(0, TIME_RES/FWHM);
 	// energy resolution already done in DemandEventAction
@@ -284,6 +365,8 @@ void DemandAnalysis::Analyze()
 	fRy = pos.y();
 	fRz = pos.z();
 
+	SortPrimaryScatters();
+	
 	fFile->cd();
 	fTree->Fill();
 }
@@ -373,6 +456,11 @@ void DemandAnalysis::CalculateReaction(g4gen::ReactionKinematics* reaction)
 	fEx = recoil.m() - m4;
 }
 
+void DemandAnalysis::SetReacPos(const G4ThreeVector& p)
+{
+	fReacPos->SetXYZ(p.x(),p.y(),p.z());
+}
+
 void DemandAnalysis::SetGeneratedNeutron(const G4LorentzVector& p)
 {
 	fNeutronMomentum->SetPxPyPzE(
@@ -390,6 +478,7 @@ void DemandAnalysis::FillGenTree()
 	fGenTree->Fill();
 	fCrossedDetector = 0;
 	fDetected = false;
+	fReacPos->SetXYZ(0,0,0);\
 	fNeutronMomentum->SetPxPyPzE(0,0,0,0);
 	fRecoilMomentum->SetPxPyPzE(0,0,0,0);
 }

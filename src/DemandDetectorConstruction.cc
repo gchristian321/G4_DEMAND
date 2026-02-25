@@ -34,6 +34,7 @@
 #include "G4UnionSolid.hh"
 #include "CADMesh.hh"
 #include "G4IonisParamMat.hh"
+#include "G4VisExtent.hh"
 
 using namespace std;
 
@@ -623,14 +624,15 @@ void DemandDetectorConstruction::AddModule()
 	fModules.emplace_back(module);
 }
 
-namespace {
+namespace
+{
 void solid_vis (G4LogicalVolume* lv, G4Color color, double alpha = 1)
 {
 	color.SetAlpha(alpha);
 	auto vis = new G4VisAttributes(color);
 	
 	vis->SetVisibility(true);
-	vis->SetForceSolid(true);        // THIS is the key
+	vis->SetForceSolid(true);      // THIS is the key
 // vis->SetForceWireframe(true); // alternative
 // vis->SetForceAuxEdgeVisible(true);
 	lv->SetVisAttributes(vis);
@@ -644,15 +646,17 @@ G4Colour aluminumGrey(0.80, 0.80, 0.82, 1.0);
 G4Colour nearBlack(0.50, 0.50, 0.50, 1.0);
 G4Colour scintClear(0.75, 0.85, 1.00, 1.0);
 
+
+G4Material* matAir = G4NistManager::Instance()->FindOrBuildMaterial("G4_AIR");
+G4Material* matAl  = G4NistManager::Instance()->FindOrBuildMaterial("G4_Al");
+
 } // namespace
 
 
 void DemandDetectorConstruction::ConstructS2230Detectors(G4VPhysicalVolume* mother_phys)
 {
-  auto* nist  = G4NistManager::Instance();
-  G4Material* matAir = nist->FindOrBuildMaterial("G4_AIR");
-  G4Material* matAl  = nist->FindOrBuildMaterial("G4_Al");
-
+	auto nist = G4NistManager::Instance();
+	
   // Mu-metal approximation (80% Ni, 20% Fe) for PMT shield
   auto* elNi = nist->FindOrBuildElement("Ni");
   auto* elFe = nist->FindOrBuildElement("Fe");
@@ -660,13 +664,8 @@ void DemandDetectorConstruction::ConstructS2230Detectors(G4VPhysicalVolume* moth
   muMetal->AddElement(elNi, 0.80);
   muMetal->AddElement(elFe, 0.20);
 
-  // -------------------------
-  // Module container (entire assembly)
-  // CAD extents ~ 393 x 393 x 47.8 mm^3 (x,y,z)
-  // -------------------------
-  auto* moduleSolid = new G4Box("ModuleSolid", 0.5*393*mm, 0.5*393*mm, 0.5*47.8*mm);
-  auto* moduleLV    = new G4LogicalVolume(moduleSolid, matAir, "S2230_ModuleLV");
-  moduleLV->SetVisAttributes(G4VisAttributes::GetInvisible());
+	// PMT glass
+	G4Material* PMTGlass = nist->FindOrBuildMaterial("G4_SILICON_DIOXIDE");
 
   // -------------------------
   // Build ONE casing "assembly" LV that contains:
@@ -678,12 +677,16 @@ void DemandDetectorConstruction::ConstructS2230Detectors(G4VPhysicalVolume* moth
   auto ConstructCasingAssemblyLV = [&]() -> G4LogicalVolume*
   {
     // Outer box full lengths (x,y,z)
-    const G4double boxDims[3] = { 160.*mm, 43.4*mm, 40.*mm };
-    const G4double wall_thickness = 3.2*mm;
+    const G4double boxDims[3] = { 160.*mm, 43.45*mm, 40.*mm };
+    const G4double wall_thickness = 3.175*mm;
 
     // Inner (air cavity) full lengths
     G4double boxDimsInner[3];
-    for (int i = 0; i < 3; ++i) boxDimsInner[i] = boxDims[i] - 2.0*wall_thickness;
+    for (int i = 0; i < 3; ++i) {
+			boxDimsInner[i] = boxDims[i] - 2.0*wall_thickness;
+			G4cout << "boxDimsInner["<<i<<"]: " << boxDimsInner[i]/mm << " mm\n";
+		}
+	 
 
     // Assembly container is the *outer envelope* (air, invisible)
     auto* casingAssemblySolid = new G4Box("CasingAssemblySolid",
@@ -696,10 +699,12 @@ void DemandDetectorConstruction::ConstructS2230Detectors(G4VPhysicalVolume* moth
                                0.5*boxDims[0], 0.5*boxDims[1], 0.5*boxDims[2]);
 
     // Use a cutter for subtraction ONLY; do not re-use this for placed air.
-    auto* innerBoxCut = new G4Box("InnerBoxCut",
-                                  0.5*boxDimsInner[0],
-                                  0.5*boxDimsInner[1],
-                                  0.5*boxDimsInner[2]);
+    auto* innerBoxCut = new G4Box(
+			"InnerBoxCut",
+			0.5*boxDimsInner[0],
+			0.5*boxDimsInner[1],
+			0.5*boxDimsInner[2]
+			);
 
     auto* shellSolid_nocutout = new G4SubtractionSolid("AlShell_nocutout", outerBox, innerBoxCut);
 
@@ -717,11 +722,10 @@ void DemandDetectorConstruction::ConstructS2230Detectors(G4VPhysicalVolume* moth
 
     const G4double posCutout = 0.5*boxDimsInner[0] + 0.5*wall_thickness; // along +X
 
-    auto* shellSolid = new G4SubtractionSolid("AlShell",
-                                              shellSolid_nocutout,
-                                              cutoutSolid,
-                                              rotCutout,
-                                              G4ThreeVector(posCutout, 0, 0));
+    auto* shellSolid = new G4SubtractionSolid(
+			"AlShell", shellSolid_nocutout, cutoutSolid,
+			rotCutout, G4ThreeVector(posCutout, 0, 0)
+			);
 
     auto* shellLV = new G4LogicalVolume(shellSolid, matAl, "AlShellLV");
     solid_vis(shellLV, aluminumGrey, 0.2);
@@ -751,27 +755,32 @@ void DemandDetectorConstruction::ConstructS2230Detectors(G4VPhysicalVolume* moth
 
     // PMT: hollow cylinder (mu-metal)
     const G4double pmt_len = 120*mm;
-    const G4double pmt_diam = 31*mm;
-    const G4double pmt_wall_thick = 0.8*mm;
+    const G4double pmt_diam_outer = 31*mm;
+		const G4double pmt_diam_inner = 26*mm;
+//    const G4double pmt_wall_thick = 0.8*mm; // wrong
 
     auto* pmtSolid = new G4Tubs("PMTSolid",
-                                0.5*pmt_diam - pmt_wall_thick, // inner radius
-                                0.5*pmt_diam,                  // outer radius
-                                0.5*pmt_len,                   // half-length (local Z axis)
+                                0.5*pmt_diam_inner, // inner radius
+                                0.5*pmt_diam_outer, // outer radius
+                                0.5*pmt_len,        // half-length (local Z axis)
                                 0.0*deg,
                                 360.0*deg);
 
-    auto* pmtLV = new G4LogicalVolume(pmtSolid, muMetal, "PMTLV");
-    solid_vis(pmtLV, nearBlack);
+    auto* pmtLV = new G4LogicalVolume(pmtSolid, PMTGlass, "PMTLV");
+    solid_vis(pmtLV, G4Color(0,0,1), 0.5);
 
     // rotate cylinder so axis is along +X (local)
     auto* pmtRot = new G4RotationMatrix();
     pmtRot->rotateY(90*deg);
 
     // place PMT in air: "butt" against +X end of inner cavity
+		// Note this is inconsistent with CAD files, which show the PMT
+		// arbitrarily placed. In reality they are butted against the
+		// far edge of the casing
 		double gap = 0.1*mm; // to get rid of overlap warning
-    const G4double pmtPos = 0.5*boxDimsInner[0] - 0.5*pmt_len - gap;
-
+		const G4double pmtPos = 0.5*boxDimsInner[0] - 0.5*pmt_len - gap;
+		G4cout << "PMT position: " << pmtPos << G4endl;
+		
     new G4PVPlacement(pmtRot,
                       G4ThreeVector(pmtPos, 0, 0),
                       pmtLV,
@@ -781,32 +790,84 @@ void DemandDetectorConstruction::ConstructS2230Detectors(G4VPhysicalVolume* moth
                       0,
                       true);
 
+		// Glass PMT->scint interface
+		const G4double glassDiam = 26*mm;
+		const G4double glassThickness = 1*mm;
+    auto* glassSolid = new G4Tubs("GlassSolid",
+																	0, // inner radius
+																	0.5*glassDiam, // outer radius
+																	0.5*glassThickness, // half-length (local Z axis)
+																	0.0*deg, 360.0*deg
+			);
+		auto* glassLV = new G4LogicalVolume(glassSolid, PMTGlass, "GLASSLV");
+		solid_vis(pmtLV, G4Color(0,0,1), 0.8);
+//		solid_vis(glassLV, aluminumGrey);
+		new G4PVPlacement(pmtRot,
+											G4ThreeVector(pmtPos - 0.5*pmt_len - 0.1*mm),
+											glassLV, "GLASSPV", airLV, false, 0, true
+			);
+
+		// Mu Metal shielding
+		const G4double muMetalThickness = 0.8*mm;
+		const G4double muMetalDiam = pmt_diam_outer + 0.02*mm;
+		auto* muMetalSolid = new G4Tubs("MuMetalSolid",
+																		0.5*muMetalDiam, // inner R
+																		0.5*muMetalDiam + muMetalThickness, // outer R
+																		0.5*pmt_len,
+																		0*deg, 360*deg
+			);
+		auto* muMetalLV = new G4LogicalVolume(muMetalSolid, muMetal, "MU_METAL_LV");
+		solid_vis(muMetalLV, nearBlack);
+		new G4PVPlacement(pmtRot,
+											G4ThreeVector(pmtPos,0,0),
+											muMetalLV, "MuMetalPV", airLV, false, 0, true
+			);																		
+
     // PMT collars (Al): square plate with circular hole (aligned to PMT axis)
-    const G4double collarDims[3] = { 33.4*mm, 33.4*mm, 3.2*mm };
+		// In CAD, collar is 37x37x3.175.  But it actually fits into a notch in the
+		// outer casing.  So for GEANT4, make the collar the same size as it's mother
+		// airLV in x/y.  This will avoid overlap issues and give the same mechanical
+		// geometry
+		//
+		// auto* innerAirSolid = new G4Box("InnerAirSolid",
+		//                             0.5*boxDimsInner[0] - eps, --> long axis
+		//                             0.5*boxDimsInner[1] - eps,
+		//                             0.5*boxDimsInner[2] - eps);
+		// correction orientation is [2,1,thick] for collar
+		const G4double collarThick = 3.175*mm;
+		const G4double collarDims[3] = {
+			boxDimsInner[2]-eps*2, boxDimsInner[1]-eps*2, collarThick
+		};
 
     auto* collarOuter = new G4Box("collarOuter",
                                   0.5*collarDims[0],
                                   0.5*collarDims[1],
                                   0.5*collarDims[2]);
 
+		const G4double collarHoleDiam = muMetalDiam + 2*muMetalThickness; // 31.8*mm;
     auto* collarHole = new G4Tubs("collarHole",
                                   0.0,
-                                  0.5*pmt_diam + 0.1*mm,
-                                  0.5*collarDims[2] + 1.0*mm, // oversize cutter
+                                  0.5*collarHoleDiam + 0.01*mm,
+                                  0.5*collarThick + 1.0*mm, // oversize cutter
                                   0.0*deg,
                                   360.0*deg);
 
     auto* collarSolid = new G4SubtractionSolid("collarSolid", collarOuter, collarHole);
     auto* collarLV = new G4LogicalVolume(collarSolid, matAl, "collarLV");
-    solid_vis(collarLV, aluminumGrey, 0.2);
+    solid_vis(collarLV, G4Color(1,0,0), 1);
 
     // collar positions (your CAD-based numbers)
-    std::vector<G4double> collar_pos = { (87.6-32)*mm, (166.6-32)*mm };
+		// far end of right collar is 56.225 mm from centre
+		// far end of left collar is 25.95 mm from centre
+    std::vector<G4double> collar_pos = { //{ (87.6-32)*mm, (166.6-32)*mm };
+			-25.95*mm + 0.5*collarThick,
+			+56.225*mm - 0.5*collarThick
+		}; 
     for (size_t icol = 0; icol < collar_pos.size(); ++icol) {
       std::stringstream sstr; sstr << "collarPV_" << icol;
 
       new G4PVPlacement(pmtRot,
-                        G4ThreeVector(collar_pos[icol] - 0.5*boxDims[0], 0, 0),
+                        G4ThreeVector(collar_pos[icol], 0, 0),
                         collarLV,
                         sstr.str().c_str(),
                         airLV,
@@ -817,11 +878,6 @@ void DemandDetectorConstruction::ConstructS2230Detectors(G4VPhysicalVolume* moth
 
     // OGS scintillator: 30 mm cube
     const G4double scintDims[3] = { 30*mm, 30*mm, 30*mm };
-
-    // auto* scintBox = new G4Box("scintBox",
-    //                            0.5*scintDims[0],
-    //                            0.5*scintDims[1],
-    //                            0.5*scintDims[2]);
 		auto scintBox = new ScintillatorBox(
 			"scintBox",
 			0.5*scintDims[0],
@@ -833,8 +889,8 @@ void DemandDetectorConstruction::ConstructS2230Detectors(G4VPhysicalVolume* moth
     auto* scintLV = new G4LogicalVolume(scintBox, GetScintillatorMaterial(), "DEMAND_scintLV");
     solid_vis(scintLV, scintClear, 1);
 
-    // butt against PMT on -X side
-    const G4double scintPos = pmtPos - 0.5*pmt_len - 0.5*scintDims[0];
+    // but against PMT on -X side
+    const G4double scintPos = pmtPos - 0.5*pmt_len - glassThickness - 0.5*scintDims[0];
 		G4cout << "ScintPos: " << scintPos << G4endl;
 		
     new G4PVPlacement(nullptr,
@@ -849,89 +905,359 @@ void DemandDetectorConstruction::ConstructS2230Detectors(G4VPhysicalVolume* moth
     return casingAssemblyLV;
   };
 
-  // Build the casing assembly once
+
+// === GEOMETRY PROBE ===
+// PV: PDD2 copy 0
+// World origin [mm]: (0,0,128.325)
+// step pos [mm] = (4.79943,0.5021,123.525)
+// -----------------------------------------------------------
+//     *** Dump for solid - PDD2 ***
+//     ===================================================
+//  Solid type: G4Tubs
+//  Parameters:
+//     inner radius : 0 mm
+//     outer radius : 5.2 mm
+//     half length Z: 4.8 mm
+//     starting phi : 0 degrees
+//     delta phi    : 360 degrees
+// -----------------------------------------------------------
+
+	// Downstream end of frame is flush with DOWNSTREAM end of PDD2
+	// PDD2 is not the "wide" collar that frame is pressed against,
+	// it's the narrow pipe that the frame fits around. Hence flush
+	// with downstream end.
+	// Geometry probe dump of PDD2 is copied above
+	const G4double PDD2pos = 128.325*mm;
+	const G4double PDD2thick = 2*4.8*mm;
+	
+	auto* skeleton = new SkeletonFrame();
+	auto rotFrame = new G4RotationMatrix();
+	const G4double zposFrame = PDD2pos + PDD2thick/2;
+
+	SequentialPlacer placer(zposFrame, false, 0.001*mm);
+
+	// Downstream skeleton frame
+	placer.PlaceVolume(
+		rotFrame, 0, 0, skeleton->GetFrameLV(), "SkeletonFrameDn",
+		mother_phys->GetLogicalVolume(), false, 0, true
+		);	
+	placer.PlaceVolume(
+		rotFrame, 0, -skeleton->GetHYpos(), skeleton->GetHLV(), "HFrameDn",
+		mother_phys->GetLogicalVolume(), false, 0, true
+		);
+	
+
+	// Build the casing assembly once
   auto* casingAssemblyLV = ConstructCasingAssemblyLV();
 
-  // -------------------------
-  // Place 8 casings into moduleLV
-  // -------------------------
+	// Now place 8x casings
   const G4double dS = 112*mm;
   const G4double dT = 44.5*mm;
 
-  std::vector<G4double> casing_X = { -dS, -dS, 0,  dS,  dS,  dT, 0,  -dT };
-  std::vector<G4double> casing_Y = {  0,   dT, dS, dT,  0,  -dS, -dS, -dS };
-  std::vector<G4double> casing_rot = { 180*deg, 180*deg, 270*deg, 0*deg, 0*deg, 90*deg, 90*deg, 90*deg };
+  std::vector<G4double> casing_X = {
+		-dS, -dS, 0,  dS,  dS,  dT, 0,  -dT
+	};
+  std::vector<G4double> casing_Y = {
+		0,   dT, dS, dT,  0,  -dS, -dS, -dS
+	};
+  std::vector<G4double> casing_rot = {
+		180*deg, 180*deg, 270*deg, 0*deg, 0*deg, 90*deg, 90*deg, 90*deg
+	};
 
-  for (size_t i = 0; i < casing_X.size(); ++i) {
-    auto* casingRot = new G4RotationMatrix();
-    casingRot->rotateZ(casing_rot[i]);
-
-    auto casingPos = G4ThreeVector(casing_X[i], casing_Y[i], 0);
-
-    std::stringstream sstr; sstr << "CasingPV_" << i;
-    new G4PVPlacement(casingRot,
-                      casingPos,
-                      casingAssemblyLV,
-                      sstr.str().c_str(),
-                      moduleLV,
-                      false,
-                      (int)i,
-                      true);
-  }
-
-  // -------------------------
-  // Place module into world (mother_phys)
-  // -------------------------
-  const G4double module_zpos = 11.312*cm;
-  new G4PVPlacement(nullptr,
-                    G4ThreeVector(0,0,module_zpos),
-                    moduleLV,
-                    "S2230_ModulePV",
-                    mother_phys->GetLogicalVolume(),
-                    false,
-                    0,
-                    true);
-
-  // NOTE on IDs:
-  // - each casing instance has copyNo = i at the CasingPV level
-  // - inside each casing, PMT/collars/scint have their own copyNos
-  // In a SensitiveDetector you can use touchable history:
-  //   touch->GetVolume(0)->GetCopyNo()  (scint copy, etc)
-  //   touch->GetVolume(1)->GetCopyNo()  (airPV copy: will be 0 here)
-  //   touch->GetVolume(2)->GetCopyNo()  (CasingPV_i copy: i)  <-- useful
+	G4double casingThick = placer.GetZextent(casingAssemblyLV);
 	
-#if 0
-	///
-	/// Construct outer wire frame using exported
-	/// STL file and CADMesh.
-	auto mesh = CADMesh::TessellatedMesh::FromSTL("../TDE3468.stl");
+	for (size_t i=0; i<casing_rot.size(); ++i) {
+		auto* casingRot = new G4RotationMatrix();
+		casingRot->rotateZ(casing_rot[i]);
+		G4ThreeVector casingPos(casing_X[i], casing_Y[i], 11.312*cm);
+		G4String PVname = "CasingPV_" + std::to_string(i);
 
-// If the STL numbers are mm (very likely here):
-	mesh->SetScale(mm);
+		if(i != casing_rot.size() - 1) {
+			placer.PlaceVolumeNoMove(
+				casingRot, casingPos.x(), casingPos.y(), casingThick,
+				casingAssemblyLV, PVname, mother_phys->GetLogicalVolume(),
+				false, (int)i, true
+				);
+		}
+		else {
+			placer.PlaceVolume(
+				casingRot, casingPos.x(), casingPos.y(), casingThick,
+				casingAssemblyLV, PVname, mother_phys->GetLogicalVolume(),
+				false, (int)i, true
+				);
+		}
+	}
 
-// If it turns out the STL numbers are inches, use:
-// mesh->SetScale(25.4*mm);
-
-	auto frameSolid = mesh->GetSolid();
-	auto frameLV = new G4LogicalVolume(frameSolid, matAl, "FrameLV");
-
-// vis (readable on black bg)
-	auto vis = new G4VisAttributes(G4Colour(0.45, 0.45, 0.48, 1.0));
-	vis->SetForceSolid(true);
-	vis->SetForceAuxEdgeVisible(true);
-	frameLV->SetVisAttributes(vis);
-
-// place (start with no rot/offset because STL is centered)
-	auto rotFrame = new G4RotationMatrix();
-	rotFrame->rotateZ(180*deg);
-	new G4PVPlacement(rotFrame,
-										G4ThreeVector(0,0,0),
-										frameLV, "FramePV",
-										//mother_phys->GetLogicalVolume(),
-                    moduleLV,
-										false, 0, true);
-#endif
-
+	// Upstream skeleton frame
+	placer.PlaceVolume(
+		rotFrame, 0, -skeleton->GetHYpos(), skeleton->GetHLV(), "HFrameUp",
+		mother_phys->GetLogicalVolume(), false, 0, true
+		);
+	placer.PlaceVolume(
+		rotFrame, 0, 0, skeleton->GetFrameLV(), "SkeletonFrameUp",
+		mother_phys->GetLogicalVolume(), false, 0, true
+		);	
 }
 
 
+namespace{
+	G4Box* make_box(const G4String& name, const G4ThreeVector& halfDims){
+		return new G4Box(name, halfDims.x(), halfDims.y(), halfDims.z());
+	};
+}
+
+/////////////////////////////
+//  class SkeletonFrame    //
+/////////////////////////////
+
+void DemandDetectorConstruction::SkeletonFrame::ConstructFrame()
+{
+	// Rectangular Al plate (holes cut out of this)
+	const G4ThreeVector frameDims(387*mm, 387*mm, fSFthick);
+	auto* sfSolid = new G4Box(
+		"SkeletonFrameSolid", 0.5*frameDims[0], 0.5*frameDims[1], 0.5*frameDims[2]
+		);
+	
+	///////////////////////
+	// Cutout outer edges//
+	///////////////////////
+	// Bottom notches
+	const G4ThreeVector cutoutDimsBottom(120.25*mm, 164.75*mm, fSFthick);
+	auto* cutoutSolidBottom = make_box(
+		"OuterCutoutBottom", 0.5*cutoutDimsBottom+fEps3
+		);
+
+	const G4ThreeVector cutoutPosBottom(
+		+0.5*frameDims[0] - 0.5*cutoutDimsBottom[0],
+		-0.5*frameDims[1] + 0.5*cutoutDimsBottom[1],
+		+0
+		);
+	auto* sfWithCutoutBottom = new G4SubtractionSolid(
+		"SFWithBottomCutout",
+		new G4SubtractionSolid("SFWithBottomCutout1",
+													 sfSolid, cutoutSolidBottom,
+													 nullptr, cutoutPosBottom
+			),
+		cutoutSolidBottom, nullptr, G4ThreeVector(
+			-cutoutPosBottom.x(), cutoutPosBottom.y(), cutoutPosBottom.z()
+			) );
+
+	// Top notches
+	const G4ThreeVector cutoutDimsTop(164.75*mm, 120.25*mm, fSFthick);
+	auto* cutoutSolidTop = make_box(
+		"OuterCutoutTop", 0.5*cutoutDimsTop+fEps3
+		);
+
+	const G4ThreeVector cutoutPosTop(
+		+0.5*frameDims[0] - 0.5*cutoutDimsTop[0],
+		+0.5*frameDims[1] - 0.5*cutoutDimsTop[1],
+		+0
+		);
+	auto* sfWithTopCutout = new G4SubtractionSolid(
+		"SFWithTopCutout",
+		new G4SubtractionSolid("SFWithTopCutout1",
+													 sfWithCutoutBottom, cutoutSolidTop,
+													 nullptr, cutoutPosTop
+			),
+		cutoutSolidTop, nullptr, G4ThreeVector(
+			-cutoutPosTop.x(), cutoutPosTop.y(), cutoutPosTop.z()
+			) );
+
+	//////////////////////
+	//Cutout Inner Holes//
+	//////////////////////
+
+	// Left/Right
+	const G4ThreeVector cutoutDimsLR(149*mm, 76*mm, fSFthick);
+	auto* cutoutSolidLR = make_box(
+		"InnerCutoutLR", 0.5*cutoutDimsLR+fEps3
+		);
+
+	const G4ThreeVector cutoutPosLR(
+		+0.5*frameDims[0] - 0.5*cutoutDimsLR[0] - 6.5*mm,
+		0.5*cutoutDimsLR[1] - 15.75*mm,
+		+0
+		);
+	auto* sfWithLRCutout = new G4SubtractionSolid(
+		"SFWithLRCutout",
+		new G4SubtractionSolid("SFWithTopCutout1",
+													 sfWithTopCutout, cutoutSolidLR,
+													 nullptr, cutoutPosLR
+			),
+		cutoutSolidLR, nullptr, G4ThreeVector(
+			-cutoutPosLR.x(), cutoutPosLR.y(), cutoutPosLR.z()
+			) );
+
+	// Top/bottom
+	const G4ThreeVector cutoutDimsInnerTop(31*mm, 149*mm, fSFthick);
+	const G4ThreeVector cutoutDimsInnerBottom(120.5*mm, 149*mm, fSFthick);
+	auto* cutoutInnerTop = make_box(
+		"InnerCutoutTop", 0.5*cutoutDimsInnerTop+fEps3
+		);
+	auto* cutoutInnerBottom = make_box(
+		"InnerCutoutBottom", 0.5*cutoutDimsInnerBottom+fEps3
+		);
+	const G4ThreeVector cutoutPosInnerTop(
+		0, +0.5*frameDims[1] - 0.5*cutoutDimsInnerTop[1] - 6.5*mm, 0
+		);
+	const G4ThreeVector cutoutPosInnerBottom(
+		0, -0.5*frameDims[1] + 0.5*cutoutDimsInnerBottom[1] + 6.5*mm, 0
+		);
+	auto* sfWithInnerTopCutout = new G4SubtractionSolid(
+		"SFWithInnerTopCutout",
+		sfWithLRCutout, cutoutInnerTop, nullptr, cutoutPosInnerTop
+		);
+	auto* sfWithInnerCutouts = new G4SubtractionSolid(
+		"SFWithInnerCutouts",
+		sfWithInnerTopCutout, cutoutInnerBottom, nullptr, cutoutPosInnerBottom
+		);
+
+
+	// Center hole
+	// --> Not complete!
+	const G4double centerHoleDiam = 42*mm;
+	auto* centerHole = new G4Tubs(
+		"centerHole",
+		0.0,
+		0.5*centerHoleDiam,
+		0.5*fSFthick + fEps,
+		0, 360*deg
+		);
+	auto* sfWithCenterHole = new G4SubtractionSolid(
+		"SFWithCenterHole", sfWithInnerCutouts, centerHole, nullptr, G4ThreeVector(0,0,0)
+		);	
+	
+	fFrameLV = new G4LogicalVolume(sfWithCenterHole, matAl, "SkeletonFrameLV");
+	solid_vis(fFrameLV, G4Color(1,0,0), 1);
+};
+
+void DemandDetectorConstruction::SkeletonFrame::ConstructH()
+{
+	// Full plate (cut out from this)
+	const G4ThreeVector HDims(132.5*mm, 98.25*mm, fSFthick);
+	auto* HSolid = make_box("HSolid",0.5*HDims);
+
+	// cutout top
+	const G4ThreeVector HCutoutTopDims(44.5*mm, 34.25*mm, fSFthick+fEps);
+	auto* HCutoutTop = make_box("HCutoutTop",HCutoutTopDims/2);
+	const G4ThreeVector HCutoutTopPos(0,HDims[1]/2-HCutoutTopDims[1]/2,0);
+	auto* HCutoutTopSolid = new G4SubtractionSolid(
+		"HWithCutoutTop", HSolid, HCutoutTop, nullptr, HCutoutTopPos
+		);
+
+	// cutout center hole
+	const double holeCutoutDiam = 25.5*mm;
+	fHoleYpos = 32*mm - HDims[1]/2;
+	auto* HCutoutHole = new G4Tubs(
+		"HCutoutHole", 0, 0.5*holeCutoutDiam, fSFthick+fEps, 0, 360*deg
+		);
+	auto* HCutoutHoleSolid = new G4SubtractionSolid(
+		"HWithCutoutHole", HCutoutTopSolid, HCutoutHole,
+		nullptr, G4ThreeVector(0,fHoleYpos,0)
+		);
+
+	// left/right cutouts
+	const G4ThreeVector HLRCutoutDims(34.25*mm, HDims[1]-6.5*mm,fSFthick+fEps);
+	auto* HLRCutout = make_box("HLRCutout",HLRCutoutDims/2+fEps3);
+	const G4ThreeVector HLRCutoutPos(
+		HDims[0]/2-HLRCutoutDims[0]/2, HDims[1]/2-HLRCutoutDims[1]/2, 0
+		);
+	auto* HLRCutoutSolid = new G4SubtractionSolid(
+		"HLRCutout", new G4SubtractionSolid(
+			"HLRCutout1", HCutoutHoleSolid, HLRCutout, nullptr, HLRCutoutPos),
+		HLRCutout, nullptr, G4ThreeVector(
+			-HLRCutoutPos[0], HLRCutoutPos[1], HLRCutoutPos[2]
+			) );
+	
+	// Logical Volume
+	fHLV = new G4LogicalVolume(
+		HLRCutoutSolid,matAl,"SkeletonFrame_H_LV"
+		);
+	solid_vis(fHLV,G4Color(1,0,0),1);
+}
+
+
+
+/////////////////////////////
+//  class SequentialPlacer //
+/////////////////////////////
+
+G4double DemandDetectorConstruction::SequentialPlacer::GetZextent(
+	G4LogicalVolume* logical)const
+{
+	G4double thick = 0;
+	if (auto* b = dynamic_cast<G4Box*>(logical->GetSolid())){
+    thick = 2*b->GetZHalfLength();
+	}
+	else if (auto* t = dynamic_cast<G4Tubs*>(logical->GetSolid())){
+    thick = 2*t->GetZHalfLength();
+	}
+	else {
+		G4VisExtent e = logical->GetSolid()->GetExtent();
+		thick = e.GetZmax() - e.GetZmin();
+	}
+	
+	G4cout << "SequentialPlacer: found thickness for logical \"" <<
+		logical->GetName() << "\": " << thick/mm << " mm\n";
+
+	return thick;
+}
+
+G4PVPlacement* DemandDetectorConstruction::SequentialPlacer::PlaceVolume(
+	G4RotationMatrix* rot, G4double xpos, G4double ypos,
+	G4LogicalVolume* logical, const G4String& pvname,
+	G4LogicalVolume* mother, bool idk, G4int copyno,
+	bool check_overlap)
+{
+	const G4double thick = GetZextent(logical);
+	return this->PlaceVolume(
+		rot, xpos, ypos, thick, logical,
+		pvname, mother, idk, copyno, check_overlap
+		);
+}
+
+G4PVPlacement* DemandDetectorConstruction::SequentialPlacer::PlaceVolume(
+	G4RotationMatrix* rot, G4double xpos, G4double ypos, G4double thick,
+	G4LogicalVolume* logical, const G4String& pvname,
+	G4LogicalVolume* mother, bool idk, G4int copyno,
+	bool check_overlap)
+{
+	G4double zpos = 0;
+	if(fForward) {
+		zpos = fZpos + thick/2 + fEps;
+		fZpos += (thick + fEps);
+	}
+	else {
+		zpos = fZpos - thick/2 - fEps;
+		fZpos -= (thick + fEps);
+	}
+	G4cout << "SequentialPlacer: Place Volume \"" <<
+		logical->GetName() << "\" at " << zpos/mm << " mm\n";
+	G4ThreeVector pos(xpos, ypos, zpos);
+	return new G4PVPlacement(
+		rot, pos, logical, pvname, mother, idk, copyno, check_overlap
+		);
+}
+
+G4PVPlacement* DemandDetectorConstruction::SequentialPlacer::PlaceVolumeNoMove(
+	G4RotationMatrix* rot, G4double xpos, G4double ypos, G4double thick,
+	G4LogicalVolume* logical, const G4String& pvname,
+	G4LogicalVolume* mother, bool idk, G4int copyno,
+	bool check_overlap)
+{
+	G4double zpos = 0;
+	if(fForward) {
+		zpos = fZpos + thick/2 + fEps;
+//		fZpos += (thick + fEps);
+	}
+	else {
+		zpos = fZpos - thick/2 - fEps;
+//		fZpos -= (thick + fEps);
+	}
+	G4cout << "SequentialPlacer: Place Volume \"" <<
+		logical->GetName() << "\" at " << zpos/mm << " mm\n";
+	G4ThreeVector pos(xpos, ypos, zpos);
+	return new G4PVPlacement(
+		rot, pos, logical, pvname, mother, idk, copyno, check_overlap
+		);
+}

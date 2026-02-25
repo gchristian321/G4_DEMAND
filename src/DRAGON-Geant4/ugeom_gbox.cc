@@ -39,7 +39,17 @@ void solid_vis (G4LogicalVolume* lv, int color=0)
 // vis->SetForceWireframe(true); // alternative
 // vis->SetForceAuxEdgeVisible(true);
 	lv->SetVisAttributes(vis);
-}; }
+};
+void solid_vis (G4LogicalVolume* lv, G4Color col)
+{
+	auto vis = new G4VisAttributes(col);
+	vis->SetVisibility(true);
+	vis->SetForceSolid(true);        // THIS is the key
+// vis->SetForceWireframe(true); // alternative
+// vis->SetForceAuxEdgeVisible(true);
+	lv->SetVisAttributes(vis);
+};
+}
 
 
 namespace DRAGON {
@@ -93,6 +103,7 @@ void DRAGONDetectorConstruction::ugeo_detector()
 	shape[1] = 5.  * hexagon_large_width;                 //! half y width
 	shape[2] = 3. * hexagon_small_width + col_length/2.;  //! half z width;
 	shape[2] = TLrms;
+	shape[0] = 20;
 //G4cout << "-------------- HERE1 ---------------" << G4endl;
 	G4cout << "DETE shape[0,1,2],(2),TLrms: "
 				 << shape[0] << ", " << shape[1] << ", " << shape[2]<< ", "
@@ -107,6 +118,14 @@ void DRAGONDetectorConstruction::ugeo_detector()
 	G4VPhysicalVolume* DETE_phys = new G4PVPlacement(0,G4ThreeVector(0.0*cm,0.0*cm,0*cm),DETE_log,"DETE",WRLD_log,false,0,checkOverlaps);  
 	G4UserLimits* DETELimits = new G4UserLimits(10.0*cm);  //From ugstmed_trgt.f
 	DETE_log->SetUserLimits(DETELimits);
+	{
+		auto vis = new G4VisAttributes(G4Color(0,1,0,0.1));	
+		vis->SetVisibility(true);
+		//vis->SetForceSolid(true);
+		vis->SetForceWireframe(true); // alternative
+		DETE_log->SetVisAttributes(vis);
+	}
+
     
 	box_length = 17.069;
 	box_height = 20.0;
@@ -781,7 +800,7 @@ void DRAGONDetectorConstruction::ugeo_detector()
 		G4LogicalVolume* PDD2_log = new G4LogicalVolume(PDD2_solid, material,"PDD2");
 		G4VPhysicalVolume* PDD2_phys = new G4PVPlacement(0,G4ThreeVector(0.0*cm,0.0*cm,0*cm),PDD2_log,"PDD2",PDD1_log,false,0,checkOverlaps); 
 		PDD2_log->SetUserLimits(DHOLLimits);         //From ugstmed_trgt.f
-		solid_vis(PDD2_log);
+		solid_vis(PDD2_log,G4Color(0,1,0));
 		// downstream end of this is where DEMAND frame is pressed up againse.
 
 		//--------------------PDE1----------------------//
