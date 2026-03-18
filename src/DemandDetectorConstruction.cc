@@ -36,7 +36,27 @@
 #include "G4IonisParamMat.hh"
 #include "G4VisExtent.hh"
 
+
+//#include "TDE3468.inc"
+#include "FrontFrame.inc"
+#include "FrontH1.inc"
+#include "FrontH2.inc"
+#include "FrontH3.inc"
+#include "SideHoles.inc"
+#include "TopHoles.inc"
+#include "BottomHoles.inc"
+#include "VerticalSupport.inc"
+#include "VerticalSupportTop.inc"
+#include "HorizontalSupportUpper.inc"
+#include "HorizontalSupportLower.inc"
+
+
 using namespace std;
+namespace DRAGON {
+extern G4double PDE_zpos;
+extern G4double PDE_zlen;
+}
+
 
 DemandDetectorConstruction::DemandDetectorConstruction()
 	:G4VUserDetectorConstruction(),
@@ -652,7 +672,6 @@ G4Material* matAl  = G4NistManager::Instance()->FindOrBuildMaterial("G4_Al");
 
 } // namespace
 
-
 void DemandDetectorConstruction::ConstructS2230Detectors(G4VPhysicalVolume* mother_phys)
 {
 	auto nist = G4NistManager::Instance();
@@ -932,19 +951,32 @@ void DemandDetectorConstruction::ConstructS2230Detectors(G4VPhysicalVolume* moth
 	
 	auto* skeleton = new SkeletonFrame();
 	auto rotFrame = new G4RotationMatrix();
-	const G4double zposFrame = PDD2pos + PDD2thick/2;
+	const G4double zposFrame = PDD2pos + PDD2thick/2 - 2*m;
 
 	SequentialPlacer placer(zposFrame, false, 0.001*mm);
+	auto motherLV = mother_phys->GetLogicalVolume();
 
-	// Downstream skeleton frame
-	placer.PlaceVolume(
-		rotFrame, 0, 0, skeleton->GetFrameLV(), "SkeletonFrameDn",
-		mother_phys->GetLogicalVolume(), false, 0, true
-		);	
-	placer.PlaceVolume(
-		rotFrame, 0, -skeleton->GetHYpos(), skeleton->GetHLV(), "HFrameDn",
-		mother_phys->GetLogicalVolume(), false, 0, true
-		);
+	// // Downstream skeleton frame
+	// placer.PlaceVolume(
+	// 	rotFrame, 0, 0, skeleton->GetFrameLV(), "SkeletonFrameDn",
+	// 	mother_phys->GetLogicalVolume(), false, 0, true
+	// 	);	
+	// placer.PlaceVolumeNoMove(
+	// 	rotFrame, 0, -skeleton->GetHYpos(), skeleton->GetHLV(), "HFrameDn",
+	// 	mother_phys->GetLogicalVolume(), false, 0, true
+	// 	);
+
+	// const G4double EPS = 0.1*mm;
+	// new G4PVPlacement(
+	// 	rotFrame, G4ThreeVector(0,0,zposFrame-3.175/2-EPS),
+	// 	skeleton->GetFrameLV(), "SkeletonFrameDn", motherLV, false, 0, true
+	// 	);
+	// new G4PVPlacement(
+	// 	rotFrame, G4ThreeVector(
+	// 		0,-skeleton->GetHYpos(),zposFrame-3.175/2-3.175-EPS
+	// 		),
+	// 	skeleton->GetHLV(), "HFrameDn", motherLV, false, 0, true
+	// 	);
 	
 
 	// Build the casing assembly once
@@ -964,51 +996,279 @@ void DemandDetectorConstruction::ConstructS2230Detectors(G4VPhysicalVolume* moth
 		180*deg, 180*deg, 270*deg, 0*deg, 0*deg, 90*deg, 90*deg, 90*deg
 	};
 
-	G4double casingThick = placer.GetZextent(casingAssemblyLV);
+	G4double casingThick = 2*23.925*mm;//placer.GetZextent(casingAssemblyLV);
+	casingThick = 23.925*mm;
+	G4double detectorZ = DRAGON::PDE_zpos - 0.5*DRAGON::PDE_zlen - casingThick;
 	
 	for (size_t i=0; i<casing_rot.size(); ++i) {
 		auto* casingRot = new G4RotationMatrix();
 		casingRot->rotateZ(casing_rot[i]);
-		G4ThreeVector casingPos(casing_X[i], casing_Y[i], 11.312*cm);
 		G4String PVname = "CasingPV_" + std::to_string(i);
 
-		if(i != casing_rot.size() - 1) {
-			placer.PlaceVolumeNoMove(
-				casingRot, casingPos.x(), casingPos.y(), casingThick,
-				casingAssemblyLV, PVname, mother_phys->GetLogicalVolume(),
-				false, (int)i, true
-				);
-		}
-		else {
-			placer.PlaceVolume(
-				casingRot, casingPos.x(), casingPos.y(), casingThick,
-				casingAssemblyLV, PVname, mother_phys->GetLogicalVolume(),
-				false, (int)i, true
-				);
-		}
+		new G4PVPlacement(
+			casingRot, G4ThreeVector(
+				casing_X[i], casing_Y[i], detectorZ),
+			casingAssemblyLV, PVname, motherLV, false, (int)i, true
+			);
+			
+		
+
+		// if(i != casing_rot.size() - 1) {
+		// 	placer.PlaceVolumeNoMove(
+		// 		casingRot, casingPos.x(), casingPos.y(), casingThick,
+		// 		casingAssemblyLV, PVname, mother_phys->GetLogicalVolume(),
+		// 		false, (int)i, true
+		// 		);
+		// }
+		// else {
+		// 	placer.PlaceVolume(
+		// 		casingRot, casingPos.x(), casingPos.y(), casingThick,
+		// 		casingAssemblyLV, PVname, mother_phys->GetLogicalVolume(),
+		// 		false, (int)i, true
+		// 		);
+		// }
 	}
 
 	// Upstream skeleton frame
-	placer.PlaceVolume(
-		rotFrame, 0, -skeleton->GetHYpos(), skeleton->GetHLV(), "HFrameUp",
-		mother_phys->GetLogicalVolume(), false, 0, true
+	// placer.PlaceVolumeNoMove(
+	// 	rotFrame, 0, -skeleton->GetHYpos(), skeleton->GetHLV(), "HFrameUp",
+	// 	mother_phys->GetLogicalVolume(), false, 0, true
+	// 	);
+	// placer.PlaceVolume(
+	// 	rotFrame, 0, 0, skeleton->GetFrameLV(), "SkeletonFrameUp",
+	// 	mother_phys->GetLogicalVolume(), false, 0, true
+	// 	);
+
+	auto BuildLV = [](G4LogicalVolume* (*f)(), G4Color color) {
+		auto LV = f();	solid_vis(LV, color);		return LV;
+	};
+
+	auto FrameLV = BuildLV(
+		BuildFrontFrame, G4Color(0,0,1));
+	auto H1LV = BuildLV(
+		BuildFrontH1, G4Color(0,1,0));
+	auto H2LV = BuildLV(
+		BuildFrontH2, G4Color(1,1,0));
+	auto H3LV = BuildLV(
+		BuildFrontH3, G4Color(0,1,1));
+	auto SideHolesLV = BuildLV(
+		BuildSideHoles, G4Color(0,1,0));
+	auto TopHolesLV = BuildLV(
+		BuildTopHoles, G4Color(0,1,0));
+	auto BottomHolesLV = BuildLV(
+		BuildBottomHoles, G4Color(0,1,0));
+	auto VerticalSupportLV = BuildLV(
+		BuildVerticalSupport, G4Color(1,0,1));
+	auto VerticalSupportTopLV = BuildLV(
+		BuildVerticalSupportTop, G4Color(1,0,1));
+	auto HorizontalSupportUpperLV = BuildLV(
+		BuildHorizontalSupportUpper, G4Color(1,0,1));
+	auto HorizontalSupportLowerLV = BuildLV(
+		BuildHorizontalSupportLower, G4Color(1,0,1));
+
+	G4double eps_frm = 0.0001*mm;
+	G4double frame_thickness = 3.175*mm;
+	G4ThreeVector skel_frame_pos(0, 0 /*22.25*mm*/, detectorZ);
+	G4ThreeVector part_offset(0,0,0);
+
+	// Front Frame
+	part_offset.set(0,0,-(23.925*mm - frame_thickness/2));
+	new G4PVPlacement(
+		nullptr,	skel_frame_pos + part_offset,
+		FrameLV, "FrontFrame_PV",
+		motherLV, false, 0, true);
+
+	// Back Frame
+	part_offset[2] *= -1;
+	new G4PVPlacement(
+		nullptr,	skel_frame_pos + part_offset,
+		FrameLV, "BackFrame_PV",
+		motherLV, false, 0, true);
+
+	// Front H1
+	part_offset[2] *= -1;
+	part_offset[2] += frame_thickness + eps_frm;
+	new G4PVPlacement(
+		nullptr, skel_frame_pos + part_offset,
+		H1LV, "FrontH1_PV",
+		motherLV, false, 0, true);
+
+	// Back H1
+	part_offset[2] *= -1;
+	new G4PVPlacement(
+		nullptr, skel_frame_pos + part_offset,
+		H1LV, "BackH1_PV",
+		motherLV, false, 0, true);
+
+	// Front H2
+	part_offset[2] *= -1;
+	G4double dz = 3.175*mm-2.375*mm;
+	part_offset[2] += dz + eps_frm;
+	new G4PVPlacement(
+		nullptr, skel_frame_pos + part_offset,
+		H2LV, "FrontH2_PV",
+		motherLV, false, 0, true);
+
+	// Back H2
+	part_offset[2] *= -1;
+	new G4PVPlacement(
+		nullptr, skel_frame_pos + part_offset,
+		H2LV, "BackH2_PV",
+		motherLV, false, 0, true);
+
+	// Front H3
+	part_offset[2] *= -1;
+	new G4PVPlacement(
+		nullptr, skel_frame_pos + part_offset,
+		H3LV, "FrontH3_PV",
+		motherLV,	false, 0, true);
+	
+	// Back H3
+	part_offset[2] *= -1;
+	new G4PVPlacement(
+		nullptr, skel_frame_pos + part_offset,
+		H3LV, "BackH3_PV",
+		motherLV,	false, 0, true);
+
+	// Side Holes
+	auto rotSideHole = new G4RotationMatrix;
+	rotSideHole->rotateY(90*deg);
+
+	// left
+	part_offset.set(-(196.675 - frame_thickness/2 + eps_frm), 0, 0);
+	new G4PVPlacement(
+		rotSideHole, skel_frame_pos + part_offset,
+		SideHolesLV, "SideHoleLeft_PV",
+		motherLV,	false, 0, true);
+
+	// right
+	part_offset[0] *= -1;
+	new G4PVPlacement(
+		rotSideHole, skel_frame_pos + part_offset,
+		SideHolesLV, "SideHoleRight_PV",
+		motherLV,	false, 0, true);
+
+	// Top Holes
+	auto rotTopHole = new G4RotationMatrix;
+	rotTopHole->rotateX(90*deg);
+	rotTopHole->rotateZ(90*deg);
+	part_offset.set(0, 196.675*mm - frame_thickness/2 + eps_frm, 0);
+	new G4PVPlacement(
+		rotTopHole, skel_frame_pos + part_offset,
+		TopHolesLV, "TopHole_PV",
+		motherLV, false, 0, true);
+
+	// Bottom Holes
+	part_offset.set(0, -(196.675*mm - frame_thickness/2 + eps_frm), 0);
+	new G4PVPlacement(
+		rotTopHole, skel_frame_pos + part_offset,
+		BottomHolesLV, "BottomHole_PV",
+		motherLV, false, 0, true);
+
+	// Vertical Supports (bottom)
+	// Left
+	part_offset.set(-(69.925*mm - frame_thickness/2 + eps_frm), 0, 0);
+	new G4PVPlacement(
+		rotSideHole, skel_frame_pos + part_offset,
+		VerticalSupportLV, "VerticalSupportLeft_PV",
+		motherLV, false, 0, true);
+
+	// Right
+	part_offset[0] *= -1;
+	new G4PVPlacement(
+		rotSideHole, skel_frame_pos + part_offset,
+		VerticalSupportLV, "VerticalSupportRight_PV",
+		motherLV, false, 0, true);
+
+	// Vertical Supports (top)
+	// Left
+	part_offset.set(-(25.425*mm - frame_thickness/2 + eps_frm), 0, 0);
+	new G4PVPlacement(
+		rotSideHole, skel_frame_pos + part_offset,
+		VerticalSupportTopLV, "VerticalSupportTopLeft_PV",
+		motherLV, false, 0, true);
+
+	// Right
+	part_offset[0] *= -1;
+	new G4PVPlacement(
+		rotSideHole, skel_frame_pos + part_offset,
+		VerticalSupportTopLV, "VerticalSupportTopRight_PV",
+		motherLV, false, 0, true);
+
+	// Horizontal Supports (upper)
+	// Left
+	part_offset.set(0, 69.925*mm - frame_thickness/2 + eps_frm, 0);
+	new G4PVPlacement(
+		rotTopHole, skel_frame_pos + part_offset,
+		HorizontalSupportUpperLV, "HorizontalSupportUpperLeft_PV",
+		motherLV, false, 0, true);
+
+	// Right
+	auto rotHSupportRight = new G4RotationMatrix;
+	rotHSupportRight->rotateX(90*deg);
+	rotHSupportRight->rotateZ(-90*deg);
+	new G4PVPlacement(
+		rotHSupportRight, skel_frame_pos + part_offset,
+		HorizontalSupportUpperLV, "HorizontalSupportUpperRight_PV",
+		motherLV, false, 0, true);
+
+	// Horizontal Supports (lower)
+	// Left
+	part_offset.set(0, -(25.425*mm - frame_thickness/2 + eps_frm), 0);
+	new G4PVPlacement(
+		rotTopHole, skel_frame_pos + part_offset,
+		HorizontalSupportLowerLV, "HorizontalSupportLowerLeft_PV",
+		motherLV, false, 0, true);
+
+	// Right
+	new G4PVPlacement(
+		rotHSupportRight, skel_frame_pos + part_offset,
+		HorizontalSupportLowerLV, "HorizontalSupportLowerRight_PV",
+		motherLV, false, 0, true);
+
+
+	
+#if 0
+		auto rot3468 = new G4RotationMatrix;
+	rot3468->rotateZ(180*deg);
+//	rot3468->rotateY(180*deg);
+	G4double SkelFrameThickness = 47.85*mm; //6.35*mm;
+	G4double SkelFrameZ = DRAGON::PDE_zpos - 0.5*DRAGON::PDE_zlen;
+	BuildTDE3468(
+		motherLV, G4ThreeVector(
+			0,0,SkelFrameZ - 0.5*SkelFrameThickness - 0.001*mm
+			), rot3468
 		);
-	placer.PlaceVolume(
-		rotFrame, 0, 0, skeleton->GetFrameLV(), "SkeletonFrameUp",
-		mother_phys->GetLogicalVolume(), false, 0, true
-		);	
+#endif
+	// 	G4LogicalVolume* worldLV,
+	// 	const G4ThreeVector& assemblyOffset,
+	// 	G4RotationMatrix* rot = nullptr)
+
+	
+	// G4LogicalVolume* TDE3465 = BuildFullAssembly();
+	// solid_vis(TDE3465, G4Color(0,0,1), 1);
+	
+	// new G4PVPlacement(
+	// 	rotFrame, G4ThreeVector(
+	// 		0,1*m,0
+	// 		),
+	// 	TDE3465, "TDE3465", motherLV, false, 0, true
+	// 	);
+
 }
 
+///////////////////////////////////////////////
+///////////////////////////////////////////////
+
+/////////////////////////////
+//  class SkeletonFrame    //
+/////////////////////////////
 
 namespace{
 	G4Box* make_box(const G4String& name, const G4ThreeVector& halfDims){
 		return new G4Box(name, halfDims.x(), halfDims.y(), halfDims.z());
 	};
 }
-
-/////////////////////////////
-//  class SkeletonFrame    //
-/////////////////////////////
 
 void DemandDetectorConstruction::SkeletonFrame::ConstructFrame()
 {
@@ -1240,6 +1500,20 @@ G4PVPlacement* DemandDetectorConstruction::SequentialPlacer::PlaceVolume(
 }
 
 G4PVPlacement* DemandDetectorConstruction::SequentialPlacer::PlaceVolumeNoMove(
+	G4RotationMatrix* rot, G4double xpos, G4double ypos,
+	G4LogicalVolume* logical, const G4String& pvname,
+	G4LogicalVolume* mother, bool idk, G4int copyno,
+	bool check_overlap)
+{
+	const G4double thick = GetZextent(logical);
+	return this->PlaceVolumeNoMove(
+		rot, xpos, ypos, thick, logical,
+		pvname, mother, idk, copyno, check_overlap
+		);
+}
+
+
+G4PVPlacement* DemandDetectorConstruction::SequentialPlacer::PlaceVolumeNoMove(
 	G4RotationMatrix* rot, G4double xpos, G4double ypos, G4double thick,
 	G4LogicalVolume* logical, const G4String& pvname,
 	G4LogicalVolume* mother, bool idk, G4int copyno,
@@ -1261,3 +1535,5 @@ G4PVPlacement* DemandDetectorConstruction::SequentialPlacer::PlaceVolumeNoMove(
 		rot, pos, logical, pvname, mother, idk, copyno, check_overlap
 		);
 }
+
+
