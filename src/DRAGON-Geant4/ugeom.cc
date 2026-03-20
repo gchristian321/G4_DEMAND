@@ -70,8 +70,8 @@ ugeo_detector();
 //C.======================================================================  
 //C.
 
-tubetype = 2;
-//std::cout << "YUYTRTRTR"<< tubetype << std::endl;
+//tubetype = 2;
+std::cout << "YUYTRTRTR "<< tubetype << std::endl;
 
 if(tubetype == 1) 
   ugeo_trgt_large();

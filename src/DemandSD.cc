@@ -69,7 +69,9 @@ G4bool DemandSD::ProcessHits(G4Step* step, G4TouchableHistory*) {
 	G4TouchableHistory* touchable
 		= (G4TouchableHistory*)(preStepPoint->GetTouchable());
 	G4double hitTime = preStepPoint->GetGlobalTime();
+	G4double preEnergy = preStepPoint->GetKineticEnergy();
 	G4ThreeVector position_actual = preStepPoint->GetPosition();
+	G4int parentID = step->GetTrack()->GetParentID();
 
 	G4int volumeDepth = 0;
 	if(touchable->GetVolume()->GetName() == "DEMAND_scintPV") {
@@ -87,7 +89,9 @@ G4bool DemandSD::ProcessHits(G4Step* step, G4TouchableHistory*) {
 			}
 			existingHit->AddAdditionalHitInVolume(
 				position,position_actual,edep,edep_quenched,hitTime,
-				step->GetTrack()->GetParticleDefinition());
+				step->GetTrack()->GetParticleDefinition(),
+				parentID, preEnergy
+				);
 			alreadyHaveHitInVolume = true;
 		}
 	}
@@ -96,7 +100,7 @@ G4bool DemandSD::ProcessHits(G4Step* step, G4TouchableHistory*) {
 		DemandHit* hit = new DemandHit(
 			copyNo,position,position_actual,edep,edep_quenched,hitTime,
 			step->GetTrack()->GetParticleDefinition(),
-			touchable->GetVolume());
+			touchable->GetVolume(), parentID, preEnergy);
 		fHitsCollection->insert(hit);
 	}
 

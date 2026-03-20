@@ -53,7 +53,7 @@ public:
 	void AddPrimaryScatter(
 		const CLHEP::Hep3Vector& p, double T, double E, const G4String& v);
 	void SortPrimaryScatters();
-	void SetFirstInteraction(double,double,double,double);
+	void SetFirstInteraction(double,double,double,double,int,double);
 	void Analyze();
 	std::vector<long> GetEventsAboveSoftwareCut(std::vector<G4double> cuts) const;
 	long GetEventsAboveThreshold() const;
@@ -62,6 +62,8 @@ public:
 	void SetReacPos(const G4ThreeVector& p);
 	void SetGeneratedNeutron(const CLHEP::HepLorentzVector& p);
 	void SetGeneratedRecoil(const CLHEP::HepLorentzVector& p);
+	const CLHEP::HepLorentzVector& GetGeneratedNeutron() const;
+	const CLHEP::HepLorentzVector& GetGeneratedRecoil() const;	
 	void FillGenTree();
 
 	// stepping tree (optional)

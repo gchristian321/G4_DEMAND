@@ -180,7 +180,10 @@ void DemandEventAction::EndOfEventAction(const G4Event* event)
 			firstRealHit->GetTime(),
 			firstRealHit->GetActualPosition().x(),
 			firstRealHit->GetActualPosition().y(),
-			firstRealHit->GetActualPosition().z());
+			firstRealHit->GetActualPosition().z(),
+			firstRealHit->GetParentID(),
+			firstRealHit->GetParentEnergy()
+			);
 	}
 	analysisManager->Analyze();
 	analysisManager->FillGenTree();

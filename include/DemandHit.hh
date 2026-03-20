@@ -32,7 +32,7 @@ class DemandHit : public G4VHit {
 public:
   DemandHit(G4int,G4ThreeVector,G4ThreeVector,G4double,G4double,G4double,
 					 const G4ParticleDefinition*,
-					 G4VPhysicalVolume*);
+						G4VPhysicalVolume*, G4int, G4double);
   virtual ~DemandHit();
 
   G4int GetID() const {return fID;};
@@ -49,11 +49,13 @@ public:
 	G4int GetParticleA() const { return fParticleA;}
 	G4int GetParticleZ() const { return fParticleZ;}
 	G4int GetParticleID() const { return fParticleID;}
+	G4int GetParentID() const { return fParentID; }
+	G4double GetParentEnergy() const { return fParentEnergy; }
 
 	void AddAdditionalHitInVolume(
 		G4ThreeVector pos, G4ThreeVector actualPos,
 		G4double edep, G4double edep_quenched, G4double time,
-		const G4ParticleDefinition*);
+		const G4ParticleDefinition*, G4int parentID, G4double parentEnergy);
 	
   inline void* operator new(size_t);
   inline void operator delete(void*);
@@ -74,6 +76,8 @@ private:
 	G4int fParticleA;
 	G4int fParticleZ;
 	G4int fParticleID;
+	G4int fParentID;
+	G4double fParentEnergy;
 };
 
 typedef G4THitsCollection<DemandHit> DemandHitsCollection;

@@ -12,11 +12,13 @@ DemandHit::DemandHit(
 	G4int ID, G4ThreeVector pos, G4ThreeVector actualPos,
 	G4double energy, G4double energy_quenched, G4double time,
 	const G4ParticleDefinition* particle,
-	G4VPhysicalVolume* physicalvolume) :
+	G4VPhysicalVolume* physicalvolume, G4int parentID, G4double parentKE) :
   G4VHit(), fID(ID), fPos(pos), fActualPos(actualPos),
 	fEnergy(0), fEnergyQuenched(0), fTime(time),
+	fPhysicalVolume(physicalvolume),
 	fParticleA(-1), fParticleZ(-1), fParticleID(-1),
-	fPhysicalVolume(physicalvolume) {
+	fParentID(parentID), fParentEnergy(parentKE)
+{
 
 	AppendEnergy(energy, energy_quenched, particle);
 	
@@ -110,15 +112,19 @@ void DemandHit::AppendEnergy(
 void DemandHit::AddAdditionalHitInVolume(
 	G4ThreeVector pos, G4ThreeVector actualPos,
 	G4double edep, G4double edep_quenched, G4double time,
-	const G4ParticleDefinition* particle)
+	const G4ParticleDefinition* particle,
+	G4int parentID, G4double parentKE
+	)
 {
 	// take time of earliest hit
 	if(time < fTime) { 
 		fTime = time;
 		fPos = pos;
 		fActualPos = actualPos;
+		fParentID = parentID;
+		fParentEnergy = parentKE;
 	}
-
+	
 	// append deposited energy
 	AppendEnergy(edep, edep_quenched, particle);
 }

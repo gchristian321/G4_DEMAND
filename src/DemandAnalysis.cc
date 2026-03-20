@@ -67,6 +67,8 @@ long fEventsCrossingDetector = 0;
 bool fDetected = false;
 
 TLorentzVector *fFirstInteraction = 0;
+int fFirstHitParentID;
+double fFirstHitPreEnergy;
 
 TVector3       *fReacPos = 0;
 TLorentzVector *fNeutronMomentum = 0;
@@ -139,6 +141,8 @@ void DemandAnalysis::OpenFile(const string& filename)
 	fTree->Branch("ex",&fEx,"ex/D");
 
 	fTree->Branch("firstInteraction", "TLorentzVector", &fFirstInteraction);
+	fTree->Branch("firstInteractionID", &fFirstHitParentID);
+	fTree->Branch("firstInteractionKE", &fFirstHitPreEnergy);
 
 	fTree->Branch("reacpos","TVector3",&fReacPos);
 	fTree->Branch("pneut","TLorentzVector",&fNeutronMomentum);
@@ -244,6 +248,8 @@ void DemandAnalysis::Clear()
 	fEx = 0;
 
 	fFirstInteraction->SetXYZT(0,0,0,0);
+	fFirstHitParentID = -1;
+	fFirstHitPreEnergy = -1;
 //	fIsRecdet = 0;  //handled.mamnually.in EndOfEventAction
 	
 	// step tree
@@ -258,10 +264,13 @@ void DemandAnalysis::Clear()
 	};
 }
 
-void DemandAnalysis::SetFirstInteraction(double time, double x, double y, double z)
+void DemandAnalysis::SetFirstInteraction(
+	double time, double x, double y, double z, int parentID, double preEnergy)
 {
 	fFirstInteraction->SetXYZT(
 		x,y,z,time);
+	fFirstHitParentID = parentID;
+	fFirstHitPreEnergy = preEnergy;
 }
 
 void DemandAnalysis::AddPrimaryScatter(
@@ -471,6 +480,30 @@ void DemandAnalysis::SetGeneratedRecoil(const G4LorentzVector& p)
 {
 	fRecoilMomentum->SetPxPyPzE(
 		p.px(),p.py(),p.pz(),p.e());
+}
+
+const CLHEP::HepLorentzVector& DemandAnalysis::GetGeneratedNeutron() const
+{
+	static G4LorentzVector pn;
+	pn = G4LorentzVector(
+		fNeutronMomentum->Px(),
+		fNeutronMomentum->Py(),
+		fNeutronMomentum->Pz(),
+		fNeutronMomentum->E()
+		);
+	return pn;
+}
+
+const CLHEP::HepLorentzVector& DemandAnalysis::GetGeneratedRecoil() const
+{
+	static G4LorentzVector pr;
+	pr = G4LorentzVector(
+		fRecoilMomentum->Px(),
+		fRecoilMomentum->Py(),
+		fRecoilMomentum->Pz(),
+		fRecoilMomentum->E()
+		);
+	return pr;
 }
 
 void DemandAnalysis::FillGenTree()

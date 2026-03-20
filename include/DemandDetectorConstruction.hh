@@ -96,6 +96,9 @@ public:
 	DRAGON::DRAGONPhysicsList* GetDragonPhysicsList() const  {return fDragonPhys;}
 
 	void ConstructS2230Detectors(G4VPhysicalVolume*);
+	G4LogicalVolume* ConstructS2230CasingAssembly();
+	void PlaceCasingAssembly(
+		G4LogicalVolume* assembly, G4LogicalVolume* mother, const G4ThreeVector& pos);
 	bool GetUseS2230Assembly() const   { return fUseS2230Assembly; }
 	void SetUseS2230Assembly(bool use) { fUseS2230Assembly = use;  }
 	void SetS2230Threshold(size_t i, double thresh) {
@@ -112,6 +115,13 @@ private:
 	std::map<G4int, const Module_t*> fModuleIndexMap;
 	DemandDetectorMessenger* fDetectorMessenger;
 	G4Material* fTargetMaterial;
+	G4Material* fMatAir;
+	G4Material* fMatSteel;
+	G4Material* fMatAl;
+	G4Material* fMatVacuum;
+	G4Material* fMatMuMetal;
+	G4Material* fMatPMTGlass;
+	
 	G4double fTargetThickness;
 	bool fHaveTarget;
 	G4String fBGOMask;
@@ -124,41 +134,11 @@ private:
 	DRAGON::DRAGONPhysicsList* fDragonPhys;
 
 private:
-// class to sqeuentially place components along the z axis
-	class SequentialPlacer {
- public:
-		SequentialPlacer(G4double initial_pos,
-										 bool forward, G4double eps=0.001
-			): fForward(forward), fZpos(initial_pos), fEps(eps) {}
-		G4double GetZpos()const{return fZpos;}
-		G4PVPlacement* PlaceVolume(
-			CLHEP::HepRotation*, G4double, G4double, G4LogicalVolume*,
-			const G4String&, G4LogicalVolume*, bool, G4int, bool
-			);
-		G4PVPlacement* PlaceVolume(
-			CLHEP::HepRotation*, G4double, G4double, G4double, G4LogicalVolume*,
-			const G4String&, G4LogicalVolume*, bool, G4int, bool
-			);
-		G4PVPlacement* PlaceVolumeNoMove(
-			CLHEP::HepRotation*, G4double, G4double, G4double, G4LogicalVolume*,
-			const G4String&, G4LogicalVolume*, bool, G4int, bool
-			);
-		G4double GetZextent(G4LogicalVolume*)const;
- private:
-		bool fForward;
-		G4double fZpos, fEps;
-	};
-
-
 	// class to make components of the outer "skeleton" wireframe
+	// not currently used but keep in case of desire to revive some day
 	class SkeletonFrame {
  public:
-		SkeletonFrame():
-			fSFthick(3.175*CLHEP::mm), fEps(0.001*CLHEP::mm), fEps3(fEps,fEps,fEps)
-			{
-				ConstructFrame();
-				ConstructH();
-			}
+		SkeletonFrame();
 		~SkeletonFrame(){}
 		G4double GetSFthick()const{return fSFthick;};
 		G4LogicalVolume* GetFrameLV()const{return fFrameLV;}
@@ -176,6 +156,7 @@ private:
 		G4double fHoleYpos;
 		G4LogicalVolume* fFrameLV;
 		G4LogicalVolume* fHLV;
+		G4Material* fMatAl;
 	};
 
 };

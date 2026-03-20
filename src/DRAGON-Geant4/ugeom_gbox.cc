@@ -54,6 +54,10 @@ void solid_vis (G4LogicalVolume* lv, G4Color col)
 
 namespace DRAGON {
 
+// for "export" into DemandDetectorConstruction
+	G4double PDE_zpos;
+	G4double PDE_zlen;
+
 void DRAGONDetectorConstruction::ugeo_detector() 
 {
 //C *** Local variables
@@ -227,12 +231,18 @@ void DRAGONDetectorConstruction::ugeo_detector()
 	PUBI_log->SetUserLimits(UHOLLimits);  //From ugstmed_trgt.f
  
 	//C. ---> collimator end collar detail outside box
+	// Ben Reed's measurements March 2026
+	// bpa_len = 0.9/2 = 0.45 cm
+	// bpb_len + bpc_len + bpd_len = 4.173/2 = 2.0865 cm
+	// bpe_len = 3.546/2 = 1.773 cm
+	// bpf_len = 2.747/2 = 1.3735 cm
 	bpa_len = 0.472;
 	bpb_len = 1.437;
 	bpc_len = 0.321;
 	bpd_len = 0.159;
-	bpe_len = 2.060;
-	bpf_len = 0.499;
+	bpb_len = 2.087 - (bpc_len + bpd_len); // set to BR measured length
+	bpe_len = 1.773;//2.060;
+	bpf_len = 1.3735;//0.499;
 	bpg_len = 0.476;
 	bph_len = 0.980;
 	bpi_len = 0.585;
@@ -752,7 +762,7 @@ void DRAGONDetectorConstruction::ugeo_detector()
 		//--------------------PDB1----------------------//
 		//----> section PDB next to the RIGHT of collimator detail outside box
 		shape[0]=0.0;
-		shape[1]=1.035;
+		shape[1]=2.54/2;//1.035; // GAC 2026/03/18, change to 1" diameter as measured by B.R. with calipers
 		shape[2]=bpb_len;        //!end collar detail half thickness
  
 		G4VSolid* PDB1_solid = new G4Tubs("PDB1",shape[0]*cm,shape[1]*cm,shape[2]*cm,0.0*deg,360.0*deg);
@@ -778,7 +788,7 @@ void DRAGONDetectorConstruction::ugeo_detector()
 		//--------------------PDD1----------------------//
 		//----> section BPD next in line to left of box
 		shape[0]=0.0;
-		shape[1]=1.035;
+		shape[1]=2.54/2;//1.035; // GAC 2026/03/18, change to 1" diameter as measured by B.R. with calipers
 		shape[2]=bpc_len + bpd_len;  //!end collar detail half thickness
  
 		G4VSolid* PDD1_solid = new G4Tubs("PDD1",shape[0]*cm,shape[1]*cm,shape[2]*cm,0.0*deg,360.0*deg);
@@ -805,7 +815,7 @@ void DRAGONDetectorConstruction::ugeo_detector()
 
 		//--------------------PDE1----------------------//
 		shape[0]=0.0;
-		shape[1]=2.09;
+		shape[1]=(1+5./8)*2.54/2;//2.09;// GAC 2026/03/18, change to 1+5/8" diameter as measured by B.R. with calipers
 		shape[2]=bpe_len;  //!end collar detail half thickness
  
 		G4VSolid* PDE1_solid = new G4Tubs("PDE1",shape[0]*cm,shape[1]*cm,shape[2]*cm,0.0*deg,360.0*deg);
@@ -816,6 +826,9 @@ void DRAGONDetectorConstruction::ugeo_detector()
 		G4ThreeVector PDE1_pos(0.0*cm,0.0*cm,-z*cm);
 		G4VPhysicalVolume* PDE1_phys = new G4PVPlacement(0,PDE1_pos,PDE1_log,"PDE1",DETE_log,false,0,checkOverlaps);
 		solid_vis(PDE1_log,1);
+		PDE_zpos = PDE1_pos.z();
+		PDE_zlen = shape[2]*cm;
+					
 		//--------------------PDE2----------------------//
 		shape[0]=0.0;
 		shape[1]=0.520;
@@ -833,7 +846,7 @@ void DRAGONDetectorConstruction::ugeo_detector()
          
 		//--------------------PDF1----------------------//
 		shape[0]=0.0;
-		shape[1]=2.53;
+		shape[1]=2.54;//2.53; // GAC 2026/03/18, change to 2" diameter as measured by B.R. with calipers
 		shape[2]=bpf_len+bpg_len;
  
 		G4VSolid* PDF1_tube = new G4Tubs("PDF1_tube",shape[0]*cm,shape[1]*cm,shape[2]*cm,0.0*deg,360.0*deg);
