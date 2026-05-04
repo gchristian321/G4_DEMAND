@@ -105,7 +105,7 @@ void DemandRunAction::BeginOfRunAction(const G4Run* /*run*/)
 	else {
 		fileName << fOutputFileName;
 	}
-	analysisManager->SetSaveStepTree(true);
+//	analysisManager->SetSaveStepTree(true);
 	analysisManager->OpenFile(fileName.str());
 }
 
