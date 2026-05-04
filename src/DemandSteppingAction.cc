@@ -90,7 +90,9 @@ void DemandSteppingAction::UserSteppingAction(const G4Step* step)
 				volume->GetName() == "DEMAND_scintLV")
 			 && step->GetTrack()->GetTrackID() == 1)
 		{
-			DemandAnalysis::Instance()->AddEventCrossingDetector();
+			DemandAnalysis::Instance()->AddEventCrossingDetector(
+				step->GetPreStepPoint()->GetKineticEnergy()
+				);
 		}
 	}
 	// PrintWorldLocationOfVolume(step, "PDA1");

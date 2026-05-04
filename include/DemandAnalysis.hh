@@ -58,7 +58,7 @@ public:
 	std::vector<long> GetEventsAboveSoftwareCut(std::vector<G4double> cuts) const;
 	long GetEventsAboveThreshold() const;
 	long GetEventsCrossingDetector() const;
-	void AddEventCrossingDetector();
+	void AddEventCrossingDetector(double);
 	void SetReacPos(const G4ThreeVector& p);
 	void SetGeneratedNeutron(const CLHEP::HepLorentzVector& p);
 	void SetGeneratedRecoil(const CLHEP::HepLorentzVector& p);

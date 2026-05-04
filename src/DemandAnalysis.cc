@@ -74,6 +74,7 @@ TVector3       *fReacPos = 0;
 TLorentzVector *fNeutronMomentum = 0;
 TLorentzVector *fRecoilMomentum = 0;
 Int_t fCrossedDetector = 0;
+double fEkinWhenCrossing = 0;
 
 std::vector<double> *fPrimaryScatterX = 0;
 std::vector<double> *fPrimaryScatterY = 0;
@@ -160,6 +161,7 @@ void DemandAnalysis::OpenFile(const string& filename)
 	fTree->Branch("scatterVolumeName",&fPrimaryScatterVolumeName);
 
 	fTree->Branch("timeHit0", &fTimeHit0);
+	fTree->Branch("ekin_when_crossed",&fEkinWhenCrossing);
 	
 
 	fEventsAboveThreshold = 0;
@@ -171,6 +173,7 @@ void DemandAnalysis::OpenFile(const string& filename)
 	fGenTree->Branch("pneut","TLorentzVector",&fNeutronMomentum);
 	fGenTree->Branch("precoil","TLorentzVector",&fRecoilMomentum);
 	fGenTree->Branch("crossed_detector",&fCrossedDetector);
+	fGenTree->Branch("ekin_when_crossed",&fEkinWhenCrossing);
 	fGenTree->Branch("detected",&fDetected);
 	fGenTree->Branch("recdet",&fIsRecdet);
 
@@ -390,10 +393,11 @@ long DemandAnalysis::GetEventsCrossingDetector() const
 	return fEventsCrossingDetector;
 }
 
-void DemandAnalysis::AddEventCrossingDetector()
+void DemandAnalysis::AddEventCrossingDetector(double ekin)
 {
 	if(fCrossedDetector == 0) ++fEventsCrossingDetector;
 	++fCrossedDetector;
+	fEkinWhenCrossing = ekin;
 }
 
 void DemandAnalysis::CalculateReaction(g4gen::ReactionKinematics* reaction)
@@ -510,6 +514,7 @@ void DemandAnalysis::FillGenTree()
 {
 	fGenTree->Fill();
 	fCrossedDetector = 0;
+	fEkinWhenCrossing = -1;
 	fDetected = false;
 	fReacPos->SetXYZ(0,0,0);\
 	fNeutronMomentum->SetPxPyPzE(0,0,0,0);
