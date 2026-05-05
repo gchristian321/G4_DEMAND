@@ -78,8 +78,10 @@ void DemandSteppingAction::UserSteppingAction(const G4Step* step)
 
 	// Check if step intersects detector
 	if(step->GetPreStepPoint() &&
-		 step->GetPreStepPoint()->GetProcessDefinedStep() &&
-		 step->GetPreStepPoint()->GetProcessDefinedStep()->GetProcessType() == fTransportation)
+		 //step->GetPreStepPoint()->GetProcessDefinedStep() &&
+		 //step->GetPreStepPoint()->GetProcessDefinedStep()->GetProcessType() == fTransportation
+		 step->GetPreStepPoint()->GetStepStatus() == fGeomBoundary
+		)
 	{
 		// get volume of the current step
 		G4LogicalVolume* volume 

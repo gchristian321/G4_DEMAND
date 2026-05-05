@@ -416,9 +416,11 @@ long DemandAnalysis::GetEventsCrossingDetector() const
 
 void DemandAnalysis::AddEventCrossingDetector(double ekin)
 {
-	if(fCrossedDetector == 0) ++fEventsCrossingDetector;
+	if(fCrossedDetector == 0) {
+		++fEventsCrossingDetector;
+		fEkinWhenCrossing = ekin;
+	}
 	++fCrossedDetector;
-	fEkinWhenCrossing = ekin;
 }
 
 void DemandAnalysis::CalculateReaction(g4gen::ReactionKinematics* reaction)
