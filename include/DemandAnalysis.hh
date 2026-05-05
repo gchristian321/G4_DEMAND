@@ -54,6 +54,7 @@ public:
 		const CLHEP::Hep3Vector& p, double T, double E, const G4String& v);
 	void SortPrimaryScatters();
 	void SetFirstInteraction(double,double,double,double,int,double);
+	void SetMaxInteraction(double,double,double,double,int,double);
 	void Analyze();
 	std::vector<long> GetEventsAboveSoftwareCut(std::vector<G4double> cuts) const;
 	long GetEventsAboveThreshold() const;

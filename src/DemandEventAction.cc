@@ -132,7 +132,9 @@ void DemandEventAction::EndOfEventAction(const G4Event* event)
 
 	// Loop hits
 	G4double tmin = DBL_MAX;
+	G4double emax = 0;
 	DemandHit* firstRealHit = 0;
+	DemandHit* maxRealHit = 0;
 	for(auto& hitCollection : hDemandHC) {
 		for(int j=0; j< hitCollection->entries(); j++) {
 			auto hit = (*hitCollection)[j];
@@ -171,6 +173,10 @@ void DemandEventAction::EndOfEventAction(const G4Event* event)
 				tmin = hit->GetTime();
 				firstRealHit = hit;
 			}
+			if(hit->GetEnergy() > emax) {
+				emax = hit->GetEnergy();
+				maxRealHit = hit;
+			}
 		}
 	}
 
@@ -183,6 +189,16 @@ void DemandEventAction::EndOfEventAction(const G4Event* event)
 			firstRealHit->GetActualPosition().z(),
 			firstRealHit->GetParentID(),
 			firstRealHit->GetParentEnergy()
+			);
+	}
+	if(maxRealHit) {
+		analysisManager->SetMaxInteraction(
+			maxRealHit->GetTime(),
+			maxRealHit->GetActualPosition().x(),
+			maxRealHit->GetActualPosition().y(),
+			maxRealHit->GetActualPosition().z(),
+			maxRealHit->GetParentID(),
+			maxRealHit->GetParentEnergy()
 			);
 	}
 	analysisManager->Analyze();

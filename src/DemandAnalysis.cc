@@ -70,6 +70,10 @@ TLorentzVector *fFirstInteraction = 0;
 int fFirstHitParentID;
 double fFirstHitPreEnergy;
 
+TLorentzVector *fMaxInteraction = 0;
+int fMaxHitParentID;
+double fMaxHitPreEnergy;
+
 TVector3       *fReacPos = 0;
 TLorentzVector *fNeutronMomentum = 0;
 TLorentzVector *fRecoilMomentum = 0;
@@ -144,6 +148,10 @@ void DemandAnalysis::OpenFile(const string& filename)
 	fTree->Branch("firstInteraction", "TLorentzVector", &fFirstInteraction);
 	fTree->Branch("firstInteractionID", &fFirstHitParentID);
 	fTree->Branch("firstInteractionKE", &fFirstHitPreEnergy);
+	
+	fTree->Branch("maxInteraction", "TLorentzVector", &fMaxInteraction);
+	fTree->Branch("maxInteractionID", &fMaxHitParentID);
+	fTree->Branch("maxInteractionKE", &fMaxHitPreEnergy);
 
 	fTree->Branch("reacpos","TVector3",&fReacPos);
 	fTree->Branch("pneut","TLorentzVector",&fNeutronMomentum);
@@ -253,6 +261,10 @@ void DemandAnalysis::Clear()
 	fFirstInteraction->SetXYZT(0,0,0,0);
 	fFirstHitParentID = -1;
 	fFirstHitPreEnergy = -1;
+	
+	fMaxInteraction->SetXYZT(0,0,0,0);
+	fMaxHitParentID = -1;
+	fMaxHitPreEnergy = -1;
 //	fIsRecdet = 0;  //handled.mamnually.in EndOfEventAction
 	
 	// step tree
@@ -274,6 +286,15 @@ void DemandAnalysis::SetFirstInteraction(
 		x,y,z,time);
 	fFirstHitParentID = parentID;
 	fFirstHitPreEnergy = preEnergy;
+}
+
+void DemandAnalysis::SetMaxInteraction(
+	double time, double x, double y, double z, int parentID, double preEnergy)
+{
+	fMaxInteraction->SetXYZT(
+		x,y,z,time);
+	fMaxHitParentID = parentID;
+	fMaxHitPreEnergy = preEnergy;
 }
 
 void DemandAnalysis::AddPrimaryScatter(
