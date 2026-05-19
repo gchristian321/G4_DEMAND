@@ -236,6 +236,7 @@ void DemandPrimaryGeneratorAction::ShootBeam(G4Event* anEvent)
 								 pmag*cos_theta,
 								 fBeamEnergy+mass);
 		fParticleGun->SetParticlePosition(fSourcePosition);
+//		G4cout << "PARTICLE: " << fParticleGun->GetParticleDefinition()->GetParticleName() << G4endl;
 	}
 	else {
 #if 1
@@ -446,6 +447,7 @@ bool DemandPrimaryGeneratorAction::SetupBeam()
 		return false;
 	}
 
+	G4cout << "BEAM A, Z: " << fBeamA << ", " << fBeamZ << G4endl;
 	if(fBeamA == 1 && fBeamZ == 0) {
     fBeamDefinition = G4ParticleTable::GetParticleTable()->FindParticle("neutron");
 	}
@@ -454,6 +456,10 @@ bool DemandPrimaryGeneratorAction::SetupBeam()
 	}
 	else if (fBeamA == 0 && fBeamZ == 0) {
 		fBeamDefinition = G4ParticleTable::GetParticleTable()->FindParticle("gamma");
+	}
+	else if (fBeamA == -1 && fBeamZ == -1) {
+		fBeamDefinition = G4ParticleTable::GetParticleTable()->FindParticle("geantino");
+		G4cout << "SET source --> geantino" << G4endl;
 	}
 	else {
 		fBeamDefinition = G4ParticleTable::GetParticleTable()->
