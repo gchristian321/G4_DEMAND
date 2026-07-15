@@ -2,6 +2,7 @@
 #include <cassert>
 #include <map>
 #include <G4SystemOfUnits.hh>
+#include "globals.hh"
 #include "g4gen/PhaseSpace.hh"
 #include "g4gen/NuclearMasses.hh"
 #include "g4gen/Rng.hh"
