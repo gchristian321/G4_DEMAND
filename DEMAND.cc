@@ -60,6 +60,7 @@
 #include "G4EmCalculator.hh"
 #include "G4Proton.hh"
 
+#include "TRandom.h"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -87,6 +88,7 @@ int main(int argc,char** argv)
 	G4String config_macro = "";
 	G4String vis_macro = "";
   G4String session;
+	G4long seed = 1;
 #ifdef G4MULTITHREADED
   G4int nThreads = 0;
 #endif
@@ -95,6 +97,10 @@ int main(int argc,char** argv)
 		else if ( G4String(argv[i]) == "-v" ) vis_macro = argv[i+1];
 		else if ( G4String(argv[i]) == "-c" ) config_macro = argv[i+1];
     else if ( G4String(argv[i]) == "-u" ) session = argv[i+1];
+		else if ( G4String(argv[i]).substr(0,7) == "--seed=") {
+			seed = atol(G4String(argv[i]).substr(7).c_str());
+			G4cout << "Set SEED: " << seed << G4endl;
+		}
 #ifdef G4MULTITHREADED
     else if ( G4String(argv[i]) == "-t" ) {
       nThreads = G4UIcommand::ConvertToInt(argv[i+1]);
@@ -116,7 +122,9 @@ int main(int argc,char** argv)
   // Choose the Random engine
   //
   G4Random::setTheEngine(new CLHEP::RanecuEngine);
-  
+	G4Random::setTheSeed(seed);
+	gRandom->SetSeed(seed);
+	
   // Construct the default run manager
   //
 // #ifdef G4MULTITHREADED
