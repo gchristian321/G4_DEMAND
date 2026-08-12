@@ -30,6 +30,8 @@
 
 #include <fstream>
 
+#include "TSystem.h"
+
 #include "DemandPrimaryGeneratorAction.hh"
 #include "DemandPrimaryGeneratorMessenger.hh"
 #include "DemandDetectorConstruction.hh"
@@ -75,6 +77,7 @@ DemandPrimaryGeneratorAction::DemandPrimaryGeneratorAction()
 	 fSourceThetaLimits(nullptr),
 	 fSourcePhiLimits(nullptr),
 	 fSourcePosition(0,0,0),
+	 fAngDist(nullptr),
 	 fBeamDefinition(0),
 	 fTargetDefinition(0),
 	 fEjectileDefinition(0),
@@ -330,17 +333,61 @@ void DemandPrimaryGeneratorAction::ShootReaction(G4Event* anEvent)
 		gen_isotropic();
 	}
 	else {
-		std::ifstream ifs(fReactionAngdist.c_str());
-		if(!ifs.good()) {
-			char buf[4096];
-			sprintf(buf,"Angular distribution file \"%s\" does not exist.",
-							fReactionAngdist.c_str());
-			throw std::invalid_argument(buf);
+		// non isotropic
+		// read from TWOFNR output file
+		// lazy initialize the TH1D that stores <theta, dSigma/dOmega * sin(theta)>
+		if (fAngDist.get() == nullptr) {
+			std::ifstream ifs(
+				gSystem->ExpandPathName(
+					fReactionAngdist.c_str())
+				);
+			if(!ifs.good()) {
+				char buf[4096];
+				sprintf(buf,"Angular distribution file \"%s\" does not exist.",
+								fReactionAngdist.c_str());
+				throw std::invalid_argument(buf);
+			}
+			std::vector<double> vTheta, vSigma;
+			double th,sig,junk;
+			while(ifs>>th>>sig>>junk){
+				vTheta.push_back(th);
+				vSigma.push_back(sig);
+			}
+			fAngDist.reset(
+				new TH1D("","",vTheta.size()-1,&vTheta[0])
+				);
+			fAngDist->SetDirectory(nullptr);
+			for(int i=1; i< fAngDist->GetNbinsX()+1; ++i){
+				double f0,f1;
+				try {
+					f0 = vSigma.at(i-1) * sin(vTheta.at(i-1) * CLHEP::degree);
+					f1 = vSigma.at(i)   * sin(vTheta.at(i)   * CLHEP::degree);
+				} catch(std::exception& e){
+					G4cerr << "ERROR: problem with angdist bins!" << G4endl;
+					throw;
+				}
+				fAngDist->SetBinContent(i, (f0+f1)/2);
+			}
 		}
-		ifs.close();
 
-		throw std::runtime_error(
-			"Non-isotropic angular distribution still needs implementation");
+		// select theta and phi randomly using the TH1D
+		{
+			const G4double theta  =
+				fAngDist->GetRandom(nullptr, "width") * CLHEP::degree;
+			const G4double phi = G4RandFlat::shoot()*2*CLHEP::pi;
+
+			bool success = fReactionGenerator->Calculate(theta, phi);
+			if(!success){
+				throw std::logic_error(
+					"not enough energy for reaction!");
+			}
+
+			momentum = fReactionGenerator->GetProduct(0);
+			recoil_momentum = fReactionGenerator->GetProduct(1);
+		}
+
+		// throw std::runtime_error(
+		// 	"Non-isotropic angular distribution still needs implementation");
 	}
 	
 	fParticleGun->SetParticleMomentumDirection(

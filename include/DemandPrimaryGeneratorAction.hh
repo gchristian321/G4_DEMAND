@@ -34,6 +34,7 @@
 #include <array>
 #include <memory>
 #include <utility>
+#include "TH1.h"
 #include "G4VUserPrimaryGeneratorAction.hh"
 #include "globals.hh"
 #include "G4ThreeVector.hh"
@@ -131,6 +132,8 @@ private:
 	std::unique_ptr<std::pair<double,double> > fSourceThetaLimits;
 	std::unique_ptr<std::pair<double,double> > fSourcePhiLimits;
 	G4ThreeVector fSourcePosition;
+
+	std::unique_ptr<TH1> fAngDist;
 	
 	G4ParticleDefinition* fBeamDefinition;
 	G4ParticleDefinition* fTargetDefinition;
