@@ -353,6 +353,21 @@ void DemandPrimaryGeneratorAction::ShootReaction(G4Event* anEvent)
 				vTheta.push_back(th);
 				vSigma.push_back(sig);
 			}
+			// check uniform bins
+			double binsize;
+			try{
+				binsize = vTheta.at(1) - vTheta.at(0);
+			} catch (std::exception&){
+				G4cerr << "Error: only one angdist point!" << G4endl;
+				throw;
+			}
+				
+			for(size_t i=2; i< vTheta.size(); ++i){
+				double bsz = vTheta.at(i)-vTheta.at(i-1);
+				if(fabs(bsz-binsize)>1e-6){
+					throw std::runtime_error("Can't handle non-uniform theta bins!");
+				}
+			}
 			fAngDist.reset(
 				new TH1D("","",vTheta.size()-1,&vTheta[0])
 				);
@@ -363,7 +378,7 @@ void DemandPrimaryGeneratorAction::ShootReaction(G4Event* anEvent)
 					f0 = vSigma.at(i-1) * sin(vTheta.at(i-1) * CLHEP::degree);
 					f1 = vSigma.at(i)   * sin(vTheta.at(i)   * CLHEP::degree);
 				} catch(std::exception& e){
-					G4cerr << "ERROR: problem with angdist bins!" << G4endl;
+					G4cerr << "ERROR: problem with angdist bins (range error in vTheta vector)!" << G4endl;
 					throw;
 				}
 				fAngDist->SetBinContent(i, (f0+f1)/2);
@@ -373,7 +388,7 @@ void DemandPrimaryGeneratorAction::ShootReaction(G4Event* anEvent)
 		// select theta and phi randomly using the TH1D
 		{
 			const G4double theta  =
-				fAngDist->GetRandom(nullptr, "width") * CLHEP::degree;
+				fAngDist->GetRandom(nullptr) * CLHEP::degree;
 			const G4double phi = G4RandFlat::shoot()*2*CLHEP::pi;
 
 			bool success = fReactionGenerator->Calculate(theta, phi);
