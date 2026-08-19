@@ -293,6 +293,13 @@ void DemandPrimaryGeneratorAction::ShootBeam(G4Event* anEvent)
 
 	this->GeneratePrimaryVertex(anEvent);
 
+	// check if 511 coinc gammas
+	if (fBeamA == 511 && fBeamZ == 511){
+		fParticleGun->SetParticleMomentumDirection(
+			-1*momentum.vect().unit());
+		this->GeneratePrimaryVertex(anEvent);
+	}
+
 	DemandAnalysis::Instance()->SetReacPos(fParticleGun->GetParticlePosition());
 	DemandAnalysis::Instance()->SetGeneratedNeutron(momentum);
 	DemandAnalysis::Instance()->SetGeneratedRecoil(G4LorentzVector(0,0,0,0));
@@ -507,6 +514,9 @@ bool DemandPrimaryGeneratorAction::SetupBeam()
 	else if (fBeamA == -1 && fBeamZ == -1) {
 		fBeamDefinition = G4ParticleTable::GetParticleTable()->FindParticle("geantino");
 		G4cout << "SET source --> geantino" << G4endl;
+	}
+	else if (fBeamA == 511 && fBeamZ == 511) {
+		fBeamDefinition = G4ParticleTable::GetParticleTable()->FindParticle("gamma");
 	}
 	else {
 		fBeamDefinition = G4ParticleTable::GetParticleTable()->

@@ -28,7 +28,7 @@ using namespace CLHEP;
 namespace {
 
 const double FWHM = 1/(2*sqrt(2*log(2)));
-const double TIME_RES = 0.6 * ns * FWHM;
+const double TIME_RES = 0;//0.6 * ns * FWHM;
 // double ResEnergy(double energy) {
 // 	// Use resolution from NIMA 792, p. 74 (2015)
 // 	// (Eq. 3, NOTE it's given in % in the paper)
