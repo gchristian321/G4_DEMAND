@@ -29,6 +29,7 @@
 /// \brief Implementation of the DemandPrimaryGeneratorAction class
 
 #include <fstream>
+#include <vector>
 
 #include "TSystem.h"
 
@@ -67,6 +68,7 @@ DemandPrimaryGeneratorAction::DemandPrimaryGeneratorAction()
  : G4VUserPrimaryGeneratorAction(),
    fParticleGun(nullptr),
 	 fShootGeantino(false),
+	 fUseAmBeSource(false),
 	 fBeamA(1),
 	 fBeamZ(0),
 	 fBeamEnergy(1*MeV),
@@ -126,6 +128,38 @@ DemandPrimaryGeneratorAction::DemandPrimaryGeneratorAction()
   fParticleGun
     ->SetParticlePosition(G4ThreeVector(0., 0., -worldZHalfLength));
 #endif
+
+	// AmBe relative intensities
+	const std::vector<double> energies = {
+		4.14e-7, 0.11, 0.33, 0.54, 0.75, 0.97,
+		1.18, 1.40, 1.61, 1.82, 2.04, 2.25,
+		2.47, 2.68, 2.90, 3.11, 3.32, 3.54,
+		3.75, 3.97, 4.18, 4.39, 4.61, 4.82,
+		5.04, 5.25, 5.47, 5.68, 5.89, 6.11,
+		6.32, 6.54, 6.75, 6.96, 7.18, 7.39,
+		7.61, 7.82, 8.03, 8.25, 8.46, 8.68,
+		8.89, 9.11, 9.32, 9.53, 9.75, 9.96,
+		10.2, 10.4, 10.6, 10.8, 11.0
+	};
+	const std::vector<double> intensities = {
+		1.44e-2, 3.34e-2, 3.13e-2, 2.81e-2, 2.50e-2,
+		2.14e-2, 1.98e-2, 1.75e-2, 1.92e-2, 2.23e-2,
+		2.15e-2, 2.25e-2, 2.28e-2, 2.95e-2, 3.56e-2,
+		3.69e-2, 3.46e-2, 3.07e-2, 3.00e-2, 2.69e-2,
+		2.86e-2, 3.18e-2, 3.07e-2, 3.33e-2, 3.04e-2,
+		2.74e-2, 2.33e-2, 2.06e-2, 1.82e-2, 1.77e-2,
+		2.04e-2, 1.83e-2, 1.63e-2, 1.68e-2, 1.68e-2,
+		1.88e-2, 1.84e-2, 1.69e-2, 1.44e-2, 9.68e-3,
+		6.52e-3, 4.26e-3, 3.67e-3, 3.81e-3, 5.06e-3,
+		6.25e-3, 5.52e-3, 4.68e-3, 3.70e-3, 2.78e-3,
+		1.51e-3, 3.63e-4
+	};
+
+	fAmBeHist.reset(new TH1D("fAmBeHist", "", energies.size()-1, energies.data()));
+	fAmBeHist->SetDirectory(nullptr);
+	for(int i = 0; i < fAmBeHist->GetNbinsX(); ++i) {
+		fAmBeHist->SetBinContent(i+1, intensities.at(i));
+	}
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -204,10 +238,16 @@ void DemandPrimaryGeneratorAction::ShootBeam(G4Event* anEvent)
 	G4LorentzVector momentum;
 
 	if(fSourceEnergies.get()) {
+		// added
+		if(fUseAmBeSource) {
+			fBeamEnergy = fAmBeHist->GetRandom() * MeV;
+		}
+		else{
 		//
-		// isotropic source w/ randomized energy
+		// randomized energy
 		fBeamEnergy = G4RandFlat::shoot(
 			fSourceEnergies->first, fSourceEnergies->second);
+		}
 		const G4ThreeVector pos = fParticleGun->GetParticlePosition();
 		const G4double mass = fParticleGun->GetParticleDefinition()->GetPDGMass();
 		G4double cos_theta = 2*G4RandFlat::shoot() - 1;
@@ -220,7 +260,7 @@ void DemandPrimaryGeneratorAction::ShootBeam(G4Event* anEvent)
 				std::min(cth.first,cth.second),
 				std::max(cth.first,cth.second)
 				);
-		}
+			}
 		const G4double theta = acos(cos_theta);
 		
 		G4double phi;

@@ -1,3 +1,4 @@
+
 #include <algorithm>
 #include <map>
 
@@ -35,7 +36,7 @@
 #include "CADMesh.hh"
 #include "G4IonisParamMat.hh"
 #include "G4VisExtent.hh"
-
+#include "G4MaterialPropertiesTable.hh"
 
 // Auto-generated code for skeleton frame parts
 #include "skelframe/FrontFrameUpper.inc"
@@ -53,6 +54,8 @@
 #include "skelframe/VerticalSupportTop.inc"
 #include "skelframe/HorizontalSupportUpper.inc"
 #include "skelframe/HorizontalSupportLower.inc"
+
+#include "optical_vectors.inc"
 
 
 using namespace std;
@@ -283,7 +286,22 @@ G4VPhysicalVolume* DemandDetectorConstruction::ConstructWithoutDragon()
 
 			new G4PVPlacement(0,G4ThreeVector(0.0,0.0,200*mm),logicEnclosure,"physEnclosure", worldLV, false, 0, true);*/
 	}
-	
+
+		if (fSheetThickness > 0 && fSheetWidth > 0 && fSheetHeight > 0) {
+			G4Material* sheetMaterial =G4NistManager::Instance()->FindOrBuildMaterial(fSheetMaterial);
+
+			if (!sheetMaterial) {
+    				throw std::invalid_argument("Unknown absorber sheet material: " + fSheetMaterial);
+			}
+        		auto* sheetSolid = new G4Box("AbsorberSheetSolid",fSheetWidth/2, fSheetHeight/2, fSheetThickness/2);
+		        auto* sheetLV = new G4LogicalVolume(sheetSolid, sheetMaterial, "AbsorberSheetLV");
+			auto* sheetVis = new G4VisAttributes(G4Colour(0.8, 0.2, 0.2, 1.0));
+    			sheetVis->SetVisibility(true);
+    			sheetVis->SetForceSolid(true);
+    			sheetLV->SetVisAttributes(sheetVis);
+		        new G4PVPlacement(nullptr, G4ThreeVector(fSheetX, fSheetY, fSheetZ), sheetLV, "AbsorberSheetPV", worldLV, false, 0, true);
+    		}
+
 	return world;
 }
 
@@ -446,6 +464,27 @@ G4Material* DemandDetectorConstruction::GetScintillatorMaterial()
 		// Note that the Birks quenching is used for heavy ions and protons
 		// above 25.5 MeV.  Below that a semi-emperical fit is used for protons.
 		material->GetIonisation()->SetBirksConstant(0.07283 * mm/MeV);
+
+
+		// energy and scint vectors in "optical_vectors.inc"
+
+		std::vector<G4double> rindex(energy.size(),1.58);
+		std::vector<G4double> absLength(energy.size(),2.0*cm);
+
+	
+		auto* mpt = new G4MaterialPropertiesTable();
+
+		mpt->AddProperty("RINDEX", energy, rindex);
+		mpt->AddProperty("ABSLENGTH", energy, absLength);
+		mpt->AddProperty("SCINTILLATIONCOMPONENT1", energy, scint);
+
+		mpt->AddConstProperty("SCINTILLATIONYIELD", 20000./MeV);
+		mpt->AddConstProperty("SCINTILLATIONTIMECONSTANT1", 3.0*ns);
+		mpt->AddConstProperty("RESOLUTIONSCALE", 1.0);
+
+		material->SetMaterialPropertiesTable(mpt);
+		
+
 	}
 	return material;
 }

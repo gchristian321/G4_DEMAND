@@ -1,3 +1,4 @@
+#include <cmath>
 #include "DemandSD.hh"
 #include "G4SDManager.hh"
 #include "G4ParticleDefinition.hh"
@@ -173,7 +174,7 @@ G4double DemandSD::CalculateQuenching(
 			fProtonQuenchingData.GetN() - 1 );
 
 		bool UseQuenchingInterp = false; // --> true to use interpolated quenching
-		
+
 		if(UseQuenchingInterp && edep >= RangeMin && edep < RangeMax){
 			// --> use interpolation of LaPlace data
 			light = fProtonQuenchingData.Eval(edep);
@@ -182,14 +183,30 @@ G4double DemandSD::CalculateQuenching(
 			// --> use semi-emperical fit
 			//  a*E - b*(1.0 - np.exp(-c*E))
 			const double a = 0.7787, b = 1.62564, c = 0.417876;
-			light = a*edep - b*(1 - exp(-c*edep));
+
+			// quenching
+//			light = a*edep - b*(1 - exp(-c*edep));
+
+			// Altered quenching code
+			// 
+			const auto protonLightYield = [a, b, c](G4double energy) {
+				const G4double energyMeV = energy / CLHEP::MeV;
+				return (a * energyMeV - b * (1.0 - exp(-c * energyMeV))) * CLHEP::MeV;
+			};
+
+
+			const G4double StepEnergyDeposit = step->GetTotalEnergyDeposit();
+			const G4double PreStepKineticEnergy = step->GetPreStepPoint()->GetKineticEnergy();
+			light = protonLightYield(PreStepKineticEnergy) - protonLightYield(PreStepKineticEnergy - StepEnergyDeposit);
+		
 		}
+
 	}
 	else {
 		// use birks eqn with birks constant set from fit
 		// to LaPlace data [see GetScintillatorMaterial() in
 		// DemandDetectorConstruction.cc ]
-	 
+ 
 		auto emSat = G4LossTableManager::Instance()->EmSaturation();
 		if (!emSat) {
 			throw std::runtime_error("DemandSD::CalculateQuenching --> no emSat...");

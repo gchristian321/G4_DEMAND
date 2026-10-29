@@ -107,6 +107,9 @@ public:
 	void SetShootGeantino(bool on) {fShootGeantino = on;}
 	bool GetShootGeantine() const { return fShootGeantino; }
 
+	void SetUseAmBeSource(bool on) {fUseAmBeSource = on;}
+	bool GetUseAmBeSource() const { return fUseAmBeSource; } 
+	
 private:
 	bool SetupBeam();
 	bool SetupReaction(bool);
@@ -119,6 +122,7 @@ private:
 	
 private:
   G4ParticleGun*  fParticleGun; // G4 particle gun
+	bool fUseAmBeSource = false;
 	bool fShootGeantino;
 	G4ThreeVector fReactionPosition;
 	int fBeamA;
@@ -134,6 +138,7 @@ private:
 	G4ThreeVector fSourcePosition;
 
 	std::unique_ptr<TH1> fAngDist;
+	std::unique_ptr<TH1> fAmBeHist;
 	
 	G4ParticleDefinition* fBeamDefinition;
 	G4ParticleDefinition* fTargetDefinition;

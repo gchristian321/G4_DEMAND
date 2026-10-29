@@ -75,6 +75,14 @@ public:
 	const Module_t* GetModule(G4int) const;
 	Module_t* GetModuleByOriginalSpecification(size_t);
 	const Module_t* GetModuleByOriginalSpecification(size_t) const;
+ 
+	void SetSheetMaterial(const G4String& material) { fSheetMaterial = material; }
+	void SetSheetThickness(G4double thickness) { fSheetThickness = thickness; }
+	void SetSheetWidth(G4double width) { fSheetWidth = width; }
+   	void SetSheetHeight(G4double height) { fSheetHeight = height; }
+	void SetSheetX(G4double x) { fSheetX = x; }
+	void SetSheetY(G4double y) { fSheetY = y; }
+	void SetSheetZ(G4double z) { fSheetZ = z; }
 
 	void SetTargetMaterial(const G4String&);
 	void SetTargetThickness(G4double thick) { fTargetThickness = thick; }
@@ -108,6 +116,15 @@ public:
 	G4double GetS2230ThresholdSigma() const { return fS2230ThresholdSigma; }
 	
 private:
+
+	G4String fSheetMaterial = "G4_AIR";
+	G4double fSheetThickness = 0;
+	G4double fSheetWidth = 0;
+ 	G4double fSheetHeight = 0;
+ 	G4double fSheetX = 0;
+	G4double fSheetY = 0;
+	G4double fSheetZ = -0;
+
 	bool fCheckOverlaps;
 	std::vector<Module_t> fModules;
 	std::vector<G4AssemblyVolume*> fAssemblies;

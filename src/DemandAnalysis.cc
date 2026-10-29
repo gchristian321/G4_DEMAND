@@ -1,4 +1,6 @@
 #include <vector>
+#include <algorithm>
+#include <functional>
 
 #include "globals.hh"
 #include "G4Neutron.hh"
@@ -51,6 +53,15 @@ vector<int> *fDetno = 0;
 vector<int> *fpA = 0;
 vector<int> *fpZ = 0;
 vector<int> *fpID = 0;
+
+// added 
+vector<double> *fEdep_esort = 0;
+vector<double> *fEdep_noquench_esort = 0;
+vector<double> *fTime_esort = 0;
+vector<double> *fXpos_esort = 0;
+vector<double> *fYpos_esort = 0;
+vector<double> *fZpos_esort = 0;
+vector<int> *fDetno_esort = 0;
 
 int fNumHits = 0;
 double fEkin = 0;
@@ -134,6 +145,18 @@ void DemandAnalysis::OpenFile(const string& filename)
 	fTree->Branch("ypos",&fYpos);
 	fTree->Branch("zpos",&fZpos);
 	fTree->Branch("detno",&fDetno);
+
+
+        fTree->Branch("edep_esort", &fEdep_esort);
+        fTree->Branch("edep_noquench_esort", &fEdep_noquench_esort);
+        fTree->Branch("time_esort", &fTime_esort);
+        fTree->Branch("xpos_esort", &fXpos_esort);
+        fTree->Branch("ypos_esort", &fYpos_esort);
+        fTree->Branch("zpos_esort", &fZpos_esort);
+        fTree->Branch("detno_esort", &fDetno_esort);
+
+
+
 
 	fTree->Branch("particleA",&fpA);
 	fTree->Branch("particleZ",&fpZ);
@@ -247,6 +270,15 @@ void DemandAnalysis::Clear()
 	fYpos->clear();
 	fZpos->clear();
 	fDetno->clear();
+	 
+	fEdep_esort->clear();
+	fEdep_noquench_esort->clear();
+	fTime_esort->clear();
+	fXpos_esort->clear();
+	fYpos_esort->clear();
+	fZpos_esort->clear();
+	fDetno_esort->clear();
+
 
 	fpA->clear();
 	fpZ->clear();
@@ -359,6 +391,19 @@ void DemandAnalysis::AddHit(
 		fpA->emplace(fpA->begin() + dit, pA);
 		fpZ->emplace(fpZ->begin() + dit, pZ);
 		fpID->emplace(fpID->begin() + dit, pID);
+		
+
+		auto eit = std::lower_bound(fEdep_esort->begin(), fEdep_esort->end(),edep, std::greater<double>());
+		auto edit = eit - fEdep_esort->begin();
+		fEdep_esort->emplace(eit, edep);
+		fEdep_noquench_esort->emplace(fEdep_noquench_esort->begin() + edit, edep_noquench);
+		fTime_esort->emplace(fTime_esort->begin() + edit, time);
+		fXpos_esort->emplace(fXpos_esort->begin() + edit, xpos);
+		fYpos_esort->emplace(fYpos_esort->begin() + edit, ypos);
+		fZpos_esort->emplace(fZpos_esort->begin() + edit, zpos);
+		fDetno_esort->emplace(fDetno_esort->begin() + edit, detno);
+
+		
 		fNumHits++;
 	}
 }

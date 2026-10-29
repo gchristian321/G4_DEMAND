@@ -54,6 +54,17 @@ class DemandDetectorMessenger: public G4UImessenger
 	  G4UIcmdWithAString*          fS2230ThresholdCmd;
 	  G4UIcmdWithADoubleAndUnit*   fS2230ThresholdSigmaCmd;
 	  size_t fCurrentModuleNumber;
+
+
+	G4UIcmdWithAString* fSheetMaterialCmd;
+	G4UIcmdWithADoubleAndUnit* fSheetThicknessCmd;
+	G4UIcmdWithADoubleAndUnit* fSheetWidthCmd;
+	G4UIcmdWithADoubleAndUnit* fSheetHeightCmd;
+	G4UIcmdWithADoubleAndUnit* fSheetXCmd;
+	G4UIcmdWithADoubleAndUnit* fSheetYCmd;
+	G4UIcmdWithADoubleAndUnit* fSheetZCmd;
+
+
 };
 
 #endif

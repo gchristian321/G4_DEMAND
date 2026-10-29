@@ -169,6 +169,11 @@ DemandPrimaryGeneratorMessenger::DemandPrimaryGeneratorMessenger(DemandPrimaryGe
   fShootGeantinoCmd->SetGuidance("Shoot geantino along ordinary particle track");
   fShootGeantinoCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
   fShootGeantinoCmd->SetToBeBroadcasted(false);
+
+  fUseAmBeSource = new G4UIcmdWithoutParameter("/demand/gnerator/AmBe",this);
+  fUseAmBeSource->SetGuidance("Shoot geantino along ordinary particle track");
+  fUseAmBeSource->AvailableForStates(G4State_PreInit,G4State_Idle);
+  fUseAmBeSource->SetToBeBroadcasted(false);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -193,6 +198,7 @@ DemandPrimaryGeneratorMessenger::~DemandPrimaryGeneratorMessenger()
 	delete fSourcePhiLimits;
 	delete fSourcePosition;
 	delete fShootGeantinoCmd;
+	delete fUseAmBeSource;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -257,5 +263,10 @@ void DemandPrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command, G4String
 	}
 	else if(command == fShootGeantinoCmd){
 		fPrimary->SetShootGeantino(true);
+	}
+
+	else if(command== fUseAmBeSource){
+		fPrimary->SetUseAmBeSource(true);
+		fPrimary->SetSourceEnergyLimits(0,0);
 	}
 }

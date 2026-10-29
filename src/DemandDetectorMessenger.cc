@@ -247,9 +247,70 @@ DemandDetectorMessenger::DemandDetectorMessenger(
   fS2230ThresholdSigmaCmd->SetToBeBroadcasted(false);
 	fS2230ThresholdSigmaCmd->SetDefaultValue(12.6*keV);
 
-}
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+	fSheetMaterialCmd =
+    		new G4UIcmdWithAString("/demand/detector/sheetMaterial", this);
+	fSheetMaterialCmd->SetGuidance("Set absorber sheet material by name.");
+	fSheetMaterialCmd->SetParameterName("sheet_material", false);
+	fSheetMaterialCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+	fSheetMaterialCmd->SetToBeBroadcasted(false);
+
+
+
+	fSheetThicknessCmd =
+    		new G4UIcmdWithADoubleAndUnit("/demand/detector/sheetThickness", this);
+	fSheetThicknessCmd->SetGuidance("Set absorber sheet thickness; zero disables it.");
+	fSheetThicknessCmd->SetParameterName("sheet_thickness", false);
+	fSheetThicknessCmd->SetDefaultUnit("mm");
+	fSheetThicknessCmd->SetRange("sheet_thickness >= 0");
+	fSheetThicknessCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+	fSheetThicknessCmd->SetToBeBroadcasted(false);
+
+	fSheetWidthCmd =
+    		new G4UIcmdWithADoubleAndUnit("/demand/detector/sheetWidth", this);
+	fSheetWidthCmd->SetGuidance("Set absorber sheet width along X.");
+	fSheetWidthCmd->SetParameterName("sheet_width", false);
+	fSheetWidthCmd->SetDefaultUnit("mm");
+	fSheetWidthCmd->SetRange("sheet_width > 0");
+	fSheetWidthCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+	fSheetWidthCmd->SetToBeBroadcasted(false);
+
+	fSheetHeightCmd =
+    		new G4UIcmdWithADoubleAndUnit("/demand/detector/sheetHeight", this);
+	fSheetHeightCmd->SetGuidance("Set absorber sheet height along Y.");
+	fSheetHeightCmd->SetParameterName("sheet_height", false);
+	fSheetHeightCmd->SetDefaultUnit("mm");
+	fSheetHeightCmd->SetRange("sheet_height > 0");
+	fSheetHeightCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+	fSheetHeightCmd->SetToBeBroadcasted(false);
+
+	fSheetXCmd =
+    		new G4UIcmdWithADoubleAndUnit("/demand/detector/sheetX", this);
+	fSheetXCmd->SetGuidance("Set absorber sheet centre X position.");
+	fSheetXCmd->SetParameterName("sheet_x", false);
+	fSheetXCmd->SetDefaultUnit("mm");
+	fSheetXCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+	fSheetXCmd->SetToBeBroadcasted(false);
+
+	fSheetYCmd =
+    		new G4UIcmdWithADoubleAndUnit("/demand/detector/sheetY", this);
+	fSheetYCmd->SetGuidance("Set absorber sheet centre Y position.");
+	fSheetYCmd->SetParameterName("sheet_y", false);
+	fSheetYCmd->SetDefaultUnit("mm");
+	fSheetYCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+	fSheetYCmd->SetToBeBroadcasted(false);
+
+	fSheetZCmd =
+    		new G4UIcmdWithADoubleAndUnit("/demand/detector/sheetZ", this);
+	fSheetZCmd->SetGuidance("Set absorber sheet centre Z position.");
+	fSheetZCmd->SetParameterName("sheet_z", false);
+	fSheetZCmd->SetDefaultUnit("mm");
+	fSheetZCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+	fSheetZCmd->SetToBeBroadcasted(false);
+
+}
+//....oo	oOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 DemandDetectorMessenger::~DemandDetectorMessenger()
 {
@@ -278,6 +339,15 @@ DemandDetectorMessenger::~DemandDetectorMessenger()
 	delete fBGOMaskCmd;
 	delete fS2230ThresholdCmd;
 	delete fS2230ThresholdSigmaCmd;
+	
+	delete fSheetMaterialCmd;
+	delete fSheetThicknessCmd;
+	delete fSheetWidthCmd;
+	delete fSheetHeightCmd;
+	delete fSheetXCmd;
+	delete fSheetYCmd;
+	delete fSheetZCmd;
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -417,4 +487,35 @@ void DemandDetectorMessenger::SetNewValue(
 		const G4double ThreshSigma = fS2230ThresholdSigmaCmd->GetNewDoubleValue(newValue);
 		fDemandDetector->SetS2230ThresholdSigma(ThreshSigma);
 	}
+
+	else if (command == fSheetMaterialCmd) {
+		G4String mat = newValue;
+		fDemandDetector->SetSheetMaterial(mat);
+	}
+	else if (command == fSheetThicknessCmd) {
+		G4double thick = fSheetThicknessCmd->GetNewDoubleValue(newValue);
+		fDemandDetector->SetSheetThickness(thick);
+	}
+	else if (command == fSheetWidthCmd) {
+		G4double width = fSheetWidthCmd->GetNewDoubleValue(newValue);
+		fDemandDetector->SetSheetWidth(width);
+	}
+	else if (command == fSheetHeightCmd) {
+		G4double height = fSheetHeightCmd->GetNewDoubleValue(newValue);
+		fDemandDetector->SetSheetHeight(height);
+	}
+	else if (command == fSheetXCmd) {
+		G4double x = fSheetXCmd->GetNewDoubleValue(newValue);
+		fDemandDetector->SetSheetX(x);
+	}
+	else if (command == fSheetYCmd) {
+		G4double y = fSheetYCmd->GetNewDoubleValue(newValue);
+		fDemandDetector->SetSheetY(y);
+	}
+	else if (command == fSheetZCmd) {
+		G4double z = fSheetZCmd->GetNewDoubleValue(newValue);
+		fDemandDetector->SetSheetZ(z);
+	}
+
+
 }

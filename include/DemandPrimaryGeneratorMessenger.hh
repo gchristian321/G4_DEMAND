@@ -40,6 +40,7 @@ private:
 	G4UIcmdWith3VectorAndUnit *fSourcePhiLimits;
 	G4UIcmdWith3VectorAndUnit *fSourcePosition;
 	G4UIcmdWithoutParameter   *fShootGeantinoCmd;
+	G4UIcmdWithoutParameter* fUseAmBeSource;
 
 	DemandPrimaryGeneratorAction* fPrimary;
 };
