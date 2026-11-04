@@ -1,0 +1,2 @@
+set(__QT_DEPLOY_TARGET_DEMAND_FILE /data/experiments/g4data/luke-hs/G4_DEMAND/build/DEMAND)
+set(__QT_DEPLOY_TARGET_DEMAND_TYPE EXECUTABLE)

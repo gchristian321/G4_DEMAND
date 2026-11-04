@@ -1,0 +1,12 @@
+## Detector geometry
+/demand/detector/nx 10
+/demand/detector/ny 10
+/demand/detector/nz 1
+
+/demand/detector/wx 2 cm
+/demand/detector/wy 2 cm
+/demand/detector/wz 2 cm
+
+/demand/detector/angle 0 deg
+/demand/detector/dist 100 cm  
+/demand/detector/thresh 50 keV

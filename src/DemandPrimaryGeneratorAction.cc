@@ -175,7 +175,7 @@ void DemandPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
   // This function is called at the begining of event
 	bool beamChanged = SetupBeam();
-	fReaction.toLower();
+	G4StrUtil::to_lower(fReaction) ;
 	
 	if(fReaction.empty() || fReaction == "none") {
 		ShootBeam(anEvent);
@@ -584,7 +584,7 @@ bool DemandPrimaryGeneratorAction::SetupReaction(bool beamChanged)
 		return false;
 	}
 
-	fReaction.toLower();
+	G4StrUtil::to_lower(fReaction);
 	if(fReaction.empty() || fReaction == "none") {
 		lastReaction = fReaction;
 		lastEx = fExRecoil;

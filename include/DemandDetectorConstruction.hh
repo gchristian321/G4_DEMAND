@@ -14,6 +14,8 @@
 #include "globals.hh"
 #include "DemandDetectorMessenger.hh"
 
+#include "G4ios.hh"
+
 class G4Material;
 class G4VPhysicalVolume;
 class G4AssemblyVolume;
@@ -84,6 +86,8 @@ public:
 	void SetSheetY(G4double y) { fSheetY = y; }
 	void SetSheetZ(G4double z) { fSheetZ = z; }
 
+	void SetUseScintillation(bool use) {fUseScintillation = use; }
+
 	void SetTargetMaterial(const G4String&);
 	void SetTargetThickness(G4double thick) { fTargetThickness = thick; }
 	const G4Material* GetTargetMaterial() const { return fTargetMaterial; }
@@ -124,6 +128,8 @@ private:
  	G4double fSheetX = 0;
 	G4double fSheetY = 0;
 	G4double fSheetZ = -0;
+	
+	G4bool fUseScintillation = true;
 
 	bool fCheckOverlaps;
 	std::vector<Module_t> fModules;

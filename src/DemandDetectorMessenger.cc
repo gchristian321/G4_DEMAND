@@ -309,6 +309,12 @@ DemandDetectorMessenger::DemandDetectorMessenger(
 	fSheetZCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
 	fSheetZCmd->SetToBeBroadcasted(false);
 
+	fScintillationCmd = 
+		new G4UIcmdWithABool("/demand/detector/scintillation", this);
+	fScintillationCmd->SetGuidance("Add or remove scintillation properties from material");
+	fScintillationCmd->SetParameterName("scint", false);
+	fScintillationCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+	fScintillationCmd->SetToBeBroadcasted(false);
 }
 //....oo	oOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -348,6 +354,7 @@ DemandDetectorMessenger::~DemandDetectorMessenger()
 	delete fSheetYCmd;
 	delete fSheetZCmd;
 
+	delete fScintillationCmd;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -517,5 +524,7 @@ void DemandDetectorMessenger::SetNewValue(
 		fDemandDetector->SetSheetZ(z);
 	}
 
-
+	else if (command == fScintillationCmd) {
+		fDemandDetector->SetUseScintillation(fScintillationCmd->GetNewBoolValue(newValue));
+	}
 }

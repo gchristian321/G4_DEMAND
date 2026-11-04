@@ -1,0 +1,140 @@
+/demand/detector/nx 1
+/demand/detector/ny 1
+/demand/detector/nz 1
+
+/demand/detector/wx 3 cm
+/demand/detector/wy 3 cm
+/demand/detector/wz 3 cm
+
+/demand/detector/xpos -30 mm
+/demand/detector/ypos  30 mm
+/demand/detector/zpos  120 mm
+/demand/detector/thresh 100 keV
+/demand/detector/readout cube
+/demand/detector/rotate false
+
+## module 2
+/demand/detector/module
+/demand/detector/nx 1
+/demand/detector/ny 1
+/demand/detector/nz 1
+
+/demand/detector/wx 3 cm
+/demand/detector/wy 3 cm
+/demand/detector/wz 3 cm
+
+/demand/detector/xpos   0 mm
+/demand/detector/ypos  30 mm
+/demand/detector/zpos  120 mm
+/demand/detector/thresh 100 keV
+/demand/detector/readout cube
+/demand/detector/rotate false
+
+## module 3
+/demand/detector/module
+/demand/detector/nx 1
+/demand/detector/ny 1
+/demand/detector/nz 1
+
+/demand/detector/wx 3 cm
+/demand/detector/wy 3 cm
+/demand/detector/wz 3 cm
+
+/demand/detector/xpos  30 mm
+/demand/detector/ypos  30 mm
+/demand/detector/zpos  120 mm
+/demand/detector/thresh 100 keV
+/demand/detector/readout cube
+/demand/detector/rotate false
+
+## module 4
+/demand/detector/module
+/demand/detector/nx 1
+/demand/detector/ny 1
+/demand/detector/nz 1
+
+/demand/detector/wx 3 cm
+/demand/detector/wy 3 cm
+/demand/detector/wz 3 cm
+
+/demand/detector/xpos -30 mm
+/demand/detector/ypos   0 mm
+/demand/detector/zpos  120 mm
+/demand/detector/thresh 100 keV
+/demand/detector/readout cube
+/demand/detector/rotate false
+
+## module 5
+/demand/detector/module
+/demand/detector/nx 1
+/demand/detector/ny 1
+/demand/detector/nz 1
+
+/demand/detector/wx 3 cm
+/demand/detector/wy 3 cm
+/demand/detector/wz 3 cm
+
+/demand/detector/xpos  30 mm
+/demand/detector/ypos   0 mm
+/demand/detector/zpos  120 mm
+/demand/detector/thresh 100 keV
+/demand/detector/readout cube
+/demand/detector/rotate false
+
+## module 6
+/demand/detector/module
+/demand/detector/nx 1
+/demand/detector/ny 1
+/demand/detector/nz 1
+
+/demand/detector/wx 3 cm
+/demand/detector/wy 3 cm
+/demand/detector/wz 3 cm
+
+/demand/detector/xpos -30 mm
+/demand/detector/ypos -30 mm
+/demand/detector/zpos  120 mm
+/demand/detector/thresh 100 keV
+/demand/detector/readout cube
+/demand/detector/rotate false
+
+## module 7
+/demand/detector/module
+/demand/detector/nx 1
+/demand/detector/ny 1
+/demand/detector/nz 1
+
+/demand/detector/wx 3 cm
+/demand/detector/wy 3 cm
+/demand/detector/wz 3 cm
+
+/demand/detector/xpos   0 mm
+/demand/detector/ypos -30 mm
+/demand/detector/zpos  120 mm
+/demand/detector/thresh 100 keV
+/demand/detector/readout cube
+/demand/detector/rotate false
+
+## module 8
+/demand/detector/module
+/demand/detector/nx 1
+/demand/detector/ny 1
+/demand/detector/nz 1
+
+/demand/detector/wx 3 cm
+/demand/detector/wy 3 cm
+/demand/detector/wz 3 cm
+
+/demand/detector/xpos  30 mm
+/demand/detector/ypos -30 mm
+/demand/detector/zpos  120 mm
+/demand/detector/thresh 100 keV
+/demand/detector/readout cube
+/demand/detector/rotate false
+
+
+/demand/detector/target/material He
+/demand/detector/target/thickness 12.3 centimeter
+
+/demand/detector/usedragon false
+/demand/detector/usechamber true

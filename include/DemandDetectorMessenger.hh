@@ -64,7 +64,7 @@ class DemandDetectorMessenger: public G4UImessenger
 	G4UIcmdWithADoubleAndUnit* fSheetYCmd;
 	G4UIcmdWithADoubleAndUnit* fSheetZCmd;
 
-
+	G4UIcmdWithABool* fScintillationCmd = nullptr;
 };
 
 #endif

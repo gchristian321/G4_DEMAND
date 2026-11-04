@@ -1,0 +1,3 @@
+/data/experiments/g4data/luke-hs/G4_DEMAND/build/CMakeFiles/DEMAND.dir
+/data/experiments/g4data/luke-hs/G4_DEMAND/build/CMakeFiles/edit_cache.dir
+/data/experiments/g4data/luke-hs/G4_DEMAND/build/CMakeFiles/rebuild_cache.dir

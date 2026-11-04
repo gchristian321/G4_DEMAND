@@ -37,6 +37,8 @@
 #include "G4IonisParamMat.hh"
 #include "G4VisExtent.hh"
 #include "G4MaterialPropertiesTable.hh"
+#include "G4OpticalSurface.hh"
+#include "G4LogicalSkinSurface.hh"
 
 // Auto-generated code for skeleton frame parts
 #include "skelframe/FrontFrameUpper.inc"
@@ -55,6 +57,7 @@
 #include "skelframe/HorizontalSupportUpper.inc"
 #include "skelframe/HorizontalSupportLower.inc"
 
+// PMT and scintillation vectors
 #include "optical_vectors.inc"
 
 
@@ -96,6 +99,8 @@ DemandDetectorConstruction::DemandDetectorConstruction()
   fMatMuMetal = new G4Material("MuMetal_80Ni20Fe", 8.7*g/cm3, 2);
   fMatMuMetal->AddElement(elNi, 0.80);
   fMatMuMetal->AddElement(elFe, 0.20);
+
+
 
 }
 
@@ -476,16 +481,19 @@ G4Material* DemandDetectorConstruction::GetScintillatorMaterial()
 
 		mpt->AddProperty("RINDEX", energy, rindex);
 		mpt->AddProperty("ABSLENGTH", energy, absLength);
-		mpt->AddProperty("SCINTILLATIONCOMPONENT1", energy, scint);
 
-		mpt->AddConstProperty("SCINTILLATIONYIELD", 20000./MeV);
-		mpt->AddConstProperty("SCINTILLATIONTIMECONSTANT1", 3.0*ns);
-		mpt->AddConstProperty("RESOLUTIONSCALE", 1.0);
-
+		if (fUseScintillation) {
+			mpt->AddProperty("SCINTILLATIONCOMPONENT1", energy, scint);
+			mpt->AddConstProperty("SCINTILLATIONYIELD", 20000./MeV);
+			mpt->AddConstProperty("SCINTILLATIONTIMECONSTANT1", 3.0*ns);
+			mpt->AddConstProperty("RESOLUTIONSCALE", 1.0);
+		}
+		
 		material->SetMaterialPropertiesTable(mpt);
 		
 
 	}
+
 	return material;
 }
 
@@ -845,6 +853,40 @@ G4LogicalVolume* DemandDetectorConstruction::ConstructS2230CasingAssembly()
 										glassLV, "GLASSPV", airLV, false, 0, true
 		);
 
+
+
+	// PMT Optical Surface
+        auto* pmtSurface = new G4OpticalSurface("PMTSurface");
+
+	auto* pmtSkin = new G4LogicalSkinSurface("PMTSkin", glassLV, pmtSurface);
+
+	pmtSurface->SetType(dielectric_metal);
+	pmtSurface->SetModel(unified);
+	pmtSurface->SetFinish(polished);
+
+	auto* pmtSurfaceProperty = new G4MaterialPropertiesTable();
+
+        std::vector<G4double> reflectivity(energy.size(), 0.0); //
+	std::vector<G4double>  fullEff(energy.size(), 1.0);
+
+	//pmtSurfaceProperty->AddProperty("EFFICIENCY", energy, fullEff); // test
+        pmtSurfaceProperty->AddProperty("EFFICIENCY", energy, quantEff);	// in "optical_vectors"
+        pmtSurfaceProperty->AddProperty("REFLECTIVITY", energy, reflectivity);
+
+        pmtSurface->SetMaterialPropertiesTable(pmtSurfaceProperty);
+
+
+	// Air gap
+	std::vector<G4double> airRindex(energy.size(), 1.0);
+
+        auto*  airProperty = new G4MaterialPropertiesTable();
+
+	airProperty->AddProperty("RINDEX", energy, airRindex);
+
+        fMatAir->SetMaterialPropertiesTable(airProperty);
+
+
+
 	// Mu Metal shielding
 	const G4double muMetalThickness = 0.8*mm;
 	const G4double muMetalDiam = pmt_diam_outer + 0.02*mm;
@@ -859,7 +901,7 @@ G4LogicalVolume* DemandDetectorConstruction::ConstructS2230CasingAssembly()
 	new G4PVPlacement(pmtRot,
 										G4ThreeVector(pmtPos,0,0),
 										muMetalLV, "MuMetalPV", airLV, false, 0, true
-		);																		
+		);
 
 	// PMT collars (Al): square plate with circular hole (aligned to PMT axis)
 	// In CAD, collar is 37x37x3.175.  But it actually fits into a notch in the

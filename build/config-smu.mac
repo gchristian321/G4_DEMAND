@@ -1,0 +1,24 @@
+/demand/detector/S2230
+
+/demand/detector/S2230_thresh 0 100 keV
+/demand/detector/S2230_thresh 1 100 keV
+/demand/detector/S2230_thresh 2 100 keV
+/demand/detector/S2230_thresh 3 100 keV
+/demand/detector/S2230_thresh 4 100 keV
+/demand/detector/S2230_thresh 5 100 keV
+/demand/detector/S2230_thresh 6 100 keV
+/demand/detector/S2230_thresh 7 100 keV
+
+/demand/detector/usedragon false
+/demand/detector/usechamber false
+
+# To turn off shield, set T,W,H = 0
+/demand/detector/sheetMaterial G4_Al
+/demand/detector/sheetThickness 0 mm
+/demand/detector/sheetWidth 1 mm
+/demand/detector/sheetHeight 1 mm
+/demand/detector/sheetX 0 mm
+/demand/detector/sheetY 0 mm
+/demand/detector/sheetZ -100 mm
+
+/demand/detector/scintillation true

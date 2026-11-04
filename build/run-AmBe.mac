@@ -1,0 +1,17 @@
+# AmBe neutron source
+/run/initialize
+
+/demand/generator/reaction none
+/demand/generator/source/Z 0
+/demand/generator/source/A 1
+/demand/gnerator/AmBe
+
+/demand/generator/source/theta 0 180 0 deg
+/demand/generator/source/phi 0 360 0 deg
+/demand/generator/source/position 0 0 -5  cm
+
+/run/printProgress 1000
+/run/beamOn 1000000
+
+
+
